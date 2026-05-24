@@ -6,5 +6,4 @@ class ProfilesConfig(AppConfig):
     name = 'app.profiles'
 
     def ready(self):
-        """Import signals when app is ready."""
         import app.profiles.signals  # noqa

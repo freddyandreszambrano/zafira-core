@@ -1,30 +1,22 @@
-from .views import (
-    # Index/Root
-    IndexRedirectView,
-    # Web Views
-    LoginView,
-    RegisterView,
-    LogoutView,
+from .users import UserCreate, UserDelete, UserListView, UserUpdate
+from .web import (
     DashboardView,
-    UsersListView,
-    # AJAX Views
-    ListUsersAjaxView,
-    EditUserAjaxView,
-    DeleteUserAjaxView,
-    ChangePasswordAjaxView,
-    ResetPasswordAjaxView,
+    IndexRedirectView,
+    LoginView,
+    LogoutView,
+    PasswordChangeView,
+    ProfileEditView,
+    ProfileManageView,
+    ProfileUpdateAPIView,
+    ProfileView,
+    RegisterView,
 )
 
 __all__ = [
     'IndexRedirectView',
-    'LoginView',
-    'RegisterView',
-    'LogoutView',
+    'LoginView', 'RegisterView', 'LogoutView',
     'DashboardView',
-    'UsersListView',
-    'ListUsersAjaxView',
-    'EditUserAjaxView',
-    'DeleteUserAjaxView',
-    'ChangePasswordAjaxView',
-    'ResetPasswordAjaxView',
+    'UserListView', 'UserCreate', 'UserUpdate', 'UserDelete',
+    'ProfileView', 'ProfileEditView', 'ProfileManageView',
+    'PasswordChangeView', 'ProfileUpdateAPIView',
 ]
