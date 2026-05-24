@@ -4,29 +4,67 @@
 {% block title %}{{ title|default:'Listado' }} - ZAFIRA{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gradient-to-br from-white via-zafira-primary-soft/30 to-zafira-secondary-soft/30 py-10">
+<div class="min-h-screen bg-gradient-to-br from-white via-zafira-primary-soft/20 to-zafira-secondary-soft/20 py-10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between mb-8">
-            <h1 class="text-3xl font-bold zafira-text-gradient">{{ title|default:'Listado' }}</h1>
-            {% if create_url %}
-                <a href="{{ create_url }}" class="gradient-primary zafira-glow text-white font-bold px-5 py-2.5 rounded-xl inline-flex items-center transition-transform hover:-translate-y-0.5">
-                    <i class="fas fa-plus mr-2"></i>Nuevo
-                </a>
-            {% endif %}
+
+        {# ── Header ──────────────────────────────────────────────────── #}
+        <div class="flex items-start justify-between mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-zafira-obsidian">{{ title|default:'Listado' }}</h1>
+                {% block list_subtitle %}
+                    {% if subtitle %}
+                        <p class="text-sm text-zafira-slate-deep mt-1">{{ subtitle }}</p>
+                    {% endif %}
+                {% endblock %}
+            </div>
+
+            <div class="flex items-center gap-2">
+                {% block list_actions_extra %}{% endblock %}
+                {% if create_url %}
+                    <a href="{{ create_url }}" class="z-btn-primary">
+                        <i class="fas fa-plus"></i>
+                        <span>{{ create_label|default:'Nuevo' }}</span>
+                    </a>
+                {% endif %}
+            </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-md overflow-hidden p-6">
-            <table id="data" class="w-full">
-                <thead class="bg-zafira-slate-soft/40">
-                    <tr>
-                        {% block columns %}{% endblock %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% block rows %}{% endblock %}
-                </tbody>
-            </table>
+        {# ── Card con toolbar + tabla + footer ───────────────────────── #}
+        <div class="z-table-card">
+
+            <div class="z-table-toolbar">
+                <div class="z-search">
+                    <i class="fas fa-search"></i>
+                    <input type="search"
+                           placeholder="{{ search_placeholder|default:'Buscar...' }}"
+                           data-table-search="#data"
+                           autocomplete="off">
+                </div>
+
+                {% block list_filters %}{% endblock %}
+
+                <div class="ml-auto flex items-center gap-2">
+                    {% block list_toolbar_extra %}{% endblock %}
+                    <button type="button" class="z-btn-ghost" data-table-refresh="#data" title="Recargar">
+                        <i class="fas fa-rotate"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table id="data" class="w-full">
+                    <thead>
+                        <tr>
+                            {% block columns %}{% endblock %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% block rows %}{% endblock %}
+                    </tbody>
+                </table>
+            </div>
         </div>
+
     </div>
 </div>
 {% endblock %}

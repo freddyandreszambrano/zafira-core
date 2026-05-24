@@ -1,71 +1,41 @@
 {% extends 'list.html' %}
 
 {% block columns %}
-    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Nombre</th>
-    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Icono</th>
-    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Orden</th>
-    <th class="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider">Activo</th>
-    <th class="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider">Acciones</th>
+    <th>Nombre</th>
+    <th>Icono</th>
+    <th class="text-center">Orden</th>
+    <th class="text-center">Estado</th>
+    <th class="text-center">Acciones</th>
 {% endblock %}
 
 {% block javascript_list %}
 <script>
-    let tbl;
     $(function () {
-        tbl = $('#data').DataTable({
-            destroy: true,
-            processing: true,
-            serverSide: true,
-            ajax: {
-                url: pathname,
-                type: 'POST',
-                headers: { 'X-CSRFToken': csrftoken },
-                data: function (d) {
-                    d.action = 'search';
-                    d.page = d.start / d.length + 1;
-                    d.page_size = d.length;
-                    d.search.value = $('#data_filter input').val();
-                },
-                dataSrc: 'data',
+        Zafira.dataTable('#data', [
+            { data: 'name' },
+            {
+                data: 'icon',
+                render: data => data
+                    ? `<span class="inline-flex items-center justify-center w-8 h-8 rounded-lg gradient-soft"><i class="${data} text-zafira-primary"></i></span>`
+                    : '<span class="text-zafira-slate">—</span>',
             },
-            columns: [
-                { data: 'name' },
-                {
-                    data: 'icon',
-                    render: function (data) { return data ? `<i class="${data}"></i>` : '-'; },
-                },
-                { data: 'order' },
-                {
-                    data: 'is_active',
-                    className: 'text-center',
-                    render: function (data) {
-                        const cls = data ? 'bg-zafira-primary-soft text-zafira-primary' : 'bg-zafira-slate-soft text-zafira-slate-deep';
-                        return `<a rel="toggle_btn" class="cursor-pointer px-3 py-1 text-xs font-semibold rounded-full ${cls}">${data ? 'Activo' : 'Inactivo'}</a>`;
-                    },
-                },
-                {
-                    data: 'id',
-                    className: 'text-center',
-                    render: function (data) {
-                        return `
-                            <a href="${pathname}update/${data}/" class="text-zafira-secondary mx-1"><i class="fas fa-edit"></i></a>
-                            <a href="${pathname}delete/${data}/" class="text-zafira-primary mx-1"><i class="fas fa-trash"></i></a>
-                        `;
-                    },
-                },
-            ],
-        });
-
-        $('#data tbody').on('click', 'a[rel="toggle_btn"]', function () {
-            const row = tbl.row($(this).closest('tr')).data();
-            submit_with_ajax(
-                'Notificación',
-                row.is_active ? '¿Desactivar?' : '¿Activar?',
-                pathname,
-                { id: row.id, action: 'activate' },
-                () => tbl.ajax.reload(),
-            );
-        });
+            {
+                data: 'order',
+                className: 'text-center',
+                render: data => `<span class="font-semibold text-zafira-slate-deep">${data}</span>`,
+            },
+            {
+                data: 'is_active',
+                className: 'text-center',
+                render: data => Zafira.statusBadge(data),
+            },
+            {
+                data: 'id',
+                className: 'text-center',
+                orderable: false,
+                render: id => Zafira.rowActions(id),
+            },
+        ], { toggleConfirm: '¿Cambiar el estado de este tipo de módulo?' });
     });
 </script>
 {% endblock %}

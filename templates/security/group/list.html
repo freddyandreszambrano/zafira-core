@@ -1,66 +1,43 @@
 {% extends 'list.html' %}
 
 {% block columns %}
-    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Nombre</th>
-    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Descripción</th>
-    <th class="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider">Activo</th>
-    <th class="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider">Acciones</th>
+    <th>Nombre</th>
+    <th>Descripción</th>
+    <th class="text-center">Estado</th>
+    <th class="text-center">Acciones</th>
 {% endblock %}
 
 {% block javascript_list %}
 <script>
-    let tbl;
     $(function () {
-        tbl = $('#data').DataTable({
-            destroy: true,
-            processing: true,
-            serverSide: true,
-            ajax: {
-                url: pathname,
-                type: 'POST',
-                headers: { 'X-CSRFToken': csrftoken },
-                data: function (d) {
-                    d.action = 'search';
-                    d.page = d.start / d.length + 1;
-                    d.page_size = d.length;
-                    d.search.value = $('#data_filter input').val();
-                },
-                dataSrc: 'data',
+        Zafira.dataTable('#data', [
+            {
+                data: 'name',
+                render: data => `<div class="flex items-center gap-3">
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg gradient-soft">
+                        <i class="fas fa-user-tag text-zafira-primary text-xs"></i>
+                    </span>
+                    <span class="font-medium">${data}</span>
+                </div>`,
             },
-            columns: [
-                { data: 'name' },
-                { data: 'description', defaultContent: '-' },
-                {
-                    data: 'is_active',
-                    className: 'text-center',
-                    render: function (data) {
-                        const cls = data ? 'bg-zafira-primary-soft text-zafira-primary' : 'bg-zafira-slate-soft text-zafira-slate-deep';
-                        return `<a rel="toggle_btn" class="cursor-pointer px-3 py-1 text-xs font-semibold rounded-full ${cls}">${data ? 'Activo' : 'Inactivo'}</a>`;
-                    },
-                },
-                {
-                    data: 'id',
-                    className: 'text-center',
-                    render: function (data) {
-                        return `
-                            <a href="${pathname}update/${data}/" class="text-zafira-secondary mx-1"><i class="fas fa-edit"></i></a>
-                            <a href="${pathname}delete/${data}/" class="text-zafira-primary mx-1"><i class="fas fa-trash"></i></a>
-                        `;
-                    },
-                },
-            ],
-        });
-
-        $('#data tbody').on('click', 'a[rel="toggle_btn"]', function () {
-            const row = tbl.row($(this).closest('tr')).data();
-            submit_with_ajax(
-                'Notificación',
-                row.is_active ? '¿Desactivar grupo?' : '¿Activar grupo?',
-                pathname,
-                { id: row.id, action: 'activate' },
-                () => tbl.ajax.reload(),
-            );
-        });
+            {
+                data: 'description',
+                render: data => data
+                    ? `<span class="text-zafira-slate-deep">${data}</span>`
+                    : '<span class="text-zafira-slate">Sin descripción</span>',
+            },
+            {
+                data: 'is_active',
+                className: 'text-center',
+                render: data => Zafira.statusBadge(data),
+            },
+            {
+                data: 'id',
+                className: 'text-center',
+                orderable: false,
+                render: id => Zafira.rowActions(id),
+            },
+        ], { toggleConfirm: '¿Cambiar el estado de este grupo?' });
     });
 </script>
 {% endblock %}

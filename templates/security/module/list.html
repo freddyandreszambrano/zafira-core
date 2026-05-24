@@ -1,76 +1,42 @@
 {% extends 'list.html' %}
 
 {% block columns %}
-    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Nombre</th>
-    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">URL</th>
-    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Tipo</th>
-    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Icono</th>
-    <th class="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider">Activo</th>
-    <th class="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider">Acciones</th>
+    <th>Nombre</th>
+    <th>URL</th>
+    <th>Tipo</th>
+    <th>Icono</th>
+    <th class="text-center">Estado</th>
+    <th class="text-center">Acciones</th>
 {% endblock %}
 
 {% block javascript_list %}
 <script>
-    let tbl;
     $(function () {
-        tbl = $('#data').DataTable({
-            destroy: true,
-            processing: true,
-            serverSide: true,
-            ajax: {
-                url: pathname,
-                type: 'POST',
-                headers: { 'X-CSRFToken': csrftoken },
-                data: function (d) {
-                    d.action = 'search';
-                    d.page = d.start / d.length + 1;
-                    d.page_size = d.length;
-                    d.search.value = $('#data_filter input').val();
-                },
-                dataSrc: 'data',
+        Zafira.dataTable('#data', [
+            { data: 'name' },
+            {
+                data: 'url',
+                render: data => `<code class="px-2 py-0.5 rounded bg-zafira-slate-soft/40 text-xs text-zafira-slate-deep">${data}</code>`,
             },
-            columns: [
-                { data: 'name' },
-                { data: 'url' },
-                { data: 'module_type', defaultContent: '-' },
-                {
-                    data: 'icon',
-                    render: function (data) {
-                        return data ? `<i class="${data} text-zafira-primary"></i>` : '-';
-                    },
-                },
-                {
-                    data: 'is_active',
-                    className: 'text-center',
-                    render: function (data, type, row) {
-                        const cls = data ? 'bg-zafira-primary-soft text-zafira-primary' : 'bg-zafira-slate-soft text-zafira-slate-deep';
-                        const label = data ? 'Activo' : 'Inactivo';
-                        return `<a rel="toggle_btn" class="cursor-pointer px-3 py-1 text-xs font-semibold rounded-full ${cls}">${label}</a>`;
-                    },
-                },
-                {
-                    data: 'id',
-                    className: 'text-center',
-                    render: function (data) {
-                        return `
-                            <a href="${pathname}update/${data}/" class="text-zafira-secondary hover:text-zafira-primary mx-1" title="Editar"><i class="fas fa-edit"></i></a>
-                            <a href="${pathname}delete/${data}/" class="text-zafira-primary hover:opacity-80 mx-1" title="Eliminar"><i class="fas fa-trash"></i></a>
-                        `;
-                    },
-                },
-            ],
-        });
-
-        $('#data tbody').on('click', 'a[rel="toggle_btn"]', function () {
-            const row = tbl.row($(this).closest('tr')).data();
-            submit_with_ajax(
-                'Notificación',
-                row.is_active ? '¿Desea desactivar este módulo?' : '¿Desea activar este módulo?',
-                pathname,
-                { id: row.id, action: 'activate' },
-                () => tbl.ajax.reload(),
-            );
-        });
+            { data: 'module_type', defaultContent: '<span class="text-zafira-slate">—</span>' },
+            {
+                data: 'icon',
+                render: data => data
+                    ? `<span class="inline-flex items-center justify-center w-8 h-8 rounded-lg gradient-soft"><i class="${data} text-zafira-primary"></i></span>`
+                    : '<span class="text-zafira-slate">—</span>',
+            },
+            {
+                data: 'is_active',
+                className: 'text-center',
+                render: data => Zafira.statusBadge(data),
+            },
+            {
+                data: 'id',
+                className: 'text-center',
+                orderable: false,
+                render: id => Zafira.rowActions(id),
+            },
+        ], { toggleConfirm: '¿Cambiar el estado de este módulo?' });
     });
 </script>
 {% endblock %}
