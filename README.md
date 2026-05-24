@@ -353,8 +353,21 @@ python manage.py showmigrations
 
 - **`SETUP_GUIDE.md`** - Guía completa de instalación
 - **`DATABASE_SETUP.md`** - Configuración de bases de datos
+- **`docs/DESIGN_SYSTEM.md`** - 🎨 Sistema de diseño ZAFIRA (colores, utilities Tailwind, patrones de componentes)
+- **`docs/stich/DESIGN.md`** - Guías completas de marca (tipografía, layout, UX)
 - **`quick_setup.py`** - Script de setup automático
 - **`setup_db.py`** - Setup manual alternativo
+
+### 🎨 Colores de Marca ZAFIRA (Quick Reference)
+
+| Token Tailwind | Hex | Uso |
+|---|---|---|
+| `zafira-primary` | `#FF3BBE` | Cyber-Magenta - Acciones principales |
+| `zafira-secondary` | `#8E54FF` | Electric-Violet - Acciones secundarias |
+| `zafira-obsidian` | `#090101` | Obsidian - Fondos oscuros, sombras |
+| `zafira-slate` | `#94A3BB` | Cool Slate - Texto secundario, bordes |
+
+Ver `docs/DESIGN_SYSTEM.md` para la paleta completa y patrones de uso.
 
 ---
 
