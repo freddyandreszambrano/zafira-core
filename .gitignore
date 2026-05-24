@@ -39,3 +39,7 @@ Thumbs.db
 # Codex/local assistant files
 .agents/
 .codex/
+
+# Claude Code — config local y memoria personal (NO versionar)
+.claude/settings.local.json
+.claude/projects/
