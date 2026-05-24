@@ -41,7 +41,7 @@
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8fafc; }
 
         .gradient-primary { background: linear-gradient(135deg, #FF3BBE 0%, #8E54FF 100%); }
         .gradient-dark    { background: linear-gradient(135deg, #090101 0%, #1F1F23 100%); }
@@ -54,16 +54,250 @@
             color: transparent;
             -webkit-text-fill-color: transparent;
         }
-
         .zafira-glow:hover {
             box-shadow: 0 0 0 4px rgba(255, 59, 190, 0.15), 0 12px 30px -10px rgba(255, 59, 190, 0.45);
             transition: box-shadow .25s ease, transform .25s ease;
         }
 
         /* ──────────────────────────────────────────────────────────────
-         * ZAFIRA Data Table — diseño moderno (override DataTables)
+         * Sidebar layout
          * ────────────────────────────────────────────────────────────── */
+        .z-shell { display: flex; min-height: 100vh; }
 
+        .z-sidebar {
+            width: 260px;
+            flex-shrink: 0;
+            background: #fff;
+            border-right: 1px solid #f1f5f9;
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            transition: transform .3s ease;
+        }
+        .z-sidebar::-webkit-scrollbar { width: 4px; }
+        .z-sidebar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 4px; }
+
+        .z-sidebar__logo {
+            padding: 1.5rem 1.25rem 1.25rem;
+            border-bottom: 1px solid #f8fafc;
+        }
+        .z-sidebar__nav { flex: 1; padding: 1rem .85rem; }
+
+        .z-sidebar__home {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            padding: .65rem .85rem;
+            border-radius: .65rem;
+            color: #475569;
+            font-size: .9rem;
+            font-weight: 500;
+            transition: all .15s ease;
+        }
+        .z-sidebar__home:hover { background: #FFE5F6; color: #FF3BBE; }
+        .z-sidebar__home.is-active {
+            background: linear-gradient(135deg, #FF3BBE 0%, #8E54FF 100%);
+            color: #fff;
+            box-shadow: 0 4px 12px -2px rgba(255, 59, 190, .35);
+        }
+        .z-sidebar__home.is-active i { color: #fff !important; }
+
+        .z-group {
+            margin-top: .85rem;
+        }
+        .z-group__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: .5rem .85rem .35rem;
+            color: #94A3BB;
+            font-size: .65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            cursor: pointer;
+            user-select: none;
+        }
+        .z-group__header:hover { color: #475569; }
+        .z-group__chevron { transition: transform .2s ease; font-size: .55rem; }
+        .z-group[data-open="false"] .z-group__chevron { transform: rotate(-90deg); }
+        .z-group[data-open="false"] .z-group__items { display: none; }
+        .z-group__items { display: flex; flex-direction: column; gap: 2px; }
+
+        .z-nav-link {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            padding: .55rem .85rem;
+            border-radius: .55rem;
+            color: #475569;
+            font-size: .875rem;
+            transition: all .15s ease;
+            position: relative;
+        }
+        .z-nav-link:hover { background: #f8fafc; color: #FF3BBE; }
+        .z-nav-link i {
+            width: 1rem;
+            text-align: center;
+            color: #94A3BB;
+            transition: color .15s ease;
+            font-size: .8rem;
+        }
+        .z-nav-link:hover i { color: #FF3BBE; }
+        .z-nav-link.is-active {
+            background: #FFE5F6;
+            color: #FF3BBE;
+            font-weight: 600;
+        }
+        .z-nav-link.is-active i { color: #FF3BBE; }
+        .z-nav-link.is-active::before {
+            content: '';
+            position: absolute;
+            left: -.85rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 1.25rem;
+            background: linear-gradient(135deg, #FF3BBE 0%, #8E54FF 100%);
+            border-radius: 0 3px 3px 0;
+        }
+
+        .z-sidebar__footer {
+            padding: .85rem;
+            border-top: 1px solid #f8fafc;
+        }
+
+        .z-user-card {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            padding: .65rem .75rem;
+            border-radius: .75rem;
+            cursor: pointer;
+            transition: background .15s ease;
+            position: relative;
+        }
+        .z-user-card:hover { background: #f8fafc; }
+        .z-avatar {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.25rem;
+            height: 2.25rem;
+            border-radius: 9999px;
+            background: linear-gradient(135deg, #FF3BBE 0%, #8E54FF 100%);
+            color: #fff;
+            font-weight: 700;
+            font-size: .75rem;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px -2px rgba(255, 59, 190, .35);
+        }
+
+        .z-main { flex: 1; min-width: 0; }
+
+        .z-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: .85rem 1.5rem;
+            background: rgba(255, 255, 255, .85);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid #f1f5f9;
+            position: sticky;
+            top: 0;
+            z-index: 40;
+        }
+
+        .z-topbar__title { font-size: 1rem; font-weight: 600; color: #0f172a; }
+        .z-topbar__crumb { font-size: .8rem; color: #94A3BB; }
+
+        .z-mobile-btn {
+            display: none;
+            background: #f8fafc;
+            border: 1px solid #f1f5f9;
+            border-radius: .55rem;
+            padding: .5rem .65rem;
+            color: #475569;
+            cursor: pointer;
+        }
+        @media (max-width: 1023px) {
+            .z-mobile-btn { display: inline-flex; }
+            .z-sidebar {
+                position: fixed;
+                z-index: 50;
+                transform: translateX(-100%);
+            }
+            .z-sidebar.is-open { transform: translateX(0); box-shadow: 0 20px 40px rgba(0,0,0,.15); }
+            .z-shell::before {
+                content: '';
+                display: none;
+                position: fixed; inset: 0;
+                background: rgba(15, 23, 42, .5);
+                z-index: 45;
+            }
+            .z-shell.is-overlay::before { display: block; }
+        }
+
+        /* ──────────────────────────────────────────────────────────────
+         * Dropdown reutilizable
+         * ────────────────────────────────────────────────────────────── */
+        .z-dropdown { position: relative; display: inline-block; }
+        .z-dropdown__menu {
+            position: absolute;
+            min-width: 220px;
+            background: #fff;
+            border: 1px solid #f1f5f9;
+            border-radius: .75rem;
+            box-shadow: 0 12px 32px -8px rgba(15, 23, 42, .15);
+            padding: .35rem;
+            z-index: 60;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-4px);
+            transition: opacity .15s ease, transform .15s ease, visibility .15s;
+        }
+        .z-dropdown__menu[data-placement="top-right"]    { right: 0; bottom: calc(100% + 6px); transform: translateY(4px); }
+        .z-dropdown__menu[data-placement="bottom-right"] { right: 0; top: calc(100% + 6px); }
+        .z-dropdown__menu[data-placement="bottom-left"]  { left: 0; top: calc(100% + 6px); }
+        .z-dropdown.is-open > .z-dropdown__menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .z-dropdown__item {
+            display: flex;
+            align-items: center;
+            gap: .65rem;
+            padding: .55rem .75rem;
+            border-radius: .5rem;
+            color: #475569;
+            font-size: .85rem;
+            cursor: pointer;
+            transition: all .12s ease;
+            text-align: left;
+            width: 100%;
+            background: none;
+            border: 0;
+        }
+        .z-dropdown__item:hover { background: #FFE5F6; color: #FF3BBE; }
+        .z-dropdown__item--danger:hover { background: #fee2e2; color: #dc2626; }
+        .z-dropdown__item i { width: 1rem; text-align: center; font-size: .8rem; }
+        .z-dropdown__divider { height: 1px; background: #f1f5f9; margin: .35rem 0; }
+        .z-dropdown__label {
+            padding: .35rem .75rem;
+            font-size: .65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: #94A3BB;
+        }
+
+        /* ──────────────────────────────────────────────────────────────
+         * Table card + DataTables overrides (sin cambio)
+         * ────────────────────────────────────────────────────────────── */
         .z-table-card {
             background: #fff;
             border-radius: 1rem;
@@ -71,30 +305,14 @@
             border: 1px solid #f1f5f9;
             overflow: hidden;
         }
-
         .z-table-toolbar {
-            display: flex;
-            align-items: center;
-            gap: .75rem;
+            display: flex; align-items: center; gap: .75rem;
             padding: 1rem 1.25rem;
             border-bottom: 1px solid #f1f5f9;
             flex-wrap: wrap;
         }
-
-        .z-search {
-            position: relative;
-            flex: 1;
-            min-width: 220px;
-            max-width: 360px;
-        }
-        .z-search > i {
-            position: absolute;
-            left: .85rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #94A3BB;
-            font-size: .85rem;
-        }
+        .z-search { position: relative; flex: 1; min-width: 220px; max-width: 360px; }
+        .z-search > i { position: absolute; left: .85rem; top: 50%; transform: translateY(-50%); color: #94A3BB; font-size: .85rem; }
         .z-search > input {
             width: 100%;
             padding: .55rem .85rem .55rem 2.25rem;
@@ -112,265 +330,229 @@
             border-color: #FF3BBE;
             box-shadow: 0 0 0 3px rgba(255, 59, 190, .12);
         }
-
         .z-btn-ghost {
-            display: inline-flex;
-            align-items: center;
-            gap: .5rem;
+            display: inline-flex; align-items: center; gap: .5rem;
             padding: .55rem .9rem;
             background: #f8fafc;
             border: 1px solid #f1f5f9;
             border-radius: .65rem;
             color: #475569;
-            font-size: .825rem;
-            font-weight: 500;
+            font-size: .825rem; font-weight: 500;
             cursor: pointer;
             transition: all .15s ease;
         }
-        .z-btn-ghost:hover {
-            background: #FFE5F6;
-            border-color: #FFB6E2;
-            color: #FF3BBE;
-        }
-
+        .z-btn-ghost:hover { background: #FFE5F6; border-color: #FFB6E2; color: #FF3BBE; }
         .z-btn-primary {
-            display: inline-flex;
-            align-items: center;
-            gap: .5rem;
+            display: inline-flex; align-items: center; gap: .5rem;
             padding: .55rem 1rem;
             background: linear-gradient(135deg, #FF3BBE 0%, #8E54FF 100%);
             border-radius: .65rem;
             color: #fff;
-            font-size: .825rem;
-            font-weight: 600;
+            font-size: .825rem; font-weight: 600;
             box-shadow: 0 4px 12px -2px rgba(255, 59, 190, .35);
             transition: all .2s ease;
         }
-        .z-btn-primary:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 8px 20px -4px rgba(255, 59, 190, .5);
-        }
+        .z-btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 20px -4px rgba(255, 59, 190, .5); }
 
-        /* DataTable element overrides */
-        table.dataTable {
-            width: 100% !important;
-            margin: 0 !important;
-            border-collapse: separate !important;
-            border-spacing: 0 !important;
-        }
+        table.dataTable { width: 100% !important; margin: 0 !important; border-collapse: separate !important; border-spacing: 0 !important; }
         table.dataTable thead th {
             padding: .85rem 1.25rem !important;
             background: #f8fafc;
             border-bottom: 1px solid #f1f5f9 !important;
             border-top: 0 !important;
             color: #475569;
-            font-size: .7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: .04em;
+            font-size: .7rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: .04em;
             text-align: left;
         }
         table.dataTable thead th.text-center { text-align: center; }
         table.dataTable thead th.sorting,
         table.dataTable thead th.sorting_asc,
-        table.dataTable thead th.sorting_desc {
-            background-image: none !important;
-            position: relative;
-            cursor: pointer;
-        }
+        table.dataTable thead th.sorting_desc { background-image: none !important; position: relative; cursor: pointer; }
         table.dataTable thead th.sorting::after,
         table.dataTable thead th.sorting_asc::after,
         table.dataTable thead th.sorting_desc::after {
-            content: '\f0dc';
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
-            margin-left: .5rem;
-            font-size: .7rem;
-            opacity: .35;
+            content: '\f0dc'; font-family: 'Font Awesome 6 Free'; font-weight: 900;
+            margin-left: .5rem; font-size: .7rem; opacity: .35;
         }
-        table.dataTable thead th.sorting_asc::after { content: '\f0d8'; opacity: 1; color: #FF3BBE; }
+        table.dataTable thead th.sorting_asc::after  { content: '\f0d8'; opacity: 1; color: #FF3BBE; }
         table.dataTable thead th.sorting_desc::after { content: '\f0d7'; opacity: 1; color: #FF3BBE; }
-
         table.dataTable tbody td {
             padding: .9rem 1.25rem !important;
             border-bottom: 1px solid #f8fafc !important;
-            color: #0f172a;
-            font-size: .875rem;
-            vertical-align: middle;
+            color: #0f172a; font-size: .875rem; vertical-align: middle;
         }
         table.dataTable tbody td.text-center { text-align: center; }
         table.dataTable tbody tr:last-child td { border-bottom: 0 !important; }
         table.dataTable tbody tr:hover { background: #fef7fc !important; }
 
-        table.dataTable tbody tr.selected,
-        table.dataTable tbody tr.selected:hover { background: #FFE5F6 !important; }
-
-        /* Footer (info + pagination) */
         .z-table-footer {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            display: flex; align-items: center; justify-content: space-between;
             padding: 1rem 1.25rem;
             border-top: 1px solid #f1f5f9;
             background: #fafbfc;
-            flex-wrap: wrap;
-            gap: .75rem;
+            flex-wrap: wrap; gap: .75rem;
         }
-        .z-table-info {
-            color: #475569;
-            font-size: .8rem;
-        }
+        .z-table-info { color: #475569; font-size: .8rem; }
         .z-table-pager .paginate_button {
-            display: inline-flex !important;
-            align-items: center;
-            justify-content: center;
-            min-width: 2rem;
-            height: 2rem;
-            padding: 0 .65rem !important;
+            display: inline-flex !important; align-items: center; justify-content: center;
+            min-width: 2rem; height: 2rem; padding: 0 .65rem !important;
             margin: 0 .15rem !important;
             background: #fff !important;
             border: 1px solid #f1f5f9 !important;
             border-radius: .5rem !important;
             color: #475569 !important;
-            font-size: .8rem !important;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all .15s ease;
+            font-size: .8rem !important; font-weight: 500;
+            cursor: pointer; transition: all .15s ease;
         }
-        .z-table-pager .paginate_button:hover {
-            background: #FFE5F6 !important;
-            border-color: #FFB6E2 !important;
-            color: #FF3BBE !important;
-        }
+        .z-table-pager .paginate_button:hover { background: #FFE5F6 !important; border-color: #FFB6E2 !important; color: #FF3BBE !important; }
         .z-table-pager .paginate_button.current,
         .z-table-pager .paginate_button.current:hover {
             background: linear-gradient(135deg, #FF3BBE 0%, #8E54FF 100%) !important;
-            border-color: transparent !important;
-            color: #fff !important;
+            border-color: transparent !important; color: #fff !important;
             box-shadow: 0 4px 10px -2px rgba(255, 59, 190, .4);
         }
         .z-table-pager .paginate_button.disabled,
         .z-table-pager .paginate_button.disabled:hover {
-            opacity: .35;
-            cursor: not-allowed;
-            background: #fff !important;
-            color: #94A3BB !important;
+            opacity: .35; cursor: not-allowed;
+            background: #fff !important; color: #94A3BB !important;
         }
 
-        /* Status badge (pill) */
         .z-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: .4rem;
+            display: inline-flex; align-items: center; gap: .4rem;
             padding: .25rem .7rem;
             border-radius: 9999px;
-            font-size: .7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: .03em;
-            cursor: pointer;
-            border: 0;
+            font-size: .7rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: .03em;
+            cursor: pointer; border: 0;
         }
         .z-badge--on  { background: #FFE5F6; color: #b3007a; }
         .z-badge--off { background: #f1f5f9; color: #475569; }
-        .z-badge__dot {
-            width: .4rem;
-            height: .4rem;
-            border-radius: 9999px;
-        }
+        .z-badge__dot { width: .4rem; height: .4rem; border-radius: 9999px; }
         .z-badge--on  .z-badge__dot { background: #FF3BBE; box-shadow: 0 0 0 3px rgba(255,59,190,.15); }
         .z-badge--off .z-badge__dot { background: #94A3BB; }
 
-        /* Row actions (icon buttons) */
-        .z-row-actions {
-            display: inline-flex;
-            gap: .25rem;
-            justify-content: center;
-        }
+        .z-row-actions { display: inline-flex; gap: .25rem; justify-content: center; }
         .z-icon-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 2rem;
-            height: 2rem;
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 2rem; height: 2rem;
             border-radius: .5rem;
-            color: #94A3BB;
-            transition: all .15s ease;
+            color: #94A3BB; transition: all .15s ease;
         }
         .z-icon-btn:hover { background: #FFE5F6; color: #FF3BBE; }
         .z-icon-btn--danger:hover { background: #fee2e2; color: #dc2626; }
 
-        /* Empty state */
-        .dataTables_empty {
-            padding: 3rem 1.25rem !important;
-            text-align: center !important;
-            color: #94A3BB !important;
-            font-size: .9rem !important;
-        }
-
-        /* Processing overlay */
-        .dataTables_processing {
-            background: rgba(255, 255, 255, .85) !important;
-            border: 0 !important;
-            box-shadow: none !important;
-            color: #FF3BBE !important;
-            font-weight: 500 !important;
-        }
+        .dataTables_empty { padding: 3rem 1.25rem !important; text-align: center !important; color: #94A3BB !important; font-size: .9rem !important; }
+        .dataTables_processing { background: rgba(255, 255, 255, .85) !important; border: 0 !important; box-shadow: none !important; color: #FF3BBE !important; font-weight: 500 !important; }
     </style>
 
     {% block extra_css %}{% endblock %}
 </head>
-<body class="bg-gray-50">
-    {% if user.is_authenticated %}
-    <nav class="gradient-primary shadow-zafira sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <a href="{% url 'dashboard' %}" class="text-white text-2xl font-bold flex items-center">
-                    <i class="fas fa-shield-alt mr-3"></i>ZAFIRA
+<body>
+
+    <div class="z-shell" id="z-shell">
+
+        {# ── Sidebar ──────────────────────────────────────────── #}
+        <aside class="z-sidebar" id="z-sidebar">
+            <div class="z-sidebar__logo">
+                <a href="{% url 'dashboard' %}" class="flex items-center gap-3">
+                    <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl gradient-primary shadow-zafira">
+                        <i class="fas fa-shield-halved text-white text-lg"></i>
+                    </span>
+                    <div class="flex flex-col leading-tight">
+                        <span class="text-lg font-bold zafira-text-gradient tracking-tight">ZAFIRA</span>
+                        <span class="text-[10px] text-zafira-slate uppercase tracking-widest">Admin Suite</span>
+                    </div>
                 </a>
-                <div class="flex items-center space-x-6">
-                    <a href="{% url 'dashboard' %}" class="text-white hover:text-zafira-primary-soft transition">Dashboard</a>
-                    {% for type_name, type_modules in available_modules.items %}
-                        <div class="relative group">
-                            <button class="text-white hover:text-zafira-primary-soft transition flex items-center">
-                                {{ type_name }} <i class="fas fa-chevron-down ml-1 text-xs"></i>
-                            </button>
-                            <div class="absolute hidden group-hover:block bg-white rounded-xl shadow-zafira mt-2 py-2 min-w-[220px] right-0 z-50">
-                                {% for module in type_modules %}
-                                    <a href="{{ module.url }}" class="flex items-center px-4 py-2 text-zafira-obsidian hover:bg-zafira-primary-soft transition">
-                                        <i class="{{ module.icon|default:'fas fa-circle' }} mr-3 text-zafira-primary w-4 text-center"></i>
-                                        <span class="text-sm">{{ module.name }}</span>
-                                    </a>
-                                {% endfor %}
-                            </div>
+            </div>
+
+            <nav class="z-sidebar__nav">
+                <a href="{% url 'dashboard' %}" class="z-sidebar__home {% if request.path == '/dashboard/' %}is-active{% endif %}">
+                    <i class="fas fa-house"></i>
+                    <span>Inicio</span>
+                </a>
+
+                {% for type_name, type_modules in available_modules.items %}
+                    <div class="z-group" data-open="true">
+                        <div class="z-group__header" data-group-toggle>
+                            <span>{{ type_name }}</span>
+                            <i class="fas fa-chevron-down z-group__chevron"></i>
                         </div>
-                    {% endfor %}
-                    <div class="flex items-center space-x-3">
-                        <span class="text-white">{{ user.get_full_name|default:user.username }}</span>
-                        <form method="post" action="{% url 'logout' %}" class="inline">
+                        <div class="z-group__items">
+                            {% for module in type_modules %}
+                                <a href="{{ module.url }}" class="z-nav-link {% if request.path == module.url %}is-active{% endif %}">
+                                    <i class="{{ module.icon|default:'fas fa-circle' }}"></i>
+                                    <span>{{ module.name }}</span>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </nav>
+
+            <div class="z-sidebar__footer">
+                <div class="z-dropdown" data-dropdown>
+                    <div class="z-user-card" data-dropdown-trigger>
+                        <span class="z-avatar">
+                            {{ user.first_name|default:user.username|slice:":1"|upper }}{{ user.last_name|slice:":1"|upper }}
+                        </span>
+                        <div class="flex-1 min-w-0">
+                            <div class="text-sm font-semibold text-zafira-obsidian truncate">{{ user.get_full_name|default:user.username }}</div>
+                            <div class="text-xs text-zafira-slate truncate">{{ user.email }}</div>
+                        </div>
+                        <i class="fas fa-ellipsis-vertical text-zafira-slate text-sm"></i>
+                    </div>
+                    <div class="z-dropdown__menu" data-dropdown-menu data-placement="top-right">
+                        <div class="z-dropdown__label">Cuenta</div>
+                        <a href="{% url 'profile' %}" class="z-dropdown__item">
+                            <i class="fas fa-user"></i><span>Mi perfil</span>
+                        </a>
+                        <a href="{% url 'password_change' %}" class="z-dropdown__item">
+                            <i class="fas fa-key"></i><span>Cambiar contraseña</span>
+                        </a>
+                        <div class="z-dropdown__divider"></div>
+                        <form method="post" action="{% url 'logout' %}" class="block">
                             {% csrf_token %}
-                            <button type="submit" class="text-white hover:text-zafira-primary-soft transition">
-                                <i class="fas fa-sign-out-alt"></i>
+                            <button type="submit" class="z-dropdown__item z-dropdown__item--danger">
+                                <i class="fas fa-arrow-right-from-bracket"></i><span>Cerrar sesión</span>
                             </button>
                         </form>
                     </div>
                 </div>
             </div>
-        </div>
-    </nav>
-    {% endif %}
+        </aside>
 
-    {% if messages %}
-    <div class="max-w-7xl mx-auto mt-6 px-4">
-        {% for message in messages %}
-        <div class="bg-zafira-primary-soft border-l-4 border-zafira-primary text-zafira-obsidian p-4 mb-4 rounded">
-            <i class="fas fa-check-circle mr-2 text-zafira-primary"></i>{{ message }}
-        </div>
-        {% endfor %}
+        {# ── Main ─────────────────────────────────────────────── #}
+        <main class="z-main">
+            <div class="z-topbar">
+                <div class="flex items-center gap-3">
+                    <button type="button" class="z-mobile-btn" data-toggle-sidebar>
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div>
+                        <div class="z-topbar__crumb">{% block topbar_crumb %}ZAFIRA{% endblock %}</div>
+                        <div class="z-topbar__title">{% block topbar_title %}{% endblock %}</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    {% block topbar_actions %}{% endblock %}
+                </div>
+            </div>
+
+            {% if messages %}
+            <div class="px-6 pt-4">
+                {% for message in messages %}
+                <div class="bg-zafira-primary-soft border-l-4 border-zafira-primary text-zafira-obsidian p-4 mb-4 rounded">
+                    <i class="fas fa-check-circle mr-2 text-zafira-primary"></i>{{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </main>
+
     </div>
-    {% endif %}
-
-    {% block content %}{% endblock %}
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
@@ -391,11 +573,8 @@
             })
                 .then(r => r.json())
                 .then(data => {
-                    if (data.error) {
-                        alert(data.error);
-                    } else if (onSuccess) {
-                        onSuccess(data);
-                    }
+                    if (data.error) alert(data.error);
+                    else if (onSuccess) onSuccess(data);
                 });
         }
 
@@ -410,21 +589,15 @@
             })
                 .then(r => r.json())
                 .then(data => {
-                    if (data.error) {
-                        alert(data.error);
-                    } else {
-                        window.location.href = form.dataset.success || pathname.replace(/(create|update\/\d+)\/?$/, '');
-                    }
+                    if (data.error) alert(data.error);
+                    else window.location.href = form.dataset.success || pathname.replace(/(create|update\/\d+)\/?$/, '');
                 });
         }
 
         // ──────────────────────────────────────────────────────────────
-        // Zafira UI Kit — helpers reutilizables para tablas modernas
+        // Zafira UI Kit
         // ──────────────────────────────────────────────────────────────
         window.Zafira = {
-            /**
-             * Renderiza un badge de estado clickeable (toggle).
-             */
             statusBadge(active, labels = ['Activo', 'Inactivo']) {
                 const cls = active ? 'z-badge--on' : 'z-badge--off';
                 const label = active ? labels[0] : labels[1];
@@ -433,10 +606,6 @@
                 </button>`;
             },
 
-            /**
-             * Renderiza los botones de acciones (editar/eliminar) consistentes.
-             * Extras: array de { href, icon, title, danger } para acciones custom.
-             */
             rowActions(id, basePath = pathname, extras = []) {
                 const buttons = extras.map(a => {
                     const cls = a.danger ? 'z-icon-btn z-icon-btn--danger' : 'z-icon-btn';
@@ -448,13 +617,6 @@
                 </div>`;
             },
 
-            /**
-             * Inicializa una DataTable con todos los defaults modernos de ZAFIRA.
-             * @param {string} selector  - selector jQuery (ej. '#data')
-             * @param {array}  columns   - definición de columnas DataTables
-             * @param {object} options   - { url, toggleField, toggleConfirm, pageSize, defaultOrder }
-             * @returns {DataTable}  instancia para encadenar eventos
-             */
             dataTable(selector, columns, options = {}) {
                 const opts = Object.assign({
                     url: pathname,
@@ -467,9 +629,7 @@
                 const $tbl = $(selector);
                 const tbl = $tbl.DataTable({
                     dom: 'rt<"z-table-footer"<"z-table-info"i><"z-table-pager"p>>',
-                    destroy: true,
-                    processing: true,
-                    serverSide: true,
+                    destroy: true, processing: true, serverSide: true,
                     pageLength: opts.pageSize,
                     order: opts.defaultOrder,
                     language: {
@@ -487,9 +647,7 @@
                         },
                     },
                     ajax: {
-                        url: opts.url,
-                        type: 'POST',
-                        headers: { 'X-CSRFToken': csrftoken },
+                        url: opts.url, type: 'POST', headers: { 'X-CSRFToken': csrftoken },
                         data: function (d) {
                             d.action = 'search';
                             d.page = d.start / d.length + 1;
@@ -501,7 +659,6 @@
                     columns: columns,
                 });
 
-                // External search input (toolbar)
                 const $searchInput = $(`[data-table-search="${selector}"]`);
                 if ($searchInput.length) {
                     let debounce;
@@ -515,27 +672,70 @@
                     });
                 }
 
-                // Refresh button
                 $(`[data-table-refresh="${selector}"]`).on('click', () => tbl.ajax.reload(null, false));
 
-                // Toggle field handler
                 if (opts.toggleField) {
                     $tbl.find('tbody').off('click.zafira').on('click.zafira', 'button[rel="toggle_btn"]', function () {
                         const row = tbl.row($(this).closest('tr')).data();
                         if (!row) return;
-                        submit_with_ajax(
-                            'Confirmar',
-                            opts.toggleConfirm,
-                            opts.url,
+                        submit_with_ajax('Confirmar', opts.toggleConfirm, opts.url,
                             { id: row.id, action: 'activate' },
-                            () => tbl.ajax.reload(null, false),
-                        );
+                            () => tbl.ajax.reload(null, false));
                     });
                 }
 
                 return tbl;
             },
+
+            /**
+             * Auto-bind para dropdowns reutilizables.
+             * Marca el contenedor con `data-dropdown` y dentro:
+             *   - [data-dropdown-trigger] → click para abrir/cerrar
+             *   - [data-dropdown-menu]     → contenido (con clases .z-dropdown__*)
+             */
+            initDropdowns(root = document) {
+                root.querySelectorAll('[data-dropdown]:not([data-z-ready])').forEach(dd => {
+                    dd.setAttribute('data-z-ready', '1');
+                    const trigger = dd.querySelector('[data-dropdown-trigger]');
+                    if (!trigger) return;
+                    trigger.addEventListener('click', e => {
+                        e.stopPropagation();
+                        document.querySelectorAll('[data-dropdown].is-open').forEach(o => {
+                            if (o !== dd) o.classList.remove('is-open');
+                        });
+                        dd.classList.toggle('is-open');
+                    });
+                });
+            },
         };
+
+        // Auto-bind dropdowns and outside-click handler
+        document.addEventListener('DOMContentLoaded', () => Zafira.initDropdowns());
+        document.addEventListener('click', e => {
+            if (!e.target.closest('[data-dropdown]')) {
+                document.querySelectorAll('[data-dropdown].is-open').forEach(o => o.classList.remove('is-open'));
+            }
+        });
+
+        // Sidebar group collapse
+        document.addEventListener('click', e => {
+            const header = e.target.closest('[data-group-toggle]');
+            if (header) {
+                const group = header.closest('.z-group');
+                group.dataset.open = group.dataset.open === 'true' ? 'false' : 'true';
+            }
+        });
+
+        // Mobile sidebar toggle
+        document.addEventListener('click', e => {
+            if (e.target.closest('[data-toggle-sidebar]')) {
+                document.getElementById('z-sidebar').classList.toggle('is-open');
+                document.getElementById('z-shell').classList.toggle('is-overlay');
+            } else if (e.target.closest('.z-shell.is-overlay') && !e.target.closest('.z-sidebar')) {
+                document.getElementById('z-sidebar').classList.remove('is-open');
+                document.getElementById('z-shell').classList.remove('is-overlay');
+            }
+        });
     </script>
 
     {% block extra_js %}{% endblock %}

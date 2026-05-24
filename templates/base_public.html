@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ZAFIRA - Sistema Administrativo{% endblock %}</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        zafira: {
+                            primary: '#FF3BBE',
+                            'primary-soft': '#FFE5F6',
+                            'primary-mid': '#FFB6E2',
+                            secondary: '#8E54FF',
+                            'secondary-soft': '#EFE7FF',
+                            'secondary-mid': '#C2A8FF',
+                            obsidian: '#090101',
+                            'obsidian-soft': '#1F1F23',
+                            slate: '#94A3BB',
+                            'slate-soft': '#E2E8F0',
+                            'slate-deep': '#475569',
+                        },
+                    },
+                    boxShadow: {
+                        'zafira': '0 10px 30px -10px rgba(255, 59, 190, 0.35)',
+                        'zafira-lg': '0 20px 45px -15px rgba(255, 59, 190, 0.45)',
+                    },
+                },
+            },
+        }
+    </script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+
+        .gradient-primary { background: linear-gradient(135deg, #FF3BBE 0%, #8E54FF 100%); }
+        .gradient-dark    { background: linear-gradient(135deg, #090101 0%, #1F1F23 100%); }
+        .gradient-soft    { background: linear-gradient(135deg, #FFE5F6 0%, #EFE7FF 100%); }
+
+        .zafira-text-gradient {
+            background: linear-gradient(135deg, #FF3BBE 0%, #8E54FF 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-50">
+    {% if messages %}
+    <div class="fixed top-4 right-4 z-50 max-w-md">
+        {% for message in messages %}
+        <div class="bg-zafira-primary-soft border-l-4 border-zafira-primary text-zafira-obsidian p-4 mb-2 rounded shadow-lg">
+            <i class="fas fa-check-circle mr-2 text-zafira-primary"></i>{{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
