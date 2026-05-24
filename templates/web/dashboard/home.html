@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - ZAFIRA{% endblock %}
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-4xl font-bold text-gray-900 mb-2">
+                <i class="fas fa-chart-line text-purple-600 mr-3"></i>Dashboard
+            </h1>
+            <p class="text-gray-600">Bienvenido, {{ user.get_full_name }}</p>
+        </div>
+
+        <!-- Statistics Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- Total Users -->
+            <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition p-6 border-l-4 border-purple-600">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm font-semibold">Total de Usuarios</p>
+                        <p class="text-3xl font-bold text-gray-900 mt-2">{{ total_users }}</p>
+                    </div>
+                    <div class="bg-purple-100 p-4 rounded-full">
+                        <i class="fas fa-users text-purple-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Users -->
+            <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition p-6 border-l-4 border-green-600">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm font-semibold">Usuarios Activos</p>
+                        <p class="text-3xl font-bold text-green-600 mt-2">{{ active_users }}</p>
+                    </div>
+                    <div class="bg-green-100 p-4 rounded-full">
+                        <i class="fas fa-user-check text-green-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admins -->
+            <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition p-6 border-l-4 border-blue-600">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm font-semibold">Administradores</p>
+                        <p class="text-3xl font-bold text-blue-600 mt-2">{{ staff_users }}</p>
+                    </div>
+                    <div class="bg-blue-100 p-4 rounded-full">
+                        <i class="fas fa-shield-alt text-blue-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Users Table -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="px-6 py-4 bg-gradient-to-r from-purple-600 to-purple-700">
+                <h2 class="text-xl font-bold text-white flex items-center">
+                    <i class="fas fa-history mr-3"></i>Usuarios Recientes
+                </h2>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50 border-b">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Nombre</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Email</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Estado</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Fecha de Registro</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y">
+                        {% for user in recent_users %}
+                        <tr class="hover:bg-gray-50 transition">
+                            <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ user.get_full_name }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">{{ user.email }}</td>
+                            <td class="px-6 py-4">
+                                <span class="px-3 py-1 text-xs font-semibold rounded-full {% if user.is_active %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                    {% if user.is_active %}<i class="fas fa-check-circle mr-1"></i>Activo{% else %}<i class="fas fa-times-circle mr-1"></i>Inactivo{% endif %}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-600">{{ user.date_joined|date:"d/m/Y H:i" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="px-6 py-8 text-center text-gray-500">
+                                <i class="fas fa-inbox text-2xl mb-2"></i><br>No hay usuarios registrados
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        {% if user.is_staff %}
+        <div class="mt-8 flex gap-4 justify-center">
+            <a href="{% url 'users_list' %}" class="gradient-primary text-white font-bold px-6 py-3 rounded-lg hover:shadow-lg transition flex items-center">
+                <i class="fas fa-users-cog mr-2"></i>Administrar Usuarios
+            </a>
+            <a href="{% url 'register' %}" class="bg-white border-2 border-purple-600 text-purple-600 font-bold px-6 py-3 rounded-lg hover:bg-purple-50 transition flex items-center">
+                <i class="fas fa-user-plus mr-2"></i>Crear Usuario
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

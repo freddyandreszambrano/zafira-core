@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Mi Perfil - ZAFIRA{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-2xl font-bold text-gray-900">{{ user.get_full_name }}</h2>
+        </div>
+
+        <div class="px-6 py-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Información Personal</h3>
+                    <dl class="space-y-2">
+                        <div><dt class="text-gray-600">Usuario:</dt><dd class="text-gray-900">{{ user.username }}</dd></div>
+                        <div><dt class="text-gray-600">Email:</dt><dd class="text-gray-900">{{ user.email }}</dd></div>
+                        <div><dt class="text-gray-600">Cédula:</dt><dd class="text-gray-900">{{ user.dni }}</dd></div>
+                        <div><dt class="text-gray-600">Registrado:</dt><dd class="text-gray-900">{{ user.date_joined|date:'d/m/Y' }}</dd></div>
+                    </dl>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Información Corporativa</h3>
+                    <dl class="space-y-2">
+                        <div><dt class="text-gray-600">Departamento:</dt><dd class="text-gray-900">{{ profile.get_department_display_es }}</dd></div>
+                        <div><dt class="text-gray-600">Cargo:</dt><dd class="text-gray-900">{{ profile.job_title|default:'-' }}</dd></div>
+                        <div><dt class="text-gray-600">Teléfono:</dt><dd class="text-gray-900">{{ profile.phone|default:'-' }}</dd></div>
+                        <div><dt class="text-gray-600">Ciudad:</dt><dd class="text-gray-900">{{ profile.city|default:'-' }}</dd></div>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="mt-6 flex space-x-4">
+                <a href="{% url 'profile_edit' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Editar Perfil</a>
+                <a href="{% url 'profile_manage' %}" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">Datos Corporativos</a>
+                <a href="{% url 'change_password' %}" class="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700">Cambiar Contraseña</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
