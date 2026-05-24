@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title|default:'Listado' }} - ZAFIRA{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-white via-zafira-primary-soft/30 to-zafira-secondary-soft/30 py-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between mb-8">
+            <h1 class="text-3xl font-bold zafira-text-gradient">{{ title|default:'Listado' }}</h1>
+            {% if create_url %}
+                <a href="{{ create_url }}" class="gradient-primary zafira-glow text-white font-bold px-5 py-2.5 rounded-xl inline-flex items-center transition-transform hover:-translate-y-0.5">
+                    <i class="fas fa-plus mr-2"></i>Nuevo
+                </a>
+            {% endif %}
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-md overflow-hidden p-6">
+            <table id="data" class="w-full">
+                <thead class="bg-zafira-slate-soft/40">
+                    <tr>
+                        {% block columns %}{% endblock %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% block rows %}{% endblock %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+    {% block head_list %}{% endblock %}
+    {% block javascript_list %}{% endblock %}
+{% endblock %}

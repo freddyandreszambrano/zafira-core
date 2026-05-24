@@ -1,17 +1,9 @@
-from .forms import (
-    LoginForm,
-    RegisterForm,
-    ProfileUpdateForm,
-    PasswordChangeForm,
-    ResetPasswordForm,
-    EditUserForm
-)
+from .auth import LoginForm, RegisterForm
+from .password import PasswordChangeForm, ResetPasswordForm
+from .profile import EditUserForm, ProfileUpdateForm
 
 __all__ = [
-    'LoginForm',
-    'RegisterForm',
-    'ProfileUpdateForm',
-    'PasswordChangeForm',
-    'ResetPasswordForm',
-    'EditUserForm',
+    'LoginForm', 'RegisterForm',
+    'PasswordChangeForm', 'ResetPasswordForm',
+    'ProfileUpdateForm', 'EditUserForm',
 ]

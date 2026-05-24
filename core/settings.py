@@ -49,8 +49,12 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'corsheaders',
     'rest_framework_simplejwt',
+    'crum',
+    'widget_tweaks',
 
     # Local apps
+    'app.common.apps.CommonConfig',
+    'app.security.apps.SecurityConfig',
     'app.auth.apps.AuthConfig',
     'app.profiles.apps.ProfilesConfig',
 ]
@@ -64,6 +68,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'crum.CurrentRequestUserMiddleware',
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -142,6 +147,11 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 
 # Custom User Model
 AUTH_USER_MODEL = 'users.User'
+
+# Auth redirects
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/dashboard/'
+LOGOUT_REDIRECT_URL = '/login/'
 
 # Django REST Framework Configuration
 REST_FRAMEWORK = {

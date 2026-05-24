@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}ZAFIRA - Sistema Administrativo{% endblock %}</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -21,29 +22,30 @@
                             'obsidian-soft': '#1F1F23',
                             slate: '#94A3BB',
                             'slate-soft': '#E2E8F0',
-                            'slate-deep': '#475569'
-                        }
+                            'slate-deep': '#475569',
+                        },
                     },
                     boxShadow: {
                         'zafira': '0 10px 30px -10px rgba(255, 59, 190, 0.35)',
                         'zafira-lg': '0 20px 45px -15px rgba(255, 59, 190, 0.45)',
-                        'zafira-violet': '0 10px 30px -10px rgba(142, 84, 255, 0.35)'
-                    }
-                }
-            }
+                        'zafira-violet': '0 10px 30px -10px rgba(142, 84, 255, 0.35)',
+                    },
+                },
+            },
         }
     </script>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; }
 
-        /* ZAFIRA brand gradients */
         .gradient-primary { background: linear-gradient(135deg, #FF3BBE 0%, #8E54FF 100%); }
         .gradient-dark { background: linear-gradient(135deg, #090101 0%, #1F1F23 100%); }
         .gradient-soft { background: linear-gradient(135deg, #FFE5F6 0%, #EFE7FF 100%); }
 
-        /* Text gradient utility */
         .zafira-text-gradient {
             background: linear-gradient(135deg, #FF3BBE 0%, #8E54FF 100%);
             -webkit-background-clip: text;
@@ -52,21 +54,12 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* Glow effects */
         .zafira-glow:hover {
             box-shadow: 0 0 0 4px rgba(255, 59, 190, 0.15), 0 12px 30px -10px rgba(255, 59, 190, 0.45);
             transition: box-shadow .25s ease, transform .25s ease;
         }
-        .zafira-glow-violet:hover {
-            box-shadow: 0 0 0 4px rgba(142, 84, 255, 0.15), 0 12px 30px -10px rgba(142, 84, 255, 0.45);
-            transition: box-shadow .25s ease, transform .25s ease;
-        }
-
-        /* Gradient border utility (used as a thin left accent) */
-        .zafira-border-gradient {
-            border-image: linear-gradient(180deg, #FF3BBE 0%, #8E54FF 100%) 1;
-        }
     </style>
+
     {% block extra_css %}{% endblock %}
 </head>
 <body class="bg-gray-50">
@@ -79,9 +72,24 @@
                 </a>
                 <div class="flex items-center space-x-6">
                     <a href="{% url 'dashboard' %}" class="text-white hover:text-zafira-primary-soft transition">Dashboard</a>
-                    <a href="{% url 'users_list' %}" class="text-white hover:text-zafira-primary-soft transition">Usuarios</a>
+                    {% if request.session.modules %}
+                        {% for mt_name, modules in request.session.modules.items %}
+                            <div class="relative group">
+                                <button class="text-white hover:text-zafira-primary-soft transition flex items-center">
+                                    {{ mt_name }} <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                                </button>
+                                <div class="absolute hidden group-hover:block bg-white rounded-lg shadow-zafira mt-2 py-2 min-w-[200px] right-0">
+                                    {% for m in modules %}
+                                        <a href="{{ m.url }}" class="block px-4 py-2 text-zafira-obsidian hover:bg-zafira-primary-soft transition">
+                                            <i class="{{ m.icon }} mr-2 text-zafira-primary"></i>{{ m.name }}
+                                        </a>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
                     <div class="flex items-center space-x-3">
-                        <span class="text-white">{{ user.get_full_name }}</span>
+                        <span class="text-white">{{ user.get_full_name|default:user.username }}</span>
                         <form method="post" action="{% url 'logout' %}" class="inline">
                             {% csrf_token %}
                             <button type="submit" class="text-white hover:text-zafira-primary-soft transition">
@@ -106,6 +114,54 @@
     {% endif %}
 
     {% block content %}{% endblock %}
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/formvalidation@2.4.0/dist/js/FormValidation.full.min.js"></script>
+
+    <script>
+        const csrftoken = '{{ csrf_token }}';
+        const pathname = window.location.pathname;
+
+        function submit_with_ajax(title, message, url, params, onSuccess) {
+            if (!confirm(`${title}\n\n${message}`)) return;
+            const formData = new FormData();
+            Object.entries(params).forEach(([k, v]) => formData.append(k, v));
+            fetch(url, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrftoken },
+                body: formData,
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                    } else if (onSuccess) {
+                        onSuccess(data);
+                    }
+                });
+        }
+
+        function submit_formdata_with_ajax_form(fv) {
+            const form = fv.form;
+            const formData = new FormData(form);
+            formData.append('action', form.dataset.action || 'add');
+            fetch(form.action || pathname, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrftoken },
+                body: formData,
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                    } else {
+                        window.location.href = form.dataset.success || pathname.replace(/(create|update\/\d+)\/?$/, '');
+                    }
+                });
+        }
+    </script>
 
     {% block extra_js %}{% endblock %}
 </body>
