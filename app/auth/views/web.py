@@ -1,57 +1,13 @@
 from django.contrib import messages
-from django.contrib.auth import login, logout
+from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views import View
-from django.views.generic import CreateView, TemplateView, UpdateView
+from django.views.generic import TemplateView, UpdateView
 
-from app.auth.forms import LoginForm, PasswordChangeForm, ProfileUpdateForm, RegisterForm
+from app.auth.forms import PasswordChangeForm, ProfileUpdateForm
 from app.common.choices import Department
-from app.common.mixins import PublicMixin
-
-
-class IndexRedirectView(View):
-    def get(self, request):
-        target = 'dashboard' if request.user.is_authenticated else 'login'
-        return redirect(target)
-
-
-class LoginView(PublicMixin, View):
-    template_name = 'shared/auth/login.html'
-    form_class = LoginForm
-
-    def get(self, request):
-        return render(request, self.template_name, {'form': self.form_class()})
-
-    def post(self, request):
-        form = self.form_class(request.POST)
-        if form.is_valid():
-            user = form.get_user()
-            login(request, user)
-            user.set_group_session()
-            return redirect(request.GET.get('next', 'dashboard'))
-        return render(request, self.template_name, {'form': form})
-
-
-class RegisterView(PublicMixin, CreateView):
-    template_name = 'shared/auth/register.html'
-    form_class = RegisterForm
-    success_url = reverse_lazy('login')
-
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        messages.success(self.request, 'Registro exitoso. Por favor inicia sesión.')
-        return response
-
-
-class LogoutView(LoginRequiredMixin, View):
-    login_url = 'login'
-
-    def post(self, request):
-        logout(request)
-        messages.success(request, 'Has cerrado sesión.')
-        return redirect('login')
 
 
 class DashboardView(LoginRequiredMixin, TemplateView):

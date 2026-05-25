@@ -1,15 +1,12 @@
+from .auth import IndexRedirectView, LoginView, LogoutView, RegisterView
 from .users import UserCreate, UserDelete, UserListView, UserUpdate
 from .web import (
     DashboardView,
-    IndexRedirectView,
-    LoginView,
-    LogoutView,
     PasswordChangeView,
     ProfileEditView,
     ProfileManageView,
     ProfileUpdateAPIView,
     ProfileView,
-    RegisterView,
 )
 
 __all__ = [
