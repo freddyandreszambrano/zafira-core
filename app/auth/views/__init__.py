@@ -1,7 +1,7 @@
 from .auth import IndexRedirectView, LoginView, LogoutView, RegisterView
+from .dashboard import DashboardView
 from .users import UserCreate, UserDelete, UserListView, UserUpdate
 from .web import (
-    DashboardView,
     PasswordChangeView,
     ProfileEditView,
     ProfileManageView,
