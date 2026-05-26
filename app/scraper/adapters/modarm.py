@@ -1,3 +1,4 @@
+import sys
 import requests
 from bs4 import BeautifulSoup
 from typing import List, Dict, Optional
@@ -81,7 +82,7 @@ class ModarmAdapter(BaseAdapter):
                 })
 
         except requests.RequestException as e:
-            print(f"Error scraping category {category['name']}: {e}")
+            print(f"Error scraping category {category['name']}: {e}", file=sys.stderr)
 
         return products
 
@@ -131,7 +132,7 @@ class ModarmAdapter(BaseAdapter):
             result['availability'] = self._extract_availability(soup)
 
         except requests.RequestException as e:
-            print(f"Error parsing product {url}: {e}")
+            print(f"Error parsing product {url}: {e}", file=sys.stderr)
 
         return result
 
