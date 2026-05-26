@@ -1,18 +1,8 @@
-{% extends 'list.html' %}
+let tblModule;
 
-{% block columns %}
-    <th>Nombre</th>
-    <th>URL</th>
-    <th>Tipo</th>
-    <th>Icono</th>
-    <th class="text-center">Estado</th>
-    <th class="text-center">Acciones</th>
-{% endblock %}
-
-{% block javascript_list %}
-<script>
-    $(function () {
-        Zafira.dataTable('#data', [
+const module_crud = {
+    list: function () {
+        tblModule = Zafira.dataTable('#data', [
             { data: 'name' },
             {
                 data: 'url',
@@ -37,6 +27,9 @@
                 render: id => Zafira.rowActions(id),
             },
         ], { toggleConfirm: '¿Cambiar el estado de este módulo?' });
-    });
-</script>
-{% endblock %}
+    }
+};
+
+$(function () {
+    module_crud.list();
+});

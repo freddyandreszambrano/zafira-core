@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}Mi Perfil - ZAFIRA{% endblock %}
+{% block topbar_crumb %}Cuenta{% endblock %}
+{% block topbar_title %}Mi perfil{% endblock %}
+
+{% block content %}
+<div class="px-6 py-8 max-w-5xl mx-auto">
+    <div class="bg-white rounded-2xl border border-zafira-slate-soft/60 shadow-card">
+
+        <div class="flex items-center gap-4 px-6 py-5 border-b border-zafira-slate-soft/60">
+            <span class="inline-flex items-center justify-center w-12 h-12 rounded-full gradient-primary text-white font-bold shadow-zafira">
+                {{ user.first_name|default:user.username|slice:":1"|upper }}{{ user.last_name|slice:":1"|upper }}
+            </span>
+            <div>
+                <h2 class="text-xl font-bold text-zafira-obsidian">{{ user.get_full_name|default:user.username }}</h2>
+                <p class="text-sm text-zafira-slate">{{ user.email }}</p>
+            </div>
+        </div>
+
+        <div class="px-6 py-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+                <h3 class="text-xs font-bold uppercase tracking-wider text-zafira-slate mb-4">Información personal</h3>
+                <dl class="space-y-3 text-sm">
+                    <div class="flex justify-between gap-4">
+                        <dt class="text-zafira-slate-deep">Usuario</dt>
+                        <dd class="text-zafira-obsidian font-medium">{{ user.username }}</dd>
+                    </div>
+                    <div class="flex justify-between gap-4">
+                        <dt class="text-zafira-slate-deep">Email</dt>
+                        <dd class="text-zafira-obsidian font-medium">{{ user.email }}</dd>
+                    </div>
+                    <div class="flex justify-between gap-4">
+                        <dt class="text-zafira-slate-deep">Cédula</dt>
+                        <dd class="text-zafira-obsidian font-medium">{{ user.dni }}</dd>
+                    </div>
+                    <div class="flex justify-between gap-4">
+                        <dt class="text-zafira-slate-deep">Registrado</dt>
+                        <dd class="text-zafira-obsidian font-medium">{{ user.date_joined|date:'d/m/Y' }}</dd>
+                    </div>
+                </dl>
+            </div>
+
+            <div>
+                <h3 class="text-xs font-bold uppercase tracking-wider text-zafira-slate mb-4">Información corporativa</h3>
+                <dl class="space-y-3 text-sm">
+                    <div class="flex justify-between gap-4">
+                        <dt class="text-zafira-slate-deep">Departamento</dt>
+                        <dd class="text-zafira-obsidian font-medium">{{ profile.get_department_display|default:'—' }}</dd>
+                    </div>
+                    <div class="flex justify-between gap-4">
+                        <dt class="text-zafira-slate-deep">Cargo</dt>
+                        <dd class="text-zafira-obsidian font-medium">{{ profile.job_title|default:'—' }}</dd>
+                    </div>
+                    <div class="flex justify-between gap-4">
+                        <dt class="text-zafira-slate-deep">Teléfono</dt>
+                        <dd class="text-zafira-obsidian font-medium">{{ profile.phone|default:'—' }}</dd>
+                    </div>
+                    <div class="flex justify-between gap-4">
+                        <dt class="text-zafira-slate-deep">Ciudad</dt>
+                        <dd class="text-zafira-obsidian font-medium">{{ profile.city|default:'—' }}</dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+
+        <div class="px-6 py-4 border-t border-zafira-slate-soft/60 flex flex-wrap gap-2">
+            <a href="{% url 'profile_edit' %}" class="z-btn-primary">
+                <i class="fas fa-pen"></i>Editar perfil
+            </a>
+            <a href="{% url 'profile_manage' %}" class="z-btn-ghost">
+                <i class="fas fa-briefcase"></i>Datos corporativos
+            </a>
+            <a href="{% url 'password_change' %}" class="z-btn-ghost">
+                <i class="fas fa-key"></i>Cambiar contraseña
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

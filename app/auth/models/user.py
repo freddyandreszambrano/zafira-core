@@ -70,6 +70,19 @@ class User(AbstractBaseUser, PermissionsMixin):
     def get_image_url(self):
         return self.image.url if self.image else self.DEFAULT_IMAGE
 
+    def to_json(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'email': self.email,
+            'dni': self.dni,
+            'full_name': self.get_full_name(),
+            'is_active': self.is_active,
+            'is_staff': self.is_staff,
+            'image': self.get_image_url(),
+            'date_joined': self.date_joined.strftime('%Y-%m-%d %H:%M'),
+        }
+
     @staticmethod
     def generate_token():
         return str(uuid.uuid4())

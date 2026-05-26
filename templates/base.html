@@ -5,9 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}ZAFIRA - Sistema Administrativo{% endblock %}</title>
 
+    <script>
+        (function () {
+            const saved = localStorage.getItem('zafira-theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+        })();
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
@@ -40,12 +49,46 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
 
     <style>
+        :root {
+            --z-bg:           #f8fafc;
+            --z-surface:      #ffffff;
+            --z-surface-2:    #f8fafc;
+            --z-surface-hover:#fef7fc;
+            --z-border:       #f1f5f9;
+            --z-border-soft:  #f8fafc;
+            --z-text:         #0f172a;
+            --z-text-soft:    #475569;
+            --z-text-mute:    #94A3BB;
+            --z-badge-off-bg: #f1f5f9;
+            --z-badge-off-fg: #475569;
+            --z-dropdown-shadow: 0 12px 32px -8px rgba(15, 23, 42, .15);
+        }
+        html.dark {
+            --z-bg:           #0b0b12;
+            --z-surface:      #15151c;
+            --z-surface-2:    #1a1a22;
+            --z-surface-hover:#23202c;
+            --z-border:       #262630;
+            --z-border-soft:  #1f1f29;
+            --z-text:         #e2e8f0;
+            --z-text-soft:    #cbd5e1;
+            --z-text-mute:    #64748b;
+            --z-badge-off-bg: #262630;
+            --z-badge-off-fg: #cbd5e1;
+            --z-dropdown-shadow: 0 12px 32px -8px rgba(0, 0, 0, .6);
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8fafc; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--z-bg);
+            color: var(--z-text);
+        }
 
         .gradient-primary { background: linear-gradient(135deg, #FF3BBE 0%, #8E54FF 100%); }
         .gradient-dark    { background: linear-gradient(135deg, #090101 0%, #1F1F23 100%); }
         .gradient-soft    { background: linear-gradient(135deg, #FFE5F6 0%, #EFE7FF 100%); }
+        html.dark .gradient-soft { background: linear-gradient(135deg, rgba(255, 59, 190, .18) 0%, rgba(142, 84, 255, .22) 100%); }
 
         .zafira-text-gradient {
             background: linear-gradient(135deg, #FF3BBE 0%, #8E54FF 100%);
@@ -67,22 +110,22 @@
         .z-sidebar {
             width: 260px;
             flex-shrink: 0;
-            background: #fff;
-            border-right: 1px solid #f1f5f9;
+            background: var(--z-surface);
+            border-right: 1px solid var(--z-border);
             display: flex;
             flex-direction: column;
             position: sticky;
             top: 0;
             height: 100vh;
             overflow-y: auto;
-            transition: transform .3s ease;
+            transition: transform .3s ease, background .2s ease, border-color .2s ease;
         }
         .z-sidebar::-webkit-scrollbar { width: 4px; }
-        .z-sidebar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 4px; }
+        .z-sidebar::-webkit-scrollbar-thumb { background: var(--z-border); border-radius: 4px; }
 
         .z-sidebar__logo {
             padding: 1.5rem 1.25rem 1.25rem;
-            border-bottom: 1px solid #f8fafc;
+            border-bottom: 1px solid var(--z-border-soft);
         }
         .z-sidebar__nav { flex: 1; padding: 1rem .85rem; }
 
@@ -92,12 +135,13 @@
             gap: .75rem;
             padding: .65rem .85rem;
             border-radius: .65rem;
-            color: #475569;
+            color: var(--z-text-soft);
             font-size: .9rem;
             font-weight: 500;
             transition: all .15s ease;
         }
         .z-sidebar__home:hover { background: #FFE5F6; color: #FF3BBE; }
+        html.dark .z-sidebar__home:hover { background: rgba(255, 59, 190, .12); }
         .z-sidebar__home.is-active {
             background: linear-gradient(135deg, #FF3BBE 0%, #8E54FF 100%);
             color: #fff;
@@ -105,15 +149,13 @@
         }
         .z-sidebar__home.is-active i { color: #fff !important; }
 
-        .z-group {
-            margin-top: .85rem;
-        }
+        .z-group { margin-top: .85rem; }
         .z-group__header {
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: .5rem .85rem .35rem;
-            color: #94A3BB;
+            color: var(--z-text-mute);
             font-size: .65rem;
             font-weight: 700;
             text-transform: uppercase;
@@ -121,7 +163,7 @@
             cursor: pointer;
             user-select: none;
         }
-        .z-group__header:hover { color: #475569; }
+        .z-group__header:hover { color: var(--z-text-soft); }
         .z-group__chevron { transition: transform .2s ease; font-size: .55rem; }
         .z-group[data-open="false"] .z-group__chevron { transform: rotate(-90deg); }
         .z-group[data-open="false"] .z-group__items { display: none; }
@@ -133,16 +175,16 @@
             gap: .75rem;
             padding: .55rem .85rem;
             border-radius: .55rem;
-            color: #475569;
+            color: var(--z-text-soft);
             font-size: .875rem;
             transition: all .15s ease;
             position: relative;
         }
-        .z-nav-link:hover { background: #f8fafc; color: #FF3BBE; }
+        .z-nav-link:hover { background: var(--z-surface-2); color: #FF3BBE; }
         .z-nav-link i {
             width: 1rem;
             text-align: center;
-            color: #94A3BB;
+            color: var(--z-text-mute);
             transition: color .15s ease;
             font-size: .8rem;
         }
@@ -152,6 +194,7 @@
             color: #FF3BBE;
             font-weight: 600;
         }
+        html.dark .z-nav-link.is-active { background: rgba(255, 59, 190, .14); }
         .z-nav-link.is-active i { color: #FF3BBE; }
         .z-nav-link.is-active::before {
             content: '';
@@ -167,7 +210,7 @@
 
         .z-sidebar__footer {
             padding: .85rem;
-            border-top: 1px solid #f8fafc;
+            border-top: 1px solid var(--z-border-soft);
         }
 
         .z-user-card {
@@ -180,7 +223,7 @@
             transition: background .15s ease;
             position: relative;
         }
-        .z-user-card:hover { background: #f8fafc; }
+        .z-user-card:hover { background: var(--z-surface-2); }
         .z-avatar {
             display: inline-flex;
             align-items: center;
@@ -203,24 +246,40 @@
             align-items: center;
             justify-content: space-between;
             padding: .85rem 1.5rem;
-            background: rgba(255, 255, 255, .85);
+            background: color-mix(in srgb, var(--z-surface) 85%, transparent);
             backdrop-filter: blur(8px);
-            border-bottom: 1px solid #f1f5f9;
+            border-bottom: 1px solid var(--z-border);
             position: sticky;
             top: 0;
             z-index: 40;
         }
 
-        .z-topbar__title { font-size: 1rem; font-weight: 600; color: #0f172a; }
-        .z-topbar__crumb { font-size: .8rem; color: #94A3BB; }
+        .z-topbar__title { font-size: 1rem; font-weight: 600; color: var(--z-text); }
+        .z-topbar__crumb { font-size: .8rem; color: var(--z-text-mute); }
+
+        .z-theme-toggle {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 2.25rem; height: 2.25rem;
+            background: var(--z-surface-2);
+            border: 1px solid var(--z-border);
+            border-radius: .65rem;
+            color: var(--z-text-soft);
+            cursor: pointer;
+            transition: all .15s ease;
+        }
+        .z-theme-toggle:hover { background: #FFE5F6; border-color: #FFB6E2; color: #FF3BBE; }
+        html.dark .z-theme-toggle:hover { background: rgba(255, 59, 190, .12); border-color: rgba(255, 59, 190, .35); }
+        .z-theme-toggle .icon-sun { display: none; }
+        html.dark .z-theme-toggle .icon-sun { display: inline; }
+        html.dark .z-theme-toggle .icon-moon { display: none; }
 
         .z-mobile-btn {
             display: none;
-            background: #f8fafc;
-            border: 1px solid #f1f5f9;
+            background: var(--z-surface-2);
+            border: 1px solid var(--z-border);
             border-radius: .55rem;
             padding: .5rem .65rem;
-            color: #475569;
+            color: var(--z-text-soft);
             cursor: pointer;
         }
         @media (max-width: 1023px) {
@@ -679,7 +738,7 @@
                         const row = tbl.row($(this).closest('tr')).data();
                         if (!row) return;
                         submit_with_ajax('Confirmar', opts.toggleConfirm, opts.url,
-                            { id: row.id, action: 'activate' },
+                            { id: row.id, action: 'change_state' },
                             () => tbl.ajax.reload(null, false));
                     });
                 }

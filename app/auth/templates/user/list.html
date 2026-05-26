@@ -1,0 +1,15 @@
+{% extends 'list.html' %}
+{% load static %}
+
+{% block columns %}
+    <th>Usuario</th>
+    <th>Email</th>
+    <th>DNI</th>
+    <th class="text-center">Rol</th>
+    <th class="text-center">Estado</th>
+    <th class="text-center">Acciones</th>
+{% endblock %}
+
+{% block head_list %}
+    <script src="{% static 'user/js/list.js' %}"></script>
+{% endblock %}

@@ -11,10 +11,10 @@ from .views import (
     ProfileUpdateAPIView,
     ProfileView,
     RegisterView,
-    UserCreate,
-    UserDelete,
+    UserCreateView,
+    UserDeleteView,
     UserListView,
-    UserUpdate,
+    UserUpdateView,
 )
 
 
@@ -34,9 +34,9 @@ session_urls = [
 
 users_urls = [
     path('user/', UserListView.as_view(), name='user_list'),
-    path('user/create/', UserCreate.as_view(), name='user_create'),
-    path('user/update/<int:pk>/', UserUpdate.as_view(), name='user_update'),
-    path('user/delete/<int:pk>/', UserDelete.as_view(), name='user_delete'),
+    path('user/create/', UserCreateView.as_view(), name='user_create'),
+    path('user/update/<int:pk>/', UserUpdateView.as_view(), name='user_update'),
+    path('user/delete/<int:pk>/', UserDeleteView.as_view(), name='user_delete'),
 ]
 
 profile_urls = [

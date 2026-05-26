@@ -11,18 +11,17 @@ from app.common.choices import Department
 
 
 class ProfileView(LoginRequiredMixin, TemplateView):
-    template_name = 'shared/profile/view.html'
+    template_name = 'profile/view.html'
     login_url = 'login'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user = self.request.user
-        context.update({'user': user, 'profile': user.profile})
+        context.update({'user': self.request.user, 'profile': self.request.user.profile})
         return context
 
 
 class ProfileEditView(LoginRequiredMixin, UpdateView):
-    template_name = 'shared/profile/edit.html'
+    template_name = 'profile/edit.html'
     form_class = ProfileUpdateForm
     success_url = reverse_lazy('profile')
     login_url = 'login'
@@ -36,7 +35,7 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
 
 
 class PasswordChangeView(LoginRequiredMixin, View):
-    template_name = 'shared/profile/change_password.html'
+    template_name = 'profile/change_password.html'
     login_url = 'login'
 
     def get(self, request):
@@ -55,16 +54,15 @@ class PasswordChangeView(LoginRequiredMixin, View):
 
 
 class ProfileManageView(LoginRequiredMixin, TemplateView):
-    template_name = 'shared/profile/manage.html'
+    template_name = 'profile/manage.html'
     login_url = 'login'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user = self.request.user
         context.update({
-            'user': user,
-            'profile': user.profile,
-            'department': dict(Department.choices),
+            'user': self.request.user,
+            'profile': self.request.user.profile,
+            'departments': Department.choices,
         })
         return context
 

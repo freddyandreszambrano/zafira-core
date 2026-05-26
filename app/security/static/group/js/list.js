@@ -1,16 +1,8 @@
-{% extends 'list.html' %}
+let tblGroup;
 
-{% block columns %}
-    <th>Nombre</th>
-    <th>Descripción</th>
-    <th class="text-center">Estado</th>
-    <th class="text-center">Acciones</th>
-{% endblock %}
-
-{% block javascript_list %}
-<script>
-    $(function () {
-        Zafira.dataTable('#data', [
+const group = {
+    list: function () {
+        tblGroup = Zafira.dataTable('#data', [
             {
                 data: 'name',
                 render: data => `<div class="flex items-center gap-3">
@@ -38,6 +30,9 @@
                 render: id => Zafira.rowActions(id),
             },
         ], { toggleConfirm: '¿Cambiar el estado de este grupo?' });
-    });
-</script>
-{% endblock %}
+    }
+};
+
+$(function () {
+    group.list();
+});

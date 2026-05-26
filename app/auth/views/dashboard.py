@@ -6,7 +6,7 @@ from app.security.models import Group, Module
 
 
 class DashboardView(LoginRequiredMixin, TemplateView):
-    template_name = 'shared/dashboard/home.html'
+    template_name = 'dashboard/home.html'
     login_url = 'login'
 
     def get_context_data(self, **kwargs):

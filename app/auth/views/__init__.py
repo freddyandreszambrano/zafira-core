@@ -1,6 +1,6 @@
 from .auth import IndexRedirectView, LoginView, LogoutView, RegisterView
 from .dashboard import DashboardView
-from .users import UserCreate, UserDelete, UserListView, UserUpdate
+from .users import UserCreateView, UserDeleteView, UserListView, UserUpdateView
 from .profile import (
     PasswordChangeView,
     ProfileEditView,
@@ -13,7 +13,7 @@ __all__ = [
     'IndexRedirectView',
     'LoginView', 'RegisterView', 'LogoutView',
     'DashboardView',
-    'UserListView', 'UserCreate', 'UserUpdate', 'UserDelete',
+    'UserListView', 'UserCreateView', 'UserUpdateView', 'UserDeleteView',
     'ProfileView', 'ProfileEditView', 'ProfileManageView',
     'PasswordChangeView', 'ProfileUpdateAPIView',
 ]

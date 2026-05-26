@@ -1,17 +1,17 @@
-from .group import GroupCreate, GroupDelete, GroupListView, GroupUpdate
+from .group import GroupCreateView, GroupDeleteView, GroupListView, GroupUpdateView
 from .module import (
-    ModuleCreate,
-    ModuleDelete,
+    ModuleCreateView,
+    ModuleDeleteView,
     ModuleListView,
-    ModuleTypeCreate,
-    ModuleTypeDelete,
+    ModuleTypeCreateView,
+    ModuleTypeDeleteView,
     ModuleTypeListView,
-    ModuleTypeUpdate,
-    ModuleUpdate,
+    ModuleTypeUpdateView,
+    ModuleUpdateView,
 )
 
 __all__ = [
-    'ModuleListView', 'ModuleCreate', 'ModuleUpdate', 'ModuleDelete',
-    'ModuleTypeListView', 'ModuleTypeCreate', 'ModuleTypeUpdate', 'ModuleTypeDelete',
-    'GroupListView', 'GroupCreate', 'GroupUpdate', 'GroupDelete',
+    'ModuleListView', 'ModuleCreateView', 'ModuleUpdateView', 'ModuleDeleteView',
+    'ModuleTypeListView', 'ModuleTypeCreateView', 'ModuleTypeUpdateView', 'ModuleTypeDeleteView',
+    'GroupListView', 'GroupCreateView', 'GroupUpdateView', 'GroupDeleteView',
 ]

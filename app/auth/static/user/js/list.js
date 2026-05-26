@@ -1,30 +1,20 @@
-{% extends 'list.html' %}
+let tblUser;
 
-{% block columns %}
-    <th>Usuario</th>
-    <th>Email</th>
-    <th>DNI</th>
-    <th class="text-center">Rol</th>
-    <th class="text-center">Estado</th>
-    <th class="text-center">Acciones</th>
-{% endblock %}
+function userCell(fullName, username) {
+    const text = (fullName || username || '?').trim();
+    const initials = text.split(/\s+/).map(p => p[0]).slice(0, 2).join('').toUpperCase();
+    return `<div class="flex items-center gap-3">
+        <span class="inline-flex items-center justify-center w-9 h-9 rounded-full gradient-primary text-white text-xs font-bold shadow-zafira">${initials}</span>
+        <div class="flex flex-col leading-tight">
+            <span class="font-medium text-zafira-obsidian">${text}</span>
+            <span class="text-xs text-zafira-slate">@${username}</span>
+        </div>
+    </div>`;
+}
 
-{% block javascript_list %}
-<script>
-    function userCell(fullName, username) {
-        const text = (fullName || username || '?').trim();
-        const initials = text.split(/\s+/).map(p => p[0]).slice(0, 2).join('').toUpperCase();
-        return `<div class="flex items-center gap-3">
-            <span class="inline-flex items-center justify-center w-9 h-9 rounded-full gradient-primary text-white text-xs font-bold shadow-zafira">${initials}</span>
-            <div class="flex flex-col leading-tight">
-                <span class="font-medium text-zafira-obsidian">${text}</span>
-                <span class="text-xs text-zafira-slate">@${username}</span>
-            </div>
-        </div>`;
-    }
-
-    $(function () {
-        Zafira.dataTable('#data', [
+const user = {
+    list: function () {
+        tblUser = Zafira.dataTable('#data', [
             {
                 data: 'username',
                 render: (username, type, row) => userCell(row.full_name, username),
@@ -53,6 +43,9 @@
                 render: id => Zafira.rowActions(id),
             },
         ], { toggleConfirm: '¿Cambiar el estado de este usuario?' });
-    });
-</script>
-{% endblock %}
+    }
+};
+
+$(function () {
+    user.list();
+});
