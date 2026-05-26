@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'app.security.apps.SecurityConfig',
     'app.auth.apps.AuthConfig',
     'app.profiles.apps.ProfilesConfig',
+    'app.scraper.apps.ScraperConfig',
 ]
 
 MIDDLEWARE = [
