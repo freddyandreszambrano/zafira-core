@@ -7,8 +7,6 @@ from .views import (
     LogoutView,
     PasswordChangeView,
     ProfileEditView,
-    ProfileManageView,
-    ProfileUpdateAPIView,
     ProfileView,
     RegisterView,
     UserCreateView,
@@ -42,8 +40,6 @@ users_urls = [
 profile_urls = [
     path('profile/', ProfileView.as_view(), name='profile'),
     path('profile/edit/', ProfileEditView.as_view(), name='profile_edit'),
-    path('profile/manage/', ProfileManageView.as_view(), name='profile_manage'),
-    path('profile/manage/update/', ProfileUpdateAPIView.as_view(), name='profile_manage_update'),
     path('profile/password/', PasswordChangeView.as_view(), name='password_change'),
 ]
 

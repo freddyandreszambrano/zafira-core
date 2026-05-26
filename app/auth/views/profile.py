@@ -7,7 +7,6 @@ from django.views import View
 from django.views.generic import TemplateView, UpdateView
 
 from app.auth.forms import PasswordChangeForm, ProfileUpdateForm
-from app.common.choices import Department
 
 
 class ProfileView(LoginRequiredMixin, TemplateView):
@@ -63,31 +62,3 @@ class PasswordChangeView(LoginRequiredMixin, View):
             'action': 'change',
         }
         return render(request, self.template_name, context)
-
-
-class ProfileManageView(LoginRequiredMixin, TemplateView):
-    template_name = 'profile/manage.html'
-    login_url = 'login'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update({
-            'user': self.request.user,
-            'profile': self.request.user.profile,
-            'departments': Department.choices,
-        })
-        return context
-
-
-class ProfileUpdateAPIView(LoginRequiredMixin, View):
-    login_url = 'login'
-    EDITABLE_FIELDS = ('department', 'job_title', 'phone', 'address', 'city')
-
-    def post(self, request):
-        profile = request.user.profile
-        for field in self.EDITABLE_FIELDS:
-            if field in request.POST:
-                setattr(profile, field, request.POST.get(field))
-        profile.save()
-        messages.success(request, 'Perfil actualizado correctamente.')
-        return redirect('profile_manage')
