@@ -52,7 +52,7 @@ class ModuleTypeListView(PermissionMixin, TemplateView):
 
 class ModuleTypeCreateView(PermissionMixin, CreateView):
     model = ModuleType
-    template_name = 'form.html'
+    template_name = 'module_type/form.html'
     form_class = ModuleTypeForm
     success_url = reverse_lazy('module_type_list')
     permission_required = 'add_moduletype'
@@ -91,7 +91,7 @@ class ModuleTypeCreateView(PermissionMixin, CreateView):
 
 class ModuleTypeUpdateView(PermissionMixin, UpdateView):
     model = ModuleType
-    template_name = 'form.html'
+    template_name = 'module_type/form.html'
     form_class = ModuleTypeForm
     success_url = reverse_lazy('module_type_list')
     permission_required = 'change_moduletype'
@@ -134,7 +134,7 @@ class ModuleTypeUpdateView(PermissionMixin, UpdateView):
 
 class ModuleTypeDeleteView(PermissionMixin, DeleteView):
     model = ModuleType
-    template_name = 'delete.html'
+    template_name = 'module_type/delete.html'
     success_url = reverse_lazy('module_type_list')
     permission_required = 'delete_moduletype'
 
@@ -195,7 +195,7 @@ class ModuleListView(PermissionMixin, TemplateView):
 
 class ModuleCreateView(PermissionMixin, CreateView):
     model = Module
-    template_name = 'form.html'
+    template_name = 'module/form.html'
     form_class = ModuleForm
     success_url = reverse_lazy('module_list')
     permission_required = 'add_module'
@@ -234,7 +234,7 @@ class ModuleCreateView(PermissionMixin, CreateView):
 
 class ModuleUpdateView(PermissionMixin, UpdateView):
     model = Module
-    template_name = 'form.html'
+    template_name = 'module/form.html'
     form_class = ModuleForm
     success_url = reverse_lazy('module_list')
     permission_required = 'change_module'
@@ -277,7 +277,7 @@ class ModuleUpdateView(PermissionMixin, UpdateView):
 
 class ModuleDeleteView(PermissionMixin, DeleteView):
     model = Module
-    template_name = 'delete.html'
+    template_name = 'module/delete.html'
     success_url = reverse_lazy('module_list')
     permission_required = 'delete_module'
 

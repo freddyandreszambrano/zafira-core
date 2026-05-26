@@ -55,7 +55,7 @@ class UserListView(PermissionMixin, TemplateView):
 
 class UserCreateView(PermissionMixin, CreateView):
     model = User
-    template_name = 'form.html'
+    template_name = 'user/form.html'
     form_class = RegisterForm
     success_url = reverse_lazy('user_list')
     permission_required = 'add_user'
@@ -94,7 +94,7 @@ class UserCreateView(PermissionMixin, CreateView):
 
 class UserUpdateView(PermissionMixin, UpdateView):
     model = User
-    template_name = 'form.html'
+    template_name = 'user/form.html'
     form_class = EditUserForm
     success_url = reverse_lazy('user_list')
     permission_required = 'change_user'
@@ -137,7 +137,7 @@ class UserUpdateView(PermissionMixin, UpdateView):
 
 class UserDeleteView(PermissionMixin, DeleteView):
     model = User
-    template_name = 'delete.html'
+    template_name = 'user/delete.html'
     success_url = reverse_lazy('user_list')
     permission_required = 'delete_user'
 

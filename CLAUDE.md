@@ -33,8 +33,8 @@ app/
 │   ├── mixins.py      # PermissionMixin (USAR EN TODA VIEW CRUD), ModuleMixin
 │   ├── views/{module,group}.py  # CRUD explícito de las entidades de seguridad
 │   ├── forms/         # ModuleForm, GroupForm, ModuleTypeForm
-│   ├── templates/{module,module_type,group}/list.html   # Templates app-local
-│   ├── static/{module,module_type,group}/js/list.js     # JS app-local
+│   ├── templates/{module,module_type,group}/  # list.html + form.html + delete.html por entidad
+│   ├── static/{module,module_type,group}/js/   # list.js + form.js por entidad
 │   ├── context_processors.py  # `available_modules` para todos los templates
 │   └── management/commands/insert_data.py  # Carga seed: módulos + admin/admin
 │
@@ -44,7 +44,7 @@ app/
 │   ├── views/users.py # User CRUD explícito (cada view define su post() inline)
 │   ├── forms/         # auth.py, password.py, profile.py
 │   ├── templates/{auth,dashboard,profile,user}/  # login, register, dashboard, profile, user CRUD
-│   ├── static/user/js/list.js                    # JS del User CRUD
+│   ├── static/user/js/  # list.js + form.js del User CRUD
 │   └── serializers/   # API REST (DRF) si se necesita
 │
 └── profiles/          # UserProfile (datos extendidos del usuario)
@@ -68,8 +68,8 @@ core/
 
 **Reglas de ubicación**:
 - **Templates y static específicos de una entidad viven dentro de la app**: `app/<app>/templates/<entity>/...` y `app/<app>/static/<entity>/...`. Django los encuentra automáticamente vía `APP_DIRS=True` y `staticfiles`.
-- **`templates/` raíz solo contiene los bases verdaderamente compartidos** (`base.html`, `list.html`, `form.html`, `delete.html`). Nada de entidades específicas ahí.
-- Si una entidad solo necesita el form/delete estándar, **NO crees** `form.html`/`delete.html` por entidad; la view apunta directo a `template_name = 'form.html'`. Solo crea hijos cuando necesites widgets/JS/libs específicos.
+- **`templates/` raíz solo contiene los bases verdaderamente compartidos** (`base.html`, `base_public.html`, `list.html`, `form.html`, `delete.html`). Nada de entidades específicas ahí.
+- **Cada CRUD tiene 3 templates y 2 JS en su app**: `<entity>/list.html`, `<entity>/form.html`, `<entity>/delete.html` y `<entity>/js/list.js`, `<entity>/js/form.js`. El `form.html` lo comparten Create y Update (la diferencia la marca el contexto `action='add'|'edit'`). El `delete.html` suele ser solo `{% extends 'delete.html' %}` (la lógica AJAX vive en el base), pero existe para mantener el patrón uniforme y para poder agregar libs/JS específicos si hicieran falta.
 
 ---
 
@@ -256,20 +256,29 @@ urlpatterns = [
 ```
 Y en `core/urls.py`: `path('catalog/', include('app.catalog.urls'))`.
 
-### Paso 5 — Template y JS app-local
+### Paso 5 — Templates + JS por entidad (app-local)
 
-El template y el JS de cada entidad viven **dentro de la app correspondiente**, no en carpetas globales:
-- Template: `app/catalog/templates/company/list.html`
-- JS: `app/catalog/static/company/js/list.js`
+Cada CRUD tiene su propio set de 3 templates + 2 JS dentro de la app:
 
-`APP_DIRS=True` (en settings) hace que Django encuentre el template como `'company/list.html'`, y `staticfiles` lo encuentra como `'company/js/list.js'`.
+```
+app/catalog/templates/company/
+├── list.html      # extends 'list.html'
+├── form.html      # extends 'form.html' (compartido por Create y Update)
+└── delete.html    # extends 'delete.html'
 
-El template solo declara columnas y carga el JS externo dentro del bloque `head_list`. **Nunca poner JS inline en el template.**
+app/catalog/static/company/js/
+├── list.js        # DataTable + columnas
+└── form.js        # FormValidation + validate_data remote
+```
 
-Los templates base exponen **un único bloque por archivo** que el hijo llena con sus scripts/libs:
+`APP_DIRS=True` (settings) + `staticfiles` hacen que Django los encuentre con paths sin prefijo (`'company/list.html'`, `'company/js/list.js'`).
+
+Bloque expuesto por cada base para que el hijo cargue scripts/libs:
 - `list.html` → `{% block head_list %}`
 - `form.html` → `{% block head_form %}`
-- `delete.html` → `{% block head_delete %}` (rara vez usado: el JS de confirmación ya está en el base)
+- `delete.html` → `{% block head_delete %}` (rara vez usado)
+
+**Nunca poner JS inline en el template.**
 
 ```html
 {# app/catalog/templates/company/list.html #}
@@ -287,23 +296,34 @@ Los templates base exponen **un único bloque por archivo** que el hijo llena co
 {% endblock %}
 ```
 
-Y la view referencia el template así:
-```python
-class CompanyListView(PermissionMixin, TemplateView):
-    template_name = 'company/list.html'  # → app/catalog/templates/company/list.html
-```
-
-Si el form de la entidad necesita libs adicionales (select2, FormValidation custom, etc.) o JS específico, crea `app/catalog/static/company/js/form.js` y un template hijo:
-
 ```html
-{# app/catalog/templates/company/form.html — solo si necesitas scripts/libs específicos #}
+{# app/catalog/templates/company/form.html — usado por Create Y Update #}
 {% extends 'form.html' %}
 {% load static %}
 {% block head_form %}
     <script src="{% static 'company/js/form.js' %}"></script>
 {% endblock %}
 ```
-La view apunta a `template_name = 'company/form.html'`. Si no hay scripts extras, deja `template_name = 'form.html'` directo (al base).
+
+```html
+{# app/catalog/templates/company/delete.html — passthrough, listo para futuras libs específicas #}
+{% extends 'delete.html' %}
+```
+
+Y las views:
+```python
+class CompanyListView(PermissionMixin, TemplateView):
+    template_name = 'company/list.html'
+
+class CompanyCreateView(PermissionMixin, CreateView):
+    template_name = 'company/form.html'      # mismo template que Update
+
+class CompanyUpdateView(PermissionMixin, UpdateView):
+    template_name = 'company/form.html'      # mismo template que Create
+
+class CompanyDeleteView(PermissionMixin, DeleteView):
+    template_name = 'company/delete.html'
+```
 
 ```js
 // app/catalog/static/company/js/list.js
@@ -313,27 +333,52 @@ const company = {
     list: function () {
         tblCompany = Zafira.dataTable('#data', [
             { data: 'name' },
-            {
-                data: 'is_active',
-                className: 'text-center',
-                render: data => Zafira.statusBadge(data),
-            },
-            {
-                data: 'id',
-                className: 'text-center',
-                orderable: false,
-                render: id => Zafira.rowActions(id),
-            },
+            { data: 'is_active', className: 'text-center', render: data => Zafira.statusBadge(data) },
+            { data: 'id', className: 'text-center', orderable: false, render: id => Zafira.rowActions(id) },
         ], { toggleConfirm: '¿Cambiar el estado de esta empresa?' });
     }
 };
 
-$(function () {
-    company.list();
+$(function () { company.list(); });
+```
+
+```js
+// app/catalog/static/company/js/form.js — FormValidation con remote validate_data
+let fv;
+
+document.addEventListener('DOMContentLoaded', function () {
+    fv = FormValidation.formValidation(document.getElementById('frmForm'), {
+        locale: 'es_ES',
+        localization: FormValidation.locales.es_ES,
+        plugins: {
+            trigger: new FormValidation.plugins.Trigger(),
+            submitButton: new FormValidation.plugins.SubmitButton(),
+            bootstrap: new FormValidation.plugins.Bootstrap(),
+            icon: new FormValidation.plugins.Icon({ valid: 'fa fa-check', invalid: 'fa fa-times', validating: 'fa fa-refresh' }),
+        },
+        fields: {
+            name: {
+                validators: {
+                    notEmpty: { message: 'Ingrese un nombre' },
+                    stringLength: { min: 2 },
+                    remote: {
+                        url: pathname,
+                        data: () => ({ name: fv.form.querySelector('[name="name"]').value, pattern: 'name', action: 'validate_data' }),
+                        message: 'El nombre ya se encuentra registrado',
+                        method: 'POST',
+                        headers: { 'X-CSRFToken': csrftoken },
+                    },
+                },
+            },
+        },
+    }).on('core.form.valid', function () {
+        submit_formdata_with_ajax_form(fv);
+    });
 });
 ```
 
-> Patrón JS: objeto nombrado con método `list()`, y `$(function () { entity.list(); })` al final. Si necesitas handlers extras (modales, sockets, etc.), agrégalos como métodos del objeto y enlázalos dentro del mismo `$(function () { ... })`. Ver `app/auth/static/user/js/list.js` para un ejemplo con celda compuesta.
+> El bloque `remote` envía `action='validate_data'` + `pattern=<campo>` a la vista; la vista responde `{valid: true|false}`. En Update la vista hace `.exclude(pk=self.object.pk)` automáticamente, por lo que el mismo `form.js` sirve para Create y Update.
+> Si necesitas libs adicionales (select2, etc.) cárgalas dentro del mismo `{% block head_form %}` antes del `<script src="...form.js">`. Ver `app/auth/static/user/js/form.js` para un ejemplo con múltiples campos uniques (`username`, `email`, `dni`).
 
 ### Paso 6 — Registrar como Module en el dashboard
 Edita `app/security/management/commands/insert_data.py` y agrega:

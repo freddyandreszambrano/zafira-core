@@ -307,10 +307,10 @@
         .z-dropdown__menu {
             position: absolute;
             min-width: 220px;
-            background: #fff;
-            border: 1px solid #f1f5f9;
+            background: var(--z-surface);
+            border: 1px solid var(--z-border);
             border-radius: .75rem;
-            box-shadow: 0 12px 32px -8px rgba(15, 23, 42, .15);
+            box-shadow: var(--z-dropdown-shadow);
             padding: .35rem;
             z-index: 60;
             opacity: 0;
@@ -332,7 +332,7 @@
             gap: .65rem;
             padding: .55rem .75rem;
             border-radius: .5rem;
-            color: #475569;
+            color: var(--z-text-soft);
             font-size: .85rem;
             cursor: pointer;
             transition: all .12s ease;
@@ -342,65 +342,69 @@
             border: 0;
         }
         .z-dropdown__item:hover { background: #FFE5F6; color: #FF3BBE; }
+        html.dark .z-dropdown__item:hover { background: rgba(255, 59, 190, .12); }
         .z-dropdown__item--danger:hover { background: #fee2e2; color: #dc2626; }
+        html.dark .z-dropdown__item--danger:hover { background: rgba(220, 38, 38, .18); color: #fca5a5; }
         .z-dropdown__item i { width: 1rem; text-align: center; font-size: .8rem; }
-        .z-dropdown__divider { height: 1px; background: #f1f5f9; margin: .35rem 0; }
+        .z-dropdown__divider { height: 1px; background: var(--z-border); margin: .35rem 0; }
         .z-dropdown__label {
             padding: .35rem .75rem;
             font-size: .65rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: .08em;
-            color: #94A3BB;
+            color: var(--z-text-mute);
         }
 
         /* ──────────────────────────────────────────────────────────────
          * Table card + DataTables overrides (sin cambio)
          * ────────────────────────────────────────────────────────────── */
         .z-table-card {
-            background: #fff;
+            background: var(--z-surface);
             border-radius: 1rem;
             box-shadow: 0 1px 2px rgba(15, 23, 42, .04), 0 4px 12px rgba(15, 23, 42, .04);
-            border: 1px solid #f1f5f9;
+            border: 1px solid var(--z-border);
             overflow: hidden;
         }
+        html.dark .z-table-card { box-shadow: 0 1px 2px rgba(0, 0, 0, .25), 0 4px 12px rgba(0, 0, 0, .25); }
         .z-table-toolbar {
             display: flex; align-items: center; gap: .75rem;
             padding: 1rem 1.25rem;
-            border-bottom: 1px solid #f1f5f9;
+            border-bottom: 1px solid var(--z-border);
             flex-wrap: wrap;
         }
         .z-search { position: relative; flex: 1; min-width: 220px; max-width: 360px; }
-        .z-search > i { position: absolute; left: .85rem; top: 50%; transform: translateY(-50%); color: #94A3BB; font-size: .85rem; }
+        .z-search > i { position: absolute; left: .85rem; top: 50%; transform: translateY(-50%); color: var(--z-text-mute); font-size: .85rem; }
         .z-search > input {
             width: 100%;
             padding: .55rem .85rem .55rem 2.25rem;
-            background: #f8fafc;
-            border: 1px solid #f1f5f9;
+            background: var(--z-surface-2);
+            border: 1px solid var(--z-border);
             border-radius: .65rem;
             font-size: .875rem;
-            color: #0f172a;
+            color: var(--z-text);
             transition: all .15s ease;
         }
-        .z-search > input::placeholder { color: #94A3BB; }
+        .z-search > input::placeholder { color: var(--z-text-mute); }
         .z-search > input:focus {
             outline: none;
-            background: #fff;
+            background: var(--z-surface);
             border-color: #FF3BBE;
             box-shadow: 0 0 0 3px rgba(255, 59, 190, .12);
         }
         .z-btn-ghost {
             display: inline-flex; align-items: center; gap: .5rem;
             padding: .55rem .9rem;
-            background: #f8fafc;
-            border: 1px solid #f1f5f9;
+            background: var(--z-surface-2);
+            border: 1px solid var(--z-border);
             border-radius: .65rem;
-            color: #475569;
+            color: var(--z-text-soft);
             font-size: .825rem; font-weight: 500;
             cursor: pointer;
             transition: all .15s ease;
         }
         .z-btn-ghost:hover { background: #FFE5F6; border-color: #FFB6E2; color: #FF3BBE; }
+        html.dark .z-btn-ghost:hover { background: rgba(255, 59, 190, .12); border-color: rgba(255, 59, 190, .35); }
         .z-btn-primary {
             display: inline-flex; align-items: center; gap: .5rem;
             padding: .55rem 1rem;
@@ -416,10 +420,10 @@
         table.dataTable { width: 100% !important; margin: 0 !important; border-collapse: separate !important; border-spacing: 0 !important; }
         table.dataTable thead th {
             padding: .85rem 1.25rem !important;
-            background: #f8fafc;
-            border-bottom: 1px solid #f1f5f9 !important;
+            background: var(--z-surface-2);
+            border-bottom: 1px solid var(--z-border) !important;
             border-top: 0 !important;
-            color: #475569;
+            color: var(--z-text-soft);
             font-size: .7rem; font-weight: 600;
             text-transform: uppercase; letter-spacing: .04em;
             text-align: left;
@@ -438,33 +442,34 @@
         table.dataTable thead th.sorting_desc::after { content: '\f0d7'; opacity: 1; color: #FF3BBE; }
         table.dataTable tbody td {
             padding: .9rem 1.25rem !important;
-            border-bottom: 1px solid #f8fafc !important;
-            color: #0f172a; font-size: .875rem; vertical-align: middle;
+            border-bottom: 1px solid var(--z-border-soft) !important;
+            color: var(--z-text); font-size: .875rem; vertical-align: middle;
         }
         table.dataTable tbody td.text-center { text-align: center; }
         table.dataTable tbody tr:last-child td { border-bottom: 0 !important; }
-        table.dataTable tbody tr:hover { background: #fef7fc !important; }
+        table.dataTable tbody tr:hover { background: var(--z-surface-hover) !important; }
 
         .z-table-footer {
             display: flex; align-items: center; justify-content: space-between;
             padding: 1rem 1.25rem;
-            border-top: 1px solid #f1f5f9;
-            background: #fafbfc;
+            border-top: 1px solid var(--z-border);
+            background: var(--z-surface-2);
             flex-wrap: wrap; gap: .75rem;
         }
-        .z-table-info { color: #475569; font-size: .8rem; }
+        .z-table-info { color: var(--z-text-soft); font-size: .8rem; }
         .z-table-pager .paginate_button {
             display: inline-flex !important; align-items: center; justify-content: center;
             min-width: 2rem; height: 2rem; padding: 0 .65rem !important;
             margin: 0 .15rem !important;
-            background: #fff !important;
-            border: 1px solid #f1f5f9 !important;
+            background: var(--z-surface) !important;
+            border: 1px solid var(--z-border) !important;
             border-radius: .5rem !important;
-            color: #475569 !important;
+            color: var(--z-text-soft) !important;
             font-size: .8rem !important; font-weight: 500;
             cursor: pointer; transition: all .15s ease;
         }
         .z-table-pager .paginate_button:hover { background: #FFE5F6 !important; border-color: #FFB6E2 !important; color: #FF3BBE !important; }
+        html.dark .z-table-pager .paginate_button:hover { background: rgba(255, 59, 190, .12) !important; border-color: rgba(255, 59, 190, .35) !important; }
         .z-table-pager .paginate_button.current,
         .z-table-pager .paginate_button.current:hover {
             background: linear-gradient(135deg, #FF3BBE 0%, #8E54FF 100%) !important;
@@ -474,7 +479,7 @@
         .z-table-pager .paginate_button.disabled,
         .z-table-pager .paginate_button.disabled:hover {
             opacity: .35; cursor: not-allowed;
-            background: #fff !important; color: #94A3BB !important;
+            background: var(--z-surface) !important; color: var(--z-text-mute) !important;
         }
 
         .z-badge {
@@ -486,23 +491,26 @@
             cursor: pointer; border: 0;
         }
         .z-badge--on  { background: #FFE5F6; color: #b3007a; }
-        .z-badge--off { background: #f1f5f9; color: #475569; }
+        html.dark .z-badge--on { background: rgba(255, 59, 190, .18); color: #ffb6e2; }
+        .z-badge--off { background: var(--z-badge-off-bg); color: var(--z-badge-off-fg); }
         .z-badge__dot { width: .4rem; height: .4rem; border-radius: 9999px; }
         .z-badge--on  .z-badge__dot { background: #FF3BBE; box-shadow: 0 0 0 3px rgba(255,59,190,.15); }
-        .z-badge--off .z-badge__dot { background: #94A3BB; }
+        .z-badge--off .z-badge__dot { background: var(--z-text-mute); }
 
         .z-row-actions { display: inline-flex; gap: .25rem; justify-content: center; }
         .z-icon-btn {
             display: inline-flex; align-items: center; justify-content: center;
             width: 2rem; height: 2rem;
             border-radius: .5rem;
-            color: #94A3BB; transition: all .15s ease;
+            color: var(--z-text-mute); transition: all .15s ease;
         }
         .z-icon-btn:hover { background: #FFE5F6; color: #FF3BBE; }
+        html.dark .z-icon-btn:hover { background: rgba(255, 59, 190, .12); }
         .z-icon-btn--danger:hover { background: #fee2e2; color: #dc2626; }
+        html.dark .z-icon-btn--danger:hover { background: rgba(220, 38, 38, .18); color: #fca5a5; }
 
-        .dataTables_empty { padding: 3rem 1.25rem !important; text-align: center !important; color: #94A3BB !important; font-size: .9rem !important; }
-        .dataTables_processing { background: rgba(255, 255, 255, .85) !important; border: 0 !important; box-shadow: none !important; color: #FF3BBE !important; font-weight: 500 !important; }
+        .dataTables_empty { padding: 3rem 1.25rem !important; text-align: center !important; color: var(--z-text-mute) !important; font-size: .9rem !important; }
+        .dataTables_processing { background: color-mix(in srgb, var(--z-surface) 85%, transparent) !important; border: 0 !important; box-shadow: none !important; color: #FF3BBE !important; font-weight: 500 !important; }
     </style>
 
     {% block extra_css %}{% endblock %}
@@ -595,6 +603,10 @@
                 </div>
                 <div class="flex items-center gap-2">
                     {% block topbar_actions %}{% endblock %}
+                    <button type="button" class="z-theme-toggle" data-toggle-theme aria-label="Cambiar tema">
+                        <i class="fas fa-moon icon-moon"></i>
+                        <i class="fas fa-sun icon-sun"></i>
+                    </button>
                 </div>
             </div>
 
@@ -616,6 +628,7 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/formvalidation@2.4.0/dist/js/FormValidation.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/formvalidation@2.4.0/dist/js/locales/es_ES.min.js"></script>
 
     <script>
         const csrftoken = '{{ csrf_token }}';
@@ -768,7 +781,16 @@
             },
         };
 
-        // Auto-bind dropdowns and outside-click handler
+        Zafira.toggleTheme = function () {
+            const root = document.documentElement;
+            const isDark = root.classList.toggle('dark');
+            localStorage.setItem('zafira-theme', isDark ? 'dark' : 'light');
+        };
+
+        document.addEventListener('click', e => {
+            if (e.target.closest('[data-toggle-theme]')) Zafira.toggleTheme();
+        });
+
         document.addEventListener('DOMContentLoaded', () => Zafira.initDropdowns());
         document.addEventListener('click', e => {
             if (!e.target.closest('[data-dropdown]')) {

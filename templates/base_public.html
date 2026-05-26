@@ -5,9 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}ZAFIRA - Sistema Administrativo{% endblock %}</title>
 
+    <script>
+        (function () {
+            const saved = localStorage.getItem('zafira-theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+        })();
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
@@ -37,12 +46,32 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
+        :root {
+            --z-bg: #f8fafc;
+            --z-surface: #ffffff;
+            --z-text: #0f172a;
+            --z-text-soft: #475569;
+            --z-text-mute: #94A3BB;
+            --z-border: #f1f5f9;
+        }
+        html.dark {
+            --z-bg: #0b0b12;
+            --z-surface: #15151c;
+            --z-text: #e2e8f0;
+            --z-text-soft: #cbd5e1;
+            --z-text-mute: #64748b;
+            --z-border: #262630;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--z-bg);
+            color: var(--z-text);
+        }
 
         .gradient-primary { background: linear-gradient(135deg, #FF3BBE 0%, #8E54FF 100%); }
         .gradient-dark    { background: linear-gradient(135deg, #090101 0%, #1F1F23 100%); }
-        .gradient-soft    { background: linear-gradient(135deg, #FFE5F6 0%, #EFE7FF 100%); }
 
         .zafira-text-gradient {
             background: linear-gradient(135deg, #FF3BBE 0%, #8E54FF 100%);
@@ -55,11 +84,11 @@
 
     {% block extra_css %}{% endblock %}
 </head>
-<body class="bg-gray-50">
+<body>
     {% if messages %}
     <div class="fixed top-4 right-4 z-50 max-w-md">
         {% for message in messages %}
-        <div class="bg-zafira-primary-soft border-l-4 border-zafira-primary text-zafira-obsidian p-4 mb-2 rounded shadow-lg">
+        <div class="bg-zafira-primary-soft border-l-4 border-zafira-primary text-zafira-obsidian dark:bg-zafira-primary/20 dark:text-white p-4 mb-2 rounded shadow-lg">
             <i class="fas fa-check-circle mr-2 text-zafira-primary"></i>{{ message }}
         </div>
         {% endfor %}

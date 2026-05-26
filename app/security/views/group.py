@@ -52,7 +52,7 @@ class GroupListView(PermissionMixin, TemplateView):
 
 class GroupCreateView(PermissionMixin, CreateView):
     model = Group
-    template_name = 'form.html'
+    template_name = 'group/form.html'
     form_class = GroupForm
     success_url = reverse_lazy('group_list')
     permission_required = 'add_group'
@@ -91,7 +91,7 @@ class GroupCreateView(PermissionMixin, CreateView):
 
 class GroupUpdateView(PermissionMixin, UpdateView):
     model = Group
-    template_name = 'form.html'
+    template_name = 'group/form.html'
     form_class = GroupForm
     success_url = reverse_lazy('group_list')
     permission_required = 'change_group'
@@ -134,7 +134,7 @@ class GroupUpdateView(PermissionMixin, UpdateView):
 
 class GroupDeleteView(PermissionMixin, DeleteView):
     model = Group
-    template_name = 'delete.html'
+    template_name = 'group/delete.html'
     success_url = reverse_lazy('group_list')
     permission_required = 'delete_group'
 
