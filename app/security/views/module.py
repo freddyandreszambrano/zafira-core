@@ -153,6 +153,12 @@ class ModuleTypeDeleteView(PermissionMixin, DeleteView):
         return context
 
 
+__all__ = [
+    'ModuleTypeListView', 'ModuleTypeCreateView', 'ModuleTypeUpdateView', 'ModuleTypeDeleteView',
+    'ModuleListView', 'ModuleCreateView', 'ModuleUpdateView', 'ModuleDeleteView',
+]
+
+
 class ModuleListView(PermissionMixin, TemplateView):
     template_name = 'module/list.html'
     permission_required = 'view_module'

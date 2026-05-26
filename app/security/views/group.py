@@ -151,3 +151,6 @@ class GroupDeleteView(PermissionMixin, DeleteView):
         context = super().get_context_data(**kwargs)
         context['list_url'] = self.success_url
         return context
+
+
+__all__ = ['GroupListView', 'GroupCreateView', 'GroupUpdateView', 'GroupDeleteView']

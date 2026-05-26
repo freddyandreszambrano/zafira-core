@@ -83,3 +83,6 @@ class UserProfileViewSet(viewsets.ModelViewSet):
     def full_info(self, request, pk=None):
         profile = self.get_object()
         return Response(UserWithProfileSerializer(profile.user).data)
+
+
+__all__ = ['UserProfileViewSet']

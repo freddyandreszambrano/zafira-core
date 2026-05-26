@@ -24,3 +24,6 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             'recent_users': User.objects.order_by('-date_joined')[:5],
         })
         return context
+
+
+__all__ = ['DashboardView']

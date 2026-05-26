@@ -54,3 +54,6 @@ class LogoutView(LoginRequiredMixin, View):
         logout(request)
         messages.success(request, 'Has cerrado sesión.')
         return redirect('login')
+
+
+__all__ = ['IndexRedirectView', 'LoginView', 'RegisterView', 'LogoutView']
