@@ -11,3 +11,7 @@ django-environ==0.11.2
 # Module-based permission system
 django-crum==0.7.9
 django-widget-tweaks==1.5.1
+
+# Scraper
+requests>=2.31.0
+beautifulsoup4>=4.12.0
