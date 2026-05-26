@@ -88,6 +88,15 @@ test-app: ## Ejecuta tests de una app específica: `make test-app APP=auth`
 test-fast: ## Tests reutilizando la BD (más rápido en runs sucesivos)
 	$(MANAGE) test app.common app.security app.auth app.profiles --keepdb
 
+# ── Scraper ───────────────────────────────────────────────────────────
+.PHONY: scrape
+scrape: ## Ejecuta scraper de Moda RM (default: modarm, verbose)
+	$(MANAGE) scrape --store modarm --verbose
+
+.PHONY: scrape-quiet
+scrape-quiet: ## Ejecuta scraper sin output detallado
+	$(MANAGE) scrape --store modarm
+
 # ── Mantenimiento ─────────────────────────────────────────────────────
 .PHONY: clean
 clean: ## Borra __pycache__ y archivos compilados
