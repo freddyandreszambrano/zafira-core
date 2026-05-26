@@ -39,7 +39,13 @@ class PasswordChangeView(LoginRequiredMixin, View):
     login_url = 'login'
 
     def get(self, request):
-        return render(request, self.template_name, {'form': PasswordChangeForm(request.user)})
+        context = {
+            'form': PasswordChangeForm(request.user),
+            'title': 'Cambiar contraseña',
+            'list_url': reverse_lazy('profile'),
+            'action': 'change',
+        }
+        return render(request, self.template_name, context)
 
     def post(self, request):
         form = PasswordChangeForm(request.user, request.POST)
@@ -50,7 +56,13 @@ class PasswordChangeView(LoginRequiredMixin, View):
             login(request, user)
             messages.success(request, 'Contraseña actualizada correctamente.')
             return redirect('profile')
-        return render(request, self.template_name, {'form': form})
+        context = {
+            'form': form,
+            'title': 'Cambiar contraseña',
+            'list_url': reverse_lazy('profile'),
+            'action': 'change',
+        }
+        return render(request, self.template_name, context)
 
 
 class ProfileManageView(LoginRequiredMixin, TemplateView):
