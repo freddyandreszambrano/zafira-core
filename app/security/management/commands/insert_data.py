@@ -14,6 +14,7 @@ MODULE_TYPES = [
     {'name': 'Seguridad', 'icon': 'fas fa-shield-alt', 'order': 1},
     {'name': 'Usuarios', 'icon': 'fas fa-users', 'order': 2},
     {'name': 'Cuenta', 'icon': 'fas fa-user-circle', 'order': 3},
+    {'name': 'Herramientas', 'icon': 'fas fa-toolbox', 'order': 4},
 ]
 
 MODULES = [
@@ -70,6 +71,15 @@ MODULES = [
         'description': 'Permite cambiar la contraseña de tu cuenta',
         'permits_app': None, 'permits_model': None,
         'order': 2, 'is_visible': False,
+    },
+    {
+        'type': 'Herramientas',
+        'name': 'Scraper',
+        'url': '/scraper/',
+        'icon': 'fas fa-magnifying-glass-chart',
+        'description': 'Extractor temporal de productos desde tiendas web',
+        'permits_app': None, 'permits_model': None,
+        'order': 1,
     },
 ]
 

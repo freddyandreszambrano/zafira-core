@@ -8,6 +8,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('app.profiles.urls')),
     path('security/', include('app.security.urls')),
+    path('scraper/', include('app.scraper.urls')),
     path('', include('app.auth.urls')),
 ]
 

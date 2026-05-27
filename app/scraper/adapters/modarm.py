@@ -1,11 +1,12 @@
 import sys
+from typing import List, Dict, Optional
+from urllib.parse import urljoin
+
 import requests
 from bs4 import BeautifulSoup
-from typing import List, Dict, Optional
-from datetime import datetime, timezone
 
-from app.scraper.base import BaseAdapter
 from app.scraper import parsers
+from app.scraper.base import BaseAdapter
 
 
 class ModarmAdapter(BaseAdapter):
@@ -56,6 +57,7 @@ class ModarmAdapter(BaseAdapter):
 
             # Buscar todos los links de productos (href contiene /p/)
             product_links = soup.find_all('a', href=True)
+            seen = set()
 
             for link in product_links:
                 href = link.get('href', '')
@@ -64,16 +66,16 @@ class ModarmAdapter(BaseAdapter):
 
                 # Extraer datos básicos del producto
                 product_id = self._extract_product_id(href)
+                if product_id in seen:
+                    continue
                 product_name = self._extract_name(link)
 
                 if not product_id or not product_name:
                     continue
+                seen.add(product_id)
 
                 # Construir URL completa del producto
-                if href.startswith('http'):
-                    product_url = href
-                else:
-                    product_url = f"{self.BASE_URL}{href}"
+                product_url = urljoin(self.BASE_URL, href)
 
                 products.append({
                     'id': product_id,
@@ -128,7 +130,7 @@ class ModarmAdapter(BaseAdapter):
             result['sizes'] = self._extract_sizes(soup)
             result['colors'] = self._extract_colors(soup)
             result['description'] = self._extract_description(soup)
-            result['image_urls'] = parsers.extract_images(soup)
+            result['image_urls'] = self._extract_images(soup)
             result['availability'] = self._extract_availability(soup)
 
         except requests.RequestException as e:
@@ -183,15 +185,31 @@ class ModarmAdapter(BaseAdapter):
 
         # Si es un BeautifulSoup object (página completa)
         if hasattr(element, 'find'):
+            page_title_name = element.select_one('.product-details.page-title .name')
+            if page_title_name:
+                name = self._direct_text(page_title_name)
+                if name:
+                    return name
+
+            name_elem = element.select_one('div.name')
+            if name_elem:
+                name = self._direct_text(name_elem)
+                if name:
+                    return name
+
             # Buscar h1
             h1 = element.find('h1')
             if h1:
-                return h1.get_text(strip=True)
+                name = h1.get_text(strip=True)
+                if name and name.lower() != 'antes de empezar a comprar':
+                    return name
 
             # Buscar h2
             h2 = element.find('h2')
             if h2:
-                return h2.get_text(strip=True)
+                name = h2.get_text(strip=True)
+                if name and name.lower() != 'antes de empezar a comprar':
+                    return name
 
             # Buscar elemento con clase product-name
             product_name = element.find(class_='product-name')
@@ -217,6 +235,12 @@ class ModarmAdapter(BaseAdapter):
         if breadcrumb:
             items = breadcrumb.find_all('li')
             breadcrumb_list = [item.get_text(strip=True) for item in items]
+            breadcrumb_list = [
+                item for item in breadcrumb_list
+                if item and item.lower() != 'inicio'
+            ]
+            if breadcrumb_list:
+                breadcrumb_list = breadcrumb_list[:-1]
             return parsers.extract_category_path(breadcrumb_list)
 
         return None
@@ -230,12 +254,16 @@ class ModarmAdapter(BaseAdapter):
         if soup is None:
             return None
 
-        # Buscar span con clase price
-        price_elem = soup.find('span', class_='price')
-        if not price_elem:
-            price_elem = soup.find('span', class_='current-price')
-        if not price_elem:
-            price_elem = soup.find(class_='product-price')
+        selectors = [
+            '.price-panel .priceDiscountDetails',
+            '.price-panel .priceRegularDetails',
+            '.price-panel .pdp-prices-box .direct-credit-price',
+            '.priceDiscount',
+            'span.price',
+            'span.current-price',
+            '.product-price',
+        ]
+        price_elem = self._select_first(soup, selectors)
 
         if price_elem:
             price_text = price_elem.get_text(strip=True)
@@ -252,12 +280,14 @@ class ModarmAdapter(BaseAdapter):
         if soup is None:
             return None
 
-        # Buscar span con clase old-price
-        price_elem = soup.find('span', class_='old-price')
-        if not price_elem:
-            price_elem = soup.find('span', class_='original-price')
-        if not price_elem:
-            price_elem = soup.find('s')  # <s> para strikethrough
+        selectors = [
+            '.price-panel .priceOldDetails',
+            '.priceOld',
+            'span.old-price',
+            'span.original-price',
+            's',
+        ]
+        price_elem = self._select_first(soup, selectors)
 
         if price_elem:
             price_text = price_elem.get_text(strip=True)
@@ -296,6 +326,14 @@ class ModarmAdapter(BaseAdapter):
                     sizes.append(size)
             return sizes
 
+        variant_select = soup.find('select', id='priority1')
+        if variant_select:
+            for opt in variant_select.find_all('option'):
+                size = opt.get_text(strip=True)
+                if size:
+                    sizes.append(size)
+            return sizes
+
         return sizes
 
     def _extract_colors(self, soup) -> List[str]:
@@ -330,6 +368,32 @@ class ModarmAdapter(BaseAdapter):
             return colors
 
         return colors
+
+    def _extract_images(self, soup) -> List[str]:
+        images = []
+        seen = set()
+
+        selectors = '.product-main-info img, .product-image-gallery img, .gallery-carousel img, img.lazyOwl'
+        for img in soup.select(selectors):
+            url = img.get('data-zoom-image') or img.get('data-src') or img.get('src')
+            if not self._is_product_image(url):
+                continue
+            full_url = urljoin(self.BASE_URL, url)
+            if full_url not in seen:
+                images.append(full_url)
+                seen.add(full_url)
+
+        if images:
+            return images
+
+        for url in parsers.extract_images(soup):
+            if not self._is_product_image(url):
+                continue
+            full_url = urljoin(self.BASE_URL, url)
+            if full_url not in seen:
+                images.append(full_url)
+                seen.add(full_url)
+        return images
 
     def _extract_description(self, soup) -> Optional[str]:
         """
@@ -377,3 +441,33 @@ class ModarmAdapter(BaseAdapter):
             return 'out_of_stock'
 
         return 'available'
+
+    def _select_first(self, soup, selectors):
+        for selector in selectors:
+            elem = soup.select_one(selector)
+            if elem and elem.get_text(strip=True):
+                return elem
+        return None
+
+    def _direct_text(self, element) -> Optional[str]:
+        texts = [
+            text.strip()
+            for text in element.find_all(string=True, recursive=False)
+            if text and text.strip()
+        ]
+        return texts[0] if texts else None
+
+    def _is_product_image(self, url) -> bool:
+        if not url or url.startswith('data:'):
+            return False
+
+        lowered = url.lower()
+        path = lowered.split('?', 1)[0]
+        if not path.endswith(('.webp', '.jpg', '.jpeg', '.png')):
+            return False
+
+        blocked = ('logo', 'lupa_', 'wsplogo', 'color-pago', 'banner', 'primera-compra')
+        if any(item in lowered for item in blocked):
+            return False
+
+        return '/medias/' in path and any(size in path for size in ('-1200-', '-515-', '-96-'))

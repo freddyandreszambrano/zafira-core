@@ -133,6 +133,87 @@ class TestModarmAdapterParseProduct(SimpleTestCase):
         self.assertEqual(result['price'], 45.99)
         self.assertIsInstance(result['price'], float)
 
+    @patch('app.scraper.adapters.modarm.requests.get')
+    def test_parse_product_uses_modarm_name_when_cookie_banner_has_heading(self, mock_get):
+        mock_response = Mock()
+        mock_response.content = '''
+            <html>
+                <h2>Antes de empezar a comprar</h2>
+                <div class="product-details page-title">
+                    <div class="name">
+                        Abrigo Clásico Kaki
+                        <span class="sku">ID</span>
+                        <span class="code">005000001084198003</span>
+                    </div>
+                </div>
+            </html>
+        '''
+        mock_response.raise_for_status.return_value = None
+        mock_get.return_value = mock_response
+
+        result = self.adapter.parse_product('https://www.modarm.com/es_RW/p/005000001084198003/')
+
+        self.assertEqual(result['name'], 'Abrigo Clásico Kaki')
+
+    @patch('app.scraper.adapters.modarm.requests.get')
+    def test_parse_product_extracts_modarm_discount_prices(self, mock_get):
+        mock_response = Mock()
+        mock_response.content = '''
+            <html>
+                <div class="product-details price-panel">
+                    <span class="priceDiscountDetails">$71,92</span>
+                    <span class="priceOldDetails">$89,90</span>
+                </div>
+            </html>
+        '''
+        mock_response.raise_for_status.return_value = None
+        mock_get.return_value = mock_response
+
+        result = self.adapter.parse_product('https://www.modarm.com/es_RW/p/005000001084198003/')
+
+        self.assertEqual(result['price'], 71.92)
+        self.assertEqual(result['price_old'], 89.90)
+
+    @patch('app.scraper.adapters.modarm.requests.get')
+    def test_parse_product_extracts_modarm_regular_price(self, mock_get):
+        mock_response = Mock()
+        mock_response.content = '''
+            <html>
+                <div class="product-details price-panel">
+                    <div class="pdp-prices-box">
+                        <div class="title">Tarjeta de crédito</div>
+                        <div class="direct-credit-price">$79,90</div>
+                    </div>
+                </div>
+            </html>
+        '''
+        mock_response.raise_for_status.return_value = None
+        mock_get.return_value = mock_response
+
+        result = self.adapter.parse_product('https://www.modarm.com/es_RW/p/005000001097713003/')
+
+        self.assertEqual(result['price'], 79.90)
+        self.assertIsNone(result['price_old'])
+
+    @patch('app.scraper.adapters.modarm.requests.get')
+    def test_parse_product_filters_non_product_images(self, mock_get):
+        mock_response = Mock()
+        mock_response.content = '''
+            <html>
+                <img src="/medias/logo-rm.svg">
+                <img src="/_ui/responsive/common/images/lupa_mas.svg">
+                <img class="lazyOwl" data-src="/medias/000005000001084198-1200-1.webp?context=abc">
+            </html>
+        '''
+        mock_response.raise_for_status.return_value = None
+        mock_get.return_value = mock_response
+
+        result = self.adapter.parse_product('https://www.modarm.com/es_RW/p/005000001084198003/')
+
+        self.assertEqual(result['image_urls'], [
+            'https://www.modarm.com/medias/000005000001084198-1200-1.webp?context=abc'
+        ])
+
 
 class TestModarmAdapterHelpers(SimpleTestCase):
     """Test suite for ModarmAdapter helper methods."""
