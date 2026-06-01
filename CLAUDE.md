@@ -21,7 +21,7 @@ Este archivo es la gobernanza del proyecto para cualquier sesión de Claude. Lé
 ## 2. Estructura de carpetas
 
 ```
-app/
+core/
 ├── common/            # Compartido entre apps (NO depende de ninguna otra app)
 │   ├── choices.py     # TextChoicesCustom + enums de dominio (Department, etc.)
 │   ├── constants.py   # FORM_INPUT_CLASS, mensajes MSG_*
@@ -61,13 +61,13 @@ templates/             # SOLO bases compartidos entre apps
 static/                # SOLO assets globales (CSS Tailwind compilado, etc.)
 └── css/
 
-core/
+config/
 ├── settings.py        # INSTALLED_APPS, MIDDLEWARE, context_processors
 └── urls.py            # admin/, api/, security/, '' (auth)
 ```
 
 **Reglas de ubicación**:
-- **Templates y static específicos de una entidad viven dentro de la app**: `app/<app>/templates/<entity>/...` y `app/<app>/static/<entity>/...`. Django los encuentra automáticamente vía `APP_DIRS=True` y `staticfiles`.
+- **Templates y static específicos de una entidad viven dentro de la app**: `core/<app>/templates/<entity>/...` y `core/<app>/static/<entity>/...`. Django los encuentra automáticamente vía `APP_DIRS=True` y `staticfiles`.
 - **`templates/` raíz solo contiene los bases verdaderamente compartidos** (`base.html`, `base_public.html`, `list.html`, `form.html`, `delete.html`). Nada de entidades específicas ahí.
 - **Cada CRUD tiene 3 templates y 2 JS en su app**: `<entity>/list.html`, `<entity>/form.html`, `<entity>/delete.html` y `<entity>/js/list.js`, `<entity>/js/form.js`. El `form.html` lo comparten Create y Update (la diferencia la marca el contexto `action='add'|'edit'`). El `delete.html` suele ser solo `{% extends 'delete.html' %}` (la lógica AJAX vive en el base), pero existe para mantener el patrón uniforme y para poder agregar libs/JS específicos si hicieran falta.
 
@@ -77,11 +77,11 @@ core/
 
 Patrón: **4 views explícitas y autocontenidas** — `XxxListView`, `XxxCreateView`, `XxxUpdateView`, `XxxDeleteView`. NO se hereda de "CrudXxx" base. Cada view define su `post()` inline con `if/elif action == ...` para que se lea de arriba a abajo.
 
-Supongamos que agregas `Company` en `app/catalog/`.
+Supongamos que agregas `Company` en `core/catalog/`.
 
 ### Paso 1 — Modelo
 ```python
-# app/catalog/models/company.py
+# core/catalog/models/company.py
 from django.db import models
 
 class Company(models.Model):
@@ -96,9 +96,9 @@ class Company(models.Model):
 
 ### Paso 2 — Form
 ```python
-# app/catalog/forms/company.py
+# core/catalog/forms/company.py
 from django import forms
-from app.catalog.models import Company
+from core.catalog.models import Company
 
 class CompanyForm(forms.ModelForm):
     class Meta:
@@ -114,7 +114,7 @@ Cada CRUD tiene 4 vistas. Cada `post()` maneja sus acciones con `if/elif`. Accio
 - **Delete**: sin `action`, POST directo.
 
 ```python
-# app/catalog/views/company.py
+# core/catalog/views/company.py
 import json
 
 from django.core.paginator import Paginator
@@ -123,9 +123,9 @@ from django.http import HttpResponse
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DeleteView, TemplateView, UpdateView
 
-from app.catalog.forms import CompanyForm
-from app.catalog.models import Company
-from app.security.mixins import PermissionMixin
+from core.catalog.forms import CompanyForm
+from core.catalog.models import Company
+from core.security.mixins import PermissionMixin
 
 
 class CompanyListView(PermissionMixin, TemplateView):
@@ -239,11 +239,11 @@ class CompanyDeleteView(PermissionMixin, DeleteView):
         return HttpResponse(json.dumps(data), content_type='application/json')
 ```
 
-> Para ejemplos completos de `Update` (con `validate_data` y `exclude(pk=...)`) ver `app/security/views/module.py`.
+> Para ejemplos completos de `Update` (con `validate_data` y `exclude(pk=...)`) ver `core/security/views/module.py`.
 
 ### Paso 4 — URLs
 ```python
-# app/catalog/urls.py
+# core/catalog/urls.py
 from django.urls import path
 from .views import CompanyCreateView, CompanyDeleteView, CompanyListView, CompanyUpdateView
 
@@ -254,19 +254,19 @@ urlpatterns = [
     path('company/delete/<int:pk>/', CompanyDeleteView.as_view(), name='company_delete'),
 ]
 ```
-Y en `core/urls.py`: `path('catalog/', include('app.catalog.urls'))`.
+Y en `config/urls.py`: `path('catalog/', include('core.catalog.urls'))`.
 
 ### Paso 5 — Templates + JS por entidad (app-local)
 
 Cada CRUD tiene su propio set de 3 templates + 2 JS dentro de la app:
 
 ```
-app/catalog/templates/company/
+core/catalog/templates/company/
 ├── list.html      # extends 'list.html'
 ├── form.html      # extends 'form.html' (compartido por Create y Update)
 └── delete.html    # extends 'delete.html'
 
-app/catalog/static/company/js/
+core/catalog/static/company/js/
 ├── list.js        # DataTable + columnas
 └── form.js        # FormValidation + validate_data remote
 ```
@@ -281,7 +281,7 @@ Bloque expuesto por cada base para que el hijo cargue scripts/libs:
 **Nunca poner JS inline en el template.**
 
 ```html
-{# app/catalog/templates/company/list.html #}
+{# core/catalog/templates/company/list.html #}
 {% extends 'list.html' %}
 {% load static %}
 
@@ -297,7 +297,7 @@ Bloque expuesto por cada base para que el hijo cargue scripts/libs:
 ```
 
 ```html
-{# app/catalog/templates/company/form.html — usado por Create Y Update #}
+{# core/catalog/templates/company/form.html — usado por Create Y Update #}
 {% extends 'form.html' %}
 {% load static %}
 {% block head_form %}
@@ -306,7 +306,7 @@ Bloque expuesto por cada base para que el hijo cargue scripts/libs:
 ```
 
 ```html
-{# app/catalog/templates/company/delete.html — passthrough, listo para futuras libs específicas #}
+{# core/catalog/templates/company/delete.html — passthrough, listo para futuras libs específicas #}
 {% extends 'delete.html' %}
 ```
 
@@ -326,7 +326,7 @@ class CompanyDeleteView(PermissionMixin, DeleteView):
 ```
 
 ```js
-// app/catalog/static/company/js/list.js
+// core/catalog/static/company/js/list.js
 let tblCompany;
 
 const company = {
@@ -343,7 +343,7 @@ $(function () { company.list(); });
 ```
 
 ```js
-// app/catalog/static/company/js/form.js — FormValidation con remote validate_data
+// core/catalog/static/company/js/form.js — FormValidation con remote validate_data
 let fv;
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -378,10 +378,10 @@ document.addEventListener('DOMContentLoaded', function () {
 ```
 
 > El bloque `remote` envía `action='validate_data'` + `pattern=<campo>` a la vista; la vista responde `{valid: true|false}`. En Update la vista hace `.exclude(pk=self.object.pk)` automáticamente, por lo que el mismo `form.js` sirve para Create y Update.
-> Si necesitas libs adicionales (select2, etc.) cárgalas dentro del mismo `{% block head_form %}` antes del `<script src="...form.js">`. Ver `app/auth/static/user/js/form.js` para un ejemplo con múltiples campos uniques (`username`, `email`, `dni`).
+> Si necesitas libs adicionales (select2, etc.) cárgalas dentro del mismo `{% block head_form %}` antes del `<script src="...form.js">`. Ver `core/auth/static/user/js/form.js` para un ejemplo con múltiples campos uniques (`username`, `email`, `dni`).
 
 ### Paso 6 — Registrar como Module en el dashboard
-Edita `app/security/management/commands/insert_data.py` y agrega:
+Edita `core/security/management/commands/insert_data.py` y agrega:
 ```python
 {
     'type': 'Catálogos',  # crea ModuleType si no existe
@@ -404,14 +404,14 @@ Luego: `make migrate && make insert-data`. El módulo aparecerá en nav y dashbo
 - **Sin docstrings obvios**: NUNCA `"""Get user groups."""` en `get_groups()`. Solo escribe comentario si el WHY es no obvio.
 - **Sin templates pass-through vacíos**: si solo dice `{% extends 'form.html' %}`, no lo crees — apunta `template_name` directo al base.
 - **Imports al top del archivo** (no dentro de métodos).
-- **Choices**: usar `TextChoicesCustom` de `app.common.choices` para enums, no listas de tuplas.
-- **CSS form inputs**: usar `FORM_INPUT_CLASS` y los factories de `app.common.forms.widgets`, no duplicar la clase.
+- **Choices**: usar `TextChoicesCustom` de `core.common.choices` para enums, no listas de tuplas.
+- **CSS form inputs**: usar `FORM_INPUT_CLASS` y los factories de `core.common.forms.widgets`, no duplicar la clase.
 
 ### Permisos
 - **Toda view CRUD usa `PermissionMixin`** con `permission_required = 'view_xxx' / 'add_xxx' / 'change_xxx' / 'delete_xxx'`.
 - Validación: `PermissionMixin` verifica contra `group.grouppermission_set` (no Django `user.has_perm`).
 - Superuser: bypass automático en `PermissionMixin`.
-- Vistas públicas (login/register): usar `PublicMixin` de `app.common.mixins`.
+- Vistas públicas (login/register): usar `PublicMixin` de `core.common.mixins`.
 
 ### Errores que NO cometer
 - ❌ **No poner JS inline en templates de lista.** El JS de cada CRUD vive en `static/js/<app>/<entity>.js` con patrón objeto + método `list()` + `$(function(){ entity.list() })`. El template solo declara columnas y carga el script vía `{% static %}`.
@@ -419,10 +419,10 @@ Luego: `make migrate && make insert-data`. El módulo aparecerá en nav y dashbo
 - ❌ No introducir mixins/clases base "CrudXxxView" para deduplicar el CRUD. La repetición controlada y leíble linealmente es preferible a la abstracción genérica.
 - ❌ No usar `dict(MODEL_CHOICES)` en views. Usar `Choice.get_label(value)` o el built-in `obj.get_field_display()`.
 - ❌ No agregar archivos vacíos solo "por consistencia". Si no aporta, no existe.
-- ❌ No hardcodear texto del UI en español dentro del modelo (verbose_name OK, mensajes en `app.common.constants.MSG_*`).
+- ❌ No hardcodear texto del UI en español dentro del modelo (verbose_name OK, mensajes en `core.common.constants.MSG_*`).
 
 ### Tests
-- Tests scaffolding listos en cada `app/*/tests/test_*.py`. Llenar con tests reales cuando agregues funcionalidad.
+- Tests scaffolding listos en cada `core/*/tests/test_*.py`. Llenar con tests reales cuando agregues funcionalidad.
 - `make test` corre todo. `make test-fast` reusa la BD.
 
 ---
@@ -445,7 +445,7 @@ Luego: `make migrate && make insert-data`. El módulo aparecerá en nav y dashbo
 
 1. **Login** (`LoginView.post`) llama `user.set_group_session()` → mete el primer `security_group` activo del user en `request.session['group']`.
 2. **Cada request** pasa por `crum.CurrentRequestUserMiddleware` → el request es accesible vía `get_current_request()` en cualquier punto.
-3. **Cada render** ejecuta `app.security.context_processors.modules` → carga los `Module` del grupo en sesión, agrupados por `ModuleType`, y los inyecta como `available_modules` en TODOS los templates.
+3. **Cada render** ejecuta `core.security.context_processors.modules` → carga los `Module` del grupo en sesión, agrupados por `ModuleType`, y los inyecta como `available_modules` en TODOS los templates.
 4. **`base.html`** itera `available_modules` para renderizar el dropdown del nav.
 5. **`dashboard/home.html`** renderiza tarjetas agrupadas por `ModuleType`.
 6. **Cada vista CRUD** decora `get()` con `@login_required` (vía PermissionMixin) y valida que el grupo activo tenga el `permission_required` declarado.

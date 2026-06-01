@@ -6,7 +6,7 @@ Anatomía de ZAFIRA-CORE y dónde va cada cosa.
 
 ```
 ZAFIRA-CORE/
-├── app/                      # Código fuente
+├── core/                      # Código fuente
 │   ├── common/               # Compartido entre apps
 │   ├── security/             # Módulos y permisos dinámicos
 │   ├── auth/                 # Users, login, dashboard
@@ -16,7 +16,7 @@ ZAFIRA-CORE/
 ├── templates/                # SOLO bases compartidos
 ├── static/                   # SOLO assets globales
 │
-├── core/                     # Configuración Django (settings, urls)
+├── config/                   # Configuración Django (settings, urls)
 ├── manage.py                 # Django manage
 ├── Makefile                  # Comandos make
 ├── CLAUDE.md                 # ← GOBERNANZA DEL PROYECTO
@@ -32,7 +32,7 @@ ZAFIRA-CORE/
 Cada app sigue este patrón:
 
 ```
-app/<app>/
+core/<app>/
 ├── __init__.py
 ├── models/
 │   ├── __init__.py           # re-exporta: from .entity import Entity
@@ -99,7 +99,7 @@ templates/
 └── delete.html               # Base para Delete (confirm + AJAX)
 ```
 
-**Regla:** Aquí SOLO van estos 5 templates. Cualquier template específico de entidad va dentro de la app.
+**Regla:** Aquí SOLO van estos 5 templates. Cualquier template específico de entidad va dentro de la core.
 
 ## Static global (raíz)
 
@@ -114,33 +114,33 @@ static/
     └── utils.js              # Utilidades (formateo, validación, etc)
 ```
 
-**Regla:** Aquí SOLO van assets realmente compartidos. JS específico de un CRUD va en su carpeta de app.
+**Regla:** Aquí SOLO van assets realmente compartidos. JS específico de un CRUD va en su carpeta de core.
 
 ## Dónde va cada cosa
 
 | Elemento | Dónde | Ejemplo |
 |----------|-------|---------|
-| Modelo de entidad | `app/<app>/models/<entity>.py` | `app/catalog/models/product.py` |
-| Form de entidad | `app/<app>/forms/<entity>.py` | `app/catalog/forms/product.py` |
-| Views de CRUD | `app/<app>/views/<entity>.py` | `app/catalog/views/product.py` |
-| Template list | `app/<app>/templates/<entity>/list.html` | `app/catalog/templates/product/list.html` |
-| Template form | `app/<app>/templates/<entity>/form.html` | `app/catalog/templates/product/form.html` |
-| Template delete | `app/<app>/templates/<entity>/delete.html` | `app/catalog/templates/product/delete.html` |
-| JS list | `app/<app>/static/<entity>/js/list.js` | `app/catalog/static/product/js/list.js` |
-| JS form | `app/<app>/static/<entity>/js/form.js` | `app/catalog/static/product/js/form.js` |
-| Serializer (DRF) | `app/<app>/serializers/<entity>.py` | `app/catalog/serializers/product.py` |
-| Tests | `app/<app>/tests/test_<entity>.py` | `app/catalog/tests/test_product.py` |
-| Choices / Enums | `app/common/choices.py` | `Department`, `Status`, etc. |
-| Constants / MSG | `app/common/constants.py` | `FORM_INPUT_CLASS`, `MSG_SUCCESS`, etc. |
-| Mixins reusables | `app/common/mixins.py` | `PublicMixin` (no requiere login) |
-| Widgets de form | `app/common/forms/widgets.py` | `text_input()`, `password_input()`, etc. |
+| Modelo de entidad | `core/<app>/models/<entity>.py` | `core/catalog/models/product.py` |
+| Form de entidad | `core/<app>/forms/<entity>.py` | `core/catalog/forms/product.py` |
+| Views de CRUD | `core/<app>/views/<entity>.py` | `core/catalog/views/product.py` |
+| Template list | `core/<app>/templates/<entity>/list.html` | `core/catalog/templates/product/list.html` |
+| Template form | `core/<app>/templates/<entity>/form.html` | `core/catalog/templates/product/form.html` |
+| Template delete | `core/<app>/templates/<entity>/delete.html` | `core/catalog/templates/product/delete.html` |
+| JS list | `core/<app>/static/<entity>/js/list.js` | `core/catalog/static/product/js/list.js` |
+| JS form | `core/<app>/static/<entity>/js/form.js` | `core/catalog/static/product/js/form.js` |
+| Serializer (DRF) | `core/<app>/serializers/<entity>.py` | `core/catalog/serializers/product.py` |
+| Tests | `core/<app>/tests/test_<entity>.py` | `core/catalog/tests/test_product.py` |
+| Choices / Enums | `core/common/choices.py` | `Department`, `Status`, etc. |
+| Constants / MSG | `core/common/constants.py` | `FORM_INPUT_CLASS`, `MSG_SUCCESS`, etc. |
+| Mixins reusables | `core/common/mixins.py` | `PublicMixin` (no requiere login) |
+| Widgets de form | `core/common/forms/widgets.py` | `text_input()`, `password_input()`, etc. |
 
 ## Convención de imports
 
 En `__init__.py` de paquetes, re-exporta lo importante:
 
 ```python
-# app/catalog/models/__init__.py
+# core/catalog/models/__init__.py
 from .company import Company
 from .product import Product
 
@@ -149,23 +149,23 @@ __all__ = ['Company', 'Product']
 
 Luego en views:
 ```python
-from app.catalog.models import Company, Product  # ← Limpio
+from core.catalog.models import Company, Product  # ← Limpio
 ```
 
 No:
 ```python
-from app.catalog.models.company import Company  # ← Innecesariamente profundo
+from core.catalog.models.company import Company  # ← Innecesariamente profundo
 ```
 
 ## Monolítico → Paquete
 
 Si un archivo crece mucho, divídelo:
 
-**Antes:** `app/catalog/views.py` (200+ líneas)
+**Antes:** `core/catalog/views.py` (200+ líneas)
 
 **Después:**
 ```
-app/catalog/views/
+core/catalog/views/
 ├── __init__.py          # re-exporta
 ├── company.py           # CompanyListView, CompanyCreateView, ...
 ├── product.py           # ProductListView, ProductCreateView, ...
@@ -185,9 +185,9 @@ __all__ = [
 
 Y en `urls.py`:
 ```python
-from app.catalog.views import CompanyListView, ProductListView
+from core.catalog.views import CompanyListView, ProductListView
 ```
 
 ---
 
-**TL;DR:** Templates y JS de entidad viven dentro de su app. Globales (base.html, list.html, form.html, delete.html) en `templates/` raíz.
+**TL;DR:** Templates y JS de entidad viven dentro de su core. Globales (base.html, list.html, form.html, delete.html) en `templates/` raíz.

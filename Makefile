@@ -78,15 +78,15 @@ collectstatic: ## Recolecta archivos estáticos para producción
 # ── Tests / calidad ───────────────────────────────────────────────────
 .PHONY: test
 test: ## Ejecuta toda la suite de tests
-	$(MANAGE) test app.common app.security app.auth app.profiles
+	$(MANAGE) test core.common core.security core.auth core.profiles
 
 .PHONY: test-app
 test-app: ## Ejecuta tests de una app específica: `make test-app APP=auth`
-	$(MANAGE) test app.$(APP)
+	$(MANAGE) test core.$(APP)
 
 .PHONY: test-fast
 test-fast: ## Tests reutilizando la BD (más rápido en runs sucesivos)
-	$(MANAGE) test app.common app.security app.auth app.profiles --keepdb
+	$(MANAGE) test core.common core.security core.auth core.profiles --keepdb
 
 # ── Scraper ───────────────────────────────────────────────────────────
 .PHONY: scrape

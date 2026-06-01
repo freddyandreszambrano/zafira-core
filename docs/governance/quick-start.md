@@ -14,7 +14,7 @@ Accede a `http://localhost:8000` y login con `admin / admin`.
 ## 2. Lee la estructura (10 min)
 
 ```
-app/
+core/
 ├── common/          ← Compartido: choices, constants, widgets, mixins
 ├── security/        ← Módulos y permisos dinámicos
 ├── auth/            ← Users, login, dashboard
@@ -24,7 +24,7 @@ templates/           ← SOLO bases compartidos (list.html, form.html, delete.ht
 static/              ← SOLO assets globales (CSS Tailwind, etc)
 ```
 
-**Regla de oro:** cada CRUD vive dentro de su app: `app/<app>/templates/<entity>/` y `app/<app>/static/<entity>/js/`.
+**Regla de oro:** cada CRUD vive dentro de su app: `core/<app>/templates/<entity>/` y `core/<app>/static/<entity>/js/`.
 
 ## 3. Entiende el patrón CRUD (15 min)
 
@@ -62,13 +62,13 @@ class XxxDeleteView(PermissionMixin, DeleteView):
 
 Cuando pidas a Claude que agregue un CRUD, di:
 
-> Agrega un CRUD de `Company` en `app/catalog/`. Modelo: `name` (único), `is_active`. 
+> Agrega un CRUD de `Company` en `core/catalog/`. Modelo: `name` (único), `is_active`. 
 > Luego registra como Module en insert_data.py.
 
 Claude sabrá automáticamente:
 - Crear modelo → form → 4 views → templates (list/form/delete) → JS (list.js/form.js)
-- Poner templates en `app/catalog/templates/company/`
-- Poner JS en `app/catalog/static/company/js/`
+- Poner templates en `core/catalog/templates/company/`
+- Poner JS en `core/catalog/static/company/js/`
 - Registrar en insert_data
 - Usar `PermissionMixin` con los permisos correctos
 
@@ -86,8 +86,8 @@ Claude sabrá automáticamente:
 ## 6. Próximos pasos
 
 - **Lee `../CLAUDE.md`** → Gobernanza completa del proyecto
-- **Explora `app/security/views/`** → Ejemplo real de CRUD
-- **Ve `app/auth/static/user/js/form.js`** → Ejemplo de FormValidation complejo
+- **Explora `core/security/views/`** → Ejemplo real de CRUD
+- **Ve `core/auth/static/user/js/form.js`** → Ejemplo de FormValidation complejo
 
 ---
 

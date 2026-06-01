@@ -52,7 +52,7 @@ class ProductListView(PermissionMixin, TemplateView):
 
 **Malo:**
 ```html
-<!-- app/catalog/templates/company/list.html -->
+<!-- core/catalog/templates/company/list.html -->
 {% extends 'list.html' %}
 
 {% block head_list %}
@@ -71,7 +71,7 @@ class ProductListView(PermissionMixin, TemplateView):
 
 **Bueno:**
 ```html
-<!-- app/catalog/templates/company/list.html -->
+<!-- core/catalog/templates/company/list.html -->
 {% extends 'list.html' %}
 {% load static %}
 
@@ -81,7 +81,7 @@ class ProductListView(PermissionMixin, TemplateView):
 ```
 
 ```javascript
-// app/catalog/static/company/js/list.js
+// core/catalog/static/company/js/list.js
 let tblCompany;
 const company = { list: function() { ... } };
 $(function() { company.list(); });
@@ -95,7 +95,7 @@ $(function() { company.list(); });
 
 **Malo:**
 ```python
-# app/catalog/views.py
+# core/catalog/views.py
 class CompanyListView(TemplateView):
     template_name = 'company/list.html'
     ...
@@ -117,7 +117,7 @@ path('company/ajax/', CompanyAjaxListView.as_view(), name='company_ajax'),
 
 **Bueno:**
 ```python
-# app/catalog/views.py
+# core/catalog/views.py
 class CompanyListView(PermissionMixin, TemplateView):
     template_name = 'company/list.html'
     def post(self, request, ...):
@@ -159,12 +159,12 @@ class Department(models.Model):
 
 **Bueno:**
 ```python
-# app/catalog/models/department.py
+# core/catalog/models/department.py
 class Department(models.Model):
     name = models.CharField(max_length=100)
     is_active = models.BooleanField(default=True)
 
-# app/common/constants.py
+# core/common/constants.py
 FORM_INPUT_CLASS = "w-full px-3 py-2 border border-gray-300 rounded"
 MSG_DEPARTMENT_CREATED = "Departamento creado exitosamente"
 MSG_DEPARTMENT_UPDATED = "Departamento actualizado"
@@ -211,7 +211,7 @@ class CompanyListView(PermissionMixin, TemplateView):
 
 ---
 
-### 6. ❌ No poner templates en `app/`
+### 6. ❌ No poner templates en `core/`
 
 **Malo:**
 ```
@@ -229,14 +229,14 @@ templates/
 
 **Bueno:**
 ```
-app/catalog/templates/
+core/catalog/templates/
 ├── company/
 │   ├── list.html
 │   ├── form.html
 │   └── delete.html
 ```
 
-✅ Templates de entidad dentro de la app. Django las encuentra automáticamente.
+✅ Templates de entidad dentro de la core. Django las encuentra automáticamente.
 
 ---
 
@@ -273,7 +273,7 @@ class CompanyListView(PermissionMixin, TemplateView):
 STATUS = [('active', 'Activo'), ('inactive', 'Inactivo')]
 
 # view
-from app.models import STATUS
+from core.models import STATUS
 status_dict = dict(STATUS)
 return HttpResponse(json.dumps({'status': status_dict}))
 ```
@@ -312,24 +312,24 @@ Si un archivo pasa de ~200 líneas o tiene >5 clases → convierte en paquete:
 
 **Antes:**
 ```
-app/catalog/models.py      (300 líneas)
-app/catalog/forms.py       (200 líneas)
-app/catalog/views.py       (500 líneas)
+core/catalog/models.py      (300 líneas)
+core/catalog/forms.py       (200 líneas)
+core/catalog/views.py       (500 líneas)
 ```
 
 **Después:**
 ```
-app/catalog/models/__init__.py (re-exporta)
-app/catalog/models/company.py
-app/catalog/models/product.py
+core/catalog/models/__init__.py (re-exporta)
+core/catalog/models/company.py
+core/catalog/models/product.py
 
-app/catalog/forms/__init__.py
-app/catalog/forms/company.py
-app/catalog/forms/product.py
+core/catalog/forms/__init__.py
+core/catalog/forms/company.py
+core/catalog/forms/product.py
 
-app/catalog/views/__init__.py
-app/catalog/views/company.py
-app/catalog/views/product.py
+core/catalog/views/__init__.py
+core/catalog/views/company.py
+core/catalog/views/product.py
 ```
 
 ✅ Cada archivo ~100-150 líneas, fácil de leer.
@@ -341,13 +341,13 @@ app/catalog/views/product.py
 **Malo:**
 ```python
 def get_companies():
-    from app.catalog.models import Company  # ❌ Dentro de la función
+    from core.catalog.models import Company  # ❌ Dentro de la función
     return Company.objects.all()
 ```
 
 **Bueno:**
 ```python
-from app.catalog.models import Company
+from core.catalog.models import Company
 
 def get_companies():
     return Company.objects.all()
@@ -360,7 +360,7 @@ def get_companies():
 ### 3. ✅ Usa PermissionMixin en TODA vista CRUD
 
 ```python
-from app.security.mixins import PermissionMixin
+from core.security.mixins import PermissionMixin
 
 class CompanyListView(PermissionMixin, TemplateView):
     permission_required = 'view_company'
@@ -435,9 +435,9 @@ $(function() { company.list(); });
 ### 7. ✅ Tests reales (no scaffolding vacío)
 
 ```python
-# app/catalog/tests/test_company.py
+# core/catalog/tests/test_company.py
 from django.test import TestCase
-from app.catalog.models import Company
+from core.catalog.models import Company
 
 class CompanyModelTest(TestCase):
     def test_str(self):
@@ -463,7 +463,7 @@ class CompanyModelTest(TestCase):
 ## Checklist rápido
 
 - [ ] ¿Cada view es autocontenida? (sin clases base "CrudXxxView")
-- [ ] ¿Templates están en `app/<app>/templates/<entity>/`?
+- [ ] ¿Templates están en `core/<app>/templates/<entity>/`?
 - [ ] ¿JS está en archivos externos, no inline?
 - [ ] ¿Uso PermissionMixin?
 - [ ] ¿Tengo `to_json()` en los modelos?

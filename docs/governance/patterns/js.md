@@ -7,7 +7,7 @@ Cómo escribir JS en ZAFIRA-CORE.
 Cada CRUD tiene 2 archivos JS:
 
 ```
-app/catalog/static/company/js/
+core/catalog/static/company/js/
 ├── list.js      # DataTable + columnas + acciones de lista
 └── form.js      # FormValidation + validaciones específicas
 ```
@@ -15,7 +15,7 @@ app/catalog/static/company/js/
 ## Patrón: objeto con métodos
 
 ```javascript
-// app/catalog/static/company/js/list.js
+// core/catalog/static/company/js/list.js
 
 const company = {
     list: function() {
@@ -45,7 +45,7 @@ $(function() {
 ### Básico
 
 ```javascript
-// app/catalog/static/company/js/list.js
+// core/catalog/static/company/js/list.js
 let tblCompany;
 
 const company = {
@@ -146,7 +146,7 @@ Con confirmación de delete automática.
 ### Básico
 
 ```javascript
-// app/catalog/static/company/js/form.js
+// core/catalog/static/company/js/form.js
 let fv;
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -313,7 +313,7 @@ csrftoken         // Token CSRF (del template)
 ## Ejemplo completo: User (más complejo)
 
 ```javascript
-// app/auth/static/user/js/form.js
+// core/auth/static/user/js/form.js
 let fv;
 
 document.addEventListener('DOMContentLoaded', function() {

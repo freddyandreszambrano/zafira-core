@@ -3,13 +3,13 @@
 ## 📋 Lo que se ha logrado
 
 ### 1. ✅ Estructura Django Correcta con __init__.py
-- **app/auth/forms/__init__.py**: Exporta LoginForm, ChangePasswordForm, ResetPasswordForm, EditUserForm
-- **app/auth/views/__init__.py**: Exporta LoginView, DashboardView, AJAX views
-- **app/auth/utils/__init__.py**: Exporta funciones de utilidad (email, password validation)
+- **core/auth/forms/__init__.py**: Exporta LoginForm, ChangePasswordForm, ResetPasswordForm, EditUserForm
+- **core/auth/views/__init__.py**: Exporta LoginView, DashboardView, AJAX views
+- **core/auth/utils/__init__.py**: Exporta funciones de utilidad (email, password validation)
 
 **Beneficio**: Imports limpios sin rutas enormes. Ejemplo:
 ```python
-from app.auth.forms import LoginForm  # ✓ Correcto
+from core.auth.forms import LoginForm  # ✓ Correcto
 ```
 
 ### 2. ✅ Templates HTML Reutilizables con Tailwind
@@ -141,7 +141,7 @@ python manage.py createsuperuser
 
 ```
 ZAFIRA-CORE/
-├── app/auth/
+├── core/auth/
 │   ├── forms/
 │   │   ├── __init__.py      ← Exporta formularios
 │   │   └── forms.py         ← Definiciones
@@ -166,7 +166,7 @@ ZAFIRA-CORE/
 │   ├── MEMORY.md
 │   ├── project_architecture.md
 │   └── django_patterns.md
-└── core/urls.py             ← Incluye app.auth.urls
+└── config/urls.py             ← Incluye core.auth.urls
 ```
 
 ---
@@ -201,7 +201,7 @@ ZAFIRA-CORE/
 1. **Crear usuarios de prueba**
    ```bash
    python manage.py shell
-   from app.auth.models import User
+   from core.auth.models import User
    User.objects.create_user('testuser', 'test@example.com', 'password123')
    ```
 
@@ -218,7 +218,7 @@ ZAFIRA-CORE/
    - Configurar DATABASE_URL para PostgreSQL
 
 5. **Desplegar a producción**
-   - Usar gunicorn: `gunicorn core.wsgi`
+   - Usar gunicorn: `gunicorn config.wsgi`
    - Configurar reverse proxy (nginx)
    - Whitenoise maneja archivos estáticos
 

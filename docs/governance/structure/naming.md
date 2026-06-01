@@ -6,30 +6,30 @@ Cómo nombrar archivos, variables, funciones, clases, etc.
 
 ### Modelos
 - **Clase**: PascalCase singular → `Company`, `Product`, `UserProfile`
-- **Archivo**: snake_case → `app/catalog/models/company.py`, `app/catalog/models/product.py`
+- **Archivo**: snake_case → `core/catalog/models/company.py`, `core/catalog/models/product.py`
 
 ```python
-# app/catalog/models/company.py
+# core/catalog/models/company.py
 class Company(models.Model):
     name = models.CharField(max_length=120)
 ```
 
 ### Forms
 - **Clase**: `<Model>Form` → `CompanyForm`, `ProductForm`, `UserForm`
-- **Archivo**: snake_case → `app/catalog/forms/company.py`
+- **Archivo**: snake_case → `core/catalog/forms/company.py`
 
 ```python
-# app/catalog/forms/company.py
+# core/catalog/forms/company.py
 class CompanyForm(forms.ModelForm):
     ...
 ```
 
 ### Views
 - **Clase**: `<Model><Action>View` → `CompanyListView`, `CompanyCreateView`, `CompanyUpdateView`, `CompanyDeleteView`
-- **Archivo**: snake_case → `app/catalog/views/company.py`
+- **Archivo**: snake_case → `core/catalog/views/company.py`
 
 ```python
-# app/catalog/views/company.py
+# core/catalog/views/company.py
 class CompanyListView(PermissionMixin, TemplateView):
     ...
 
@@ -58,7 +58,7 @@ total_sales = 1000.00
 - **UPPER_SNAKE_CASE** → `MAX_USERS`, `FORM_INPUT_CLASS`, `MSG_SUCCESS`
 
 ```python
-# app/common/constants.py
+# core/common/constants.py
 FORM_INPUT_CLASS = "w-full px-3 py-2 border border-gray-300 rounded"
 MSG_SUCCESS = "Operación realizada exitosamente"
 MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
@@ -96,14 +96,14 @@ const company = {
 ## Templates
 
 ### Directorios
-- **snake_case**: `app/catalog/templates/company/`, `app/catalog/templates/product/`
+- **snake_case**: `core/catalog/templates/company/`, `core/catalog/templates/product/`
 
 ### Archivos
 - **snake_case**: `list.html`, `form.html`, `delete.html`, `_partial.html` (para includes)
 
 ```html
-<!-- app/catalog/templates/company/list.html -->
-<!-- app/catalog/templates/company/_status_badge.html (partial) -->
+<!-- core/catalog/templates/company/list.html -->
+<!-- core/catalog/templates/company/_status_badge.html (partial) -->
 ```
 
 ## URLs y paths
@@ -112,7 +112,7 @@ const company = {
 - **snake_case con underscores para rutas**: `/company/`, `/user/create/`, `/product/update/123/`
 
 ```python
-# app/catalog/urls.py
+# core/catalog/urls.py
 urlpatterns = [
     path('company/', CompanyListView.as_view(), name='company_list'),
     path('company/create/', CompanyCreateView.as_view(), name='company_create'),

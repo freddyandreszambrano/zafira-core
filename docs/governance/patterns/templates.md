@@ -7,7 +7,7 @@ Cómo escribir templates en ZAFIRA-CORE.
 Cada CRUD tiene 3 templates dentro de la app:
 
 ```
-app/catalog/templates/company/
+core/catalog/templates/company/
 ├── list.html      # DataTable list
 ├── form.html      # Create + Update (mismo template)
 └── delete.html    # Delete confirm
@@ -18,7 +18,7 @@ app/catalog/templates/company/
 Hereda de `templates/list.html` (base global).
 
 ```html
-{# app/catalog/templates/company/list.html #}
+{# core/catalog/templates/company/list.html #}
 {% extends 'list.html' %}
 {% load static %}
 
@@ -42,7 +42,7 @@ Hereda de `templates/list.html` (base global).
 Hereda de `templates/form.html` (base global). **Se usa para Create Y Update.**
 
 ```html
-{# app/catalog/templates/company/form.html #}
+{# core/catalog/templates/company/form.html #}
 {% extends 'form.html' %}
 {% load static %}
 {% load widget_tweaks %}
@@ -67,7 +67,7 @@ Hereda de `templates/form.html` (base global). **Se usa para Create Y Update.**
 Hereda de `templates/delete.html` (base global).
 
 ```html
-{# app/catalog/templates/company/delete.html #}
+{# core/catalog/templates/company/delete.html #}
 {% extends 'delete.html' %}
 ```
 
@@ -256,7 +256,7 @@ Pasa `title`, `list_url` desde la vista.
 En `get_context_data()`:
 
 ```python
-# app/catalog/views/company.py
+# core/catalog/views/company.py
 class CompanyListView(PermissionMixin, TemplateView):
     template_name = 'company/list.html'
     
@@ -270,13 +270,13 @@ class CompanyListView(PermissionMixin, TemplateView):
 ## Buen ejemplo: lista completa
 
 ```html
-{# app/catalog/templates/company/list.html #}
+{# core/catalog/templates/company/list.html #}
 {% extends 'list.html' %}
 {% load static %}
 
 {% comment %} 
 Tabla de empresas con búsqueda, paginación y toggle de estado.
-Ver app/catalog/static/company/js/list.js para la lógica.
+Ver core/catalog/static/company/js/list.js para la lógica.
 {% endcomment %}
 
 {% block columns %}
@@ -293,7 +293,7 @@ Ver app/catalog/static/company/js/list.js para la lógica.
 ## Buen ejemplo: form completo
 
 ```html
-{# app/catalog/templates/company/form.html #}
+{# core/catalog/templates/company/form.html #}
 {% extends 'form.html' %}
 {% load static %}
 {% load widget_tweaks %}
@@ -301,7 +301,7 @@ Ver app/catalog/static/company/js/list.js para la lógica.
 {% comment %} 
 Formulario de crear/editar empresa. 
 Validación en vivo con FormValidation + remote.
-Ver app/catalog/static/company/js/form.js para la lógica.
+Ver core/catalog/static/company/js/form.js para la lógica.
 {% endcomment %}
 
 {% block head_form %}
@@ -333,7 +333,7 @@ Ver app/catalog/static/company/js/form.js para la lógica.
 
 **Malo:**
 ```html
-{# app/catalog/templates/company/form.html #}
+{# core/catalog/templates/company/form.html #}
 {% extends 'form.html' %}
 {# nada más #}
 ```

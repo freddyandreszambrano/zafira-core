@@ -7,7 +7,7 @@ Cómo implementar un CRUD completo en ZAFIRA-CORE.
 ## 1. Modelo
 
 ```python
-# app/catalog/models/company.py
+# core/catalog/models/company.py
 from django.db import models
 
 class Company(models.Model):
@@ -42,9 +42,9 @@ class Company(models.Model):
 ## 2. Form
 
 ```python
-# app/catalog/forms/company.py
+# core/catalog/forms/company.py
 from django import forms
-from app.catalog.models import Company
+from core.catalog.models import Company
 
 class CompanyForm(forms.ModelForm):
     class Meta:
@@ -64,15 +64,15 @@ Cada CRUD tiene **4 views explícitas**. Cada `post()` maneja sus acciones con `
 ### 3.1 List View
 
 ```python
-# app/catalog/views/company.py
+# core/catalog/views/company.py
 import json
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import HttpResponse
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView
-from app.catalog.models import Company
-from app.security.mixins import PermissionMixin
+from core.catalog.models import Company
+from core.security.mixins import PermissionMixin
 
 class CompanyListView(PermissionMixin, TemplateView):
     template_name = 'company/list.html'
@@ -134,7 +134,7 @@ class CompanyListView(PermissionMixin, TemplateView):
 ### 3.2 Create View
 
 ```python
-# app/catalog/views/company.py
+# core/catalog/views/company.py
 class CompanyCreateView(PermissionMixin, CreateView):
     model = Company
     template_name = 'company/form.html'  # mismo que Update
@@ -188,7 +188,7 @@ class CompanyCreateView(PermissionMixin, CreateView):
 ### 3.3 Update View
 
 ```python
-# app/catalog/views/company.py
+# core/catalog/views/company.py
 class CompanyUpdateView(PermissionMixin, UpdateView):
     model = Company
     template_name = 'company/form.html'  # mismo que Create
@@ -248,7 +248,7 @@ class CompanyUpdateView(PermissionMixin, UpdateView):
 ### 3.4 Delete View
 
 ```python
-# app/catalog/views/company.py
+# core/catalog/views/company.py
 from django.views.generic import DeleteView
 
 class CompanyDeleteView(PermissionMixin, DeleteView):
@@ -276,7 +276,7 @@ class CompanyDeleteView(PermissionMixin, DeleteView):
 ## 4. Re-exportar en `__init__.py`
 
 ```python
-# app/catalog/views/__init__.py
+# core/catalog/views/__init__.py
 from .company import (
     CompanyListView,
     CompanyCreateView,
@@ -295,9 +295,9 @@ __all__ = [
 ## 5. URLs
 
 ```python
-# app/catalog/urls.py
+# core/catalog/urls.py
 from django.urls import path
-from app.catalog.views import (
+from core.catalog.views import (
     CompanyListView,
     CompanyCreateView,
     CompanyUpdateView,
@@ -312,11 +312,11 @@ urlpatterns = [
 ]
 ```
 
-Y en `core/urls.py`:
+Y en `config/urls.py`:
 ```python
 urlpatterns = [
     # ...
-    path('catalog/', include('app.catalog.urls')),
+    path('catalog/', include('core.catalog.urls')),
 ]
 ```
 
@@ -325,7 +325,7 @@ urlpatterns = [
 Ver [**patterns/templates.md**](templates.md) para detalles. Resumen:
 
 ```html
-<!-- app/catalog/templates/company/list.html -->
+<!-- core/catalog/templates/company/list.html -->
 {% extends 'list.html' %}
 {% load static %}
 
@@ -341,7 +341,7 @@ Ver [**patterns/templates.md**](templates.md) para detalles. Resumen:
 ```
 
 ```html
-<!-- app/catalog/templates/company/form.html -->
+<!-- core/catalog/templates/company/form.html -->
 {% extends 'form.html' %}
 {% load static %}
 
@@ -351,7 +351,7 @@ Ver [**patterns/templates.md**](templates.md) para detalles. Resumen:
 ```
 
 ```html
-<!-- app/catalog/templates/company/delete.html -->
+<!-- core/catalog/templates/company/delete.html -->
 {% extends 'delete.html' %}
 ```
 
@@ -360,7 +360,7 @@ Ver [**patterns/templates.md**](templates.md) para detalles. Resumen:
 Ver [**patterns/js.md**](js.md) para detalles. Resumen:
 
 ```javascript
-// app/catalog/static/company/js/list.js
+// core/catalog/static/company/js/list.js
 let tblCompany;
 
 const company = {
@@ -377,7 +377,7 @@ $(function() { company.list(); });
 ```
 
 ```javascript
-// app/catalog/static/company/js/form.js
+// core/catalog/static/company/js/form.js
 let fv;
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -408,7 +408,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 ## 8. Registrar como Module
 
-Edita `app/security/management/commands/insert_data.py`:
+Edita `core/security/management/commands/insert_data.py`:
 
 ```python
 {

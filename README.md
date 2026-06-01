@@ -167,7 +167,7 @@ curl -X POST http://localhost:8000/api/auth/refresh/ \
 Asignar grupo a usuario:
 ```python
 from django.contrib.auth.models import Group
-from app.auth.models import User
+from core.auth.models import User
 
 user = User.objects.get(username='john')
 group = Group.objects.get(name='Manager')
@@ -217,7 +217,7 @@ user.groups.add(group)
 **Por defecto usa base de datos en memoria** (sin problemas WSL/SQLite).
 
 ### Cambiar a archivo SQLite
-En `core/settings.py`:
+En `config/settings.py`:
 ```python
 'NAME': BASE_DIR / 'db.sqlite3',  # Cambiar ':memory:' por esto
 ```
@@ -227,7 +227,7 @@ En `core/settings.py`:
 pip install psycopg2-binary
 ```
 
-En `core/settings.py`:
+En `config/settings.py`:
 ```python
 DATABASES = {
     'default': {
@@ -284,7 +284,7 @@ Accede a: **http://localhost:8000/admin/**
 
 ```
 ZAFIRA-CORE/
-├── app/
+├── core/
 │   ├── auth/                     # Autenticación
 │   │   ├── models.py            # User model (350+ líneas)
 │   │   ├── views.py             # ViewSets y endpoints
@@ -303,7 +303,7 @@ ZAFIRA-CORE/
 │       ├── urls.py              # Rutas
 │       └── signals.py           # Auto-create
 │
-├── core/
+├── config/
 │   ├── settings.py              # Django config
 │   ├── urls.py                  # Rutas principales
 │   └── wsgi.py
@@ -337,7 +337,7 @@ python manage.py shell
 
 # Ver usuarios
 python manage.py shell
->>> from app.auth.models import User
+>>> from core.auth.models import User
 >>> User.objects.all()
 
 # Tests
@@ -390,7 +390,7 @@ python manage.py collectstatic --noinput
 python manage.py migrate --noinput
 
 # Iniciar con gunicorn
-gunicorn core.wsgi:application --bind 0.0.0.0:8000
+gunicorn config.wsgi:application --bind 0.0.0.0:8000
 ```
 
 ---

@@ -14,10 +14,10 @@ Claude Code está integrado en el proyecto. Sigue estas reglas para obtener los 
 > "Agrega una nueva sección en el dashboard"
 
 ### ✅ Bueno
-> "Agrega un CRUD de `Company` (modelo: name, is_active) en `app/catalog/`. Registra como Module en insert_data.py. Usa el patrón List/Create/Update/Delete estándar de aquí."
+> "Agrega un CRUD de `Company` (modelo: name, is_active) en `core/catalog/`. Registra como Module en insert_data.py. Usa el patrón List/Create/Update/Delete estándar de aquí."
 
 ### ✅ Mejor aún (si conoces el contexto)
-> "Agrega `Company` en `app/catalog/` como CRUD estándar. Necesito:
+> "Agrega `Company` en `core/catalog/` como CRUD estándar. Necesito:
 > - Modelo con name (único) e is_active
 > - Validación de nombre en vivo (FormValidation)
 > - Toggle de estado en la lista
@@ -28,7 +28,7 @@ Claude Code está integrado en el proyecto. Sigue estas reglas para obtener los 
 ### ✅ Claude HARÁ
 
 - Seguir el patrón **4 views explícitas** (List/Create/Update/Delete) sin clases base
-- Poner **templates en `app/<app>/templates/<entity>/`** y **JS en `app/<app>/static/<entity>/js/`**
+- Poner **templates en `core/<app>/templates/<entity>/`** y **JS en `core/<app>/static/<entity>/js/`**
 - Usar **PermissionMixin** en toda vista CRUD
 - Escribir **código limpio**: sin docstrings obvios, modularizar agresivamente
 - **Leer archivos existentes** para entender patrones antes de escribir
@@ -50,7 +50,7 @@ Claude Code está integrado en el proyecto. Sigue estas reglas para obtener los 
 
 Cómo pedirlo:
 ```
-Agrega un CRUD de `Product` en `app/catalog/`.
+Agrega un CRUD de `Product` en `core/catalog/`.
 
 Modelo:
 - name (CharField, unique)
@@ -69,8 +69,8 @@ Sigue el patrón estándar: List/Create/Update/Delete views + templates/JS por e
 
 Claude entenderá automáticamente:
 - Crear modelo + form + 4 views
-- Poner templates en `app/catalog/templates/product/`
-- Poner JS en `app/catalog/static/product/js/`
+- Poner templates en `core/catalog/templates/product/`
+- Poner JS en `core/catalog/static/product/js/`
 - Usar `PermissionMixin` + `product_view/add/change/delete`
 - Registrar en insert_data
 
@@ -96,7 +96,7 @@ Claude:
 
 Cómo pedirlo:
 ```
-El módulo `app/auth/views/users.py` tiene mucha duplicación entre Create y Update.
+El módulo `core/auth/views/users.py` tiene mucha duplicación entre Create y Update.
 Refactoriza para mejorar legibilidad, pero mantén las 4 views separadas (no crees clase base).
 
 Después de refactorizar, corre los tests y confirma que sigue funcionando.
@@ -130,10 +130,10 @@ Esto significa: **puedes dejar un trabajo a mitad, volver después, y Claude con
 → Remindele: "Usa 4 views explícitas List/Create/Update/Delete sin clases base. Cada `post()` con `if/elif action == ...`"
 
 ### "Claude puso templates en la carpeta global"
-→ Corrige: "Templates de entidad específica van en `app/<app>/templates/<entity>/`. Los globales (list.html, form.html, base.html) ya existen."
+→ Corrige: "Templates de entidad específica van en `core/<app>/templates/<entity>/`. Los globales (list.html, form.html, base.html) ya existen."
 
 ### "El JS está inline en el template"
-→ Corrige: "JS va en archivo externo: `app/<app>/static/<entity>/js/`. Carga vía `{% static %}`."
+→ Corrige: "JS va en archivo externo: `core/<app>/static/<entity>/js/`. Carga vía `{% static %}`."
 
 ### "Creó una clase base para deduplicar"
 → Corrige: "No uses clases base. Repetición controlada es mejor. Cada view es autocontenida y se lee linealmente."
@@ -142,8 +142,8 @@ Esto significa: **puedes dejar un trabajo a mitad, volver después, y Claude con
 
 - [`CLAUDE.md`](../../CLAUDE.md) — Gobernanza canónica
 - [`docs/governance/`](./) — Esta carpeta
-- [`app/security/views/`](../../app/security/views/) — Ejemplo real de CRUD
-- [`app/auth/views/`](../../app/auth/views/) — Más ejemplos
+- [`core/security/views/`](../../core/security/views/) — Ejemplo real de CRUD
+- [`core/auth/views/`](../../core/auth/views/) — Más ejemplos
 
 ---
 

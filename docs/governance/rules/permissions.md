@@ -61,7 +61,7 @@ Esto mete el **primer grupo activo** del usuario en la sesión. Las vistas siemp
 
 ## Registrar un CRUD como Module
 
-En `app/security/management/commands/insert_data.py`:
+En `core/security/management/commands/insert_data.py`:
 
 ```python
 MODULES = [
@@ -115,7 +115,7 @@ gp2 = GroupPermission.objects.create(
 ## Código: PermissionMixin
 
 ```python
-# app/security/mixins.py
+# core/security/mixins.py
 class PermissionMixin(LoginRequiredMixin):
     permission_required = None
 
@@ -194,7 +194,7 @@ Opción 2: **Validar en template** (raro, casi no se usa)
 Si nada funciona:
 ```python
 # En Django shell
-from app.security.models import Group, GroupPermission
+from core.security.models import Group, GroupPermission
 from django.contrib.auth.models import Permission
 
 # Verifica permisos del grupo
@@ -210,7 +210,7 @@ for gm in group.groupmodule_set.all():
 Si ya existe un módulo y quieres agregar un permiso:
 
 ```python
-from app.security.models import GroupModule, GroupPermission
+from core.security.models import GroupModule, GroupPermission
 from django.contrib.auth.models import Permission
 
 # 1. Obtén el módulo
@@ -259,4 +259,4 @@ class CompanyPermissionTest(TestCase):
 
 ---
 
-**Fuente:** `CLAUDE.md` + código de `app/security/`.
+**Fuente:** `CLAUDE.md` + código de `core/security/`.
