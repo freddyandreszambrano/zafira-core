@@ -11,10 +11,10 @@ htmlcov/
 # Django
 db.sqlite3
 var/*
-!var/README.md
+!var/.gitkeep
 !var/db/
 var/db/*
-!var/db/README.md
+!var/db/.gitkeep
 *.sqlite3
 media/
 staticfiles/

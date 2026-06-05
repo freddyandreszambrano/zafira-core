@@ -342,8 +342,9 @@ python manage.py showmigrations
 
 - **`SETUP_GUIDE.md`** - Guía completa de instalación
 - **`DATABASE_SETUP.md`** - Configuración de bases de datos
-- **`docs/DESIGN_SYSTEM.md`** - 🎨 Sistema de diseño ZAFIRA (colores, utilities Tailwind, patrones de componentes)
-- **`docs/stich/DESIGN.md`** - Guías completas de marca (tipografía, layout, UX)
+- **`docs/design-system.md`** - 🎨 Sistema de diseño ZAFIRA (tokens, modo oscuro, patrones UI)
+- **`docs/architecture.md`** - Estructura del repositorio y ubicación de archivos
+- **`docs/development.md`** - Patrones de desarrollo, CRUD, permisos y comandos
 - **`quick_setup.py`** - Script de setup automático
 - **`setup_db.py`** - Setup manual alternativo
 
@@ -356,7 +357,7 @@ python manage.py showmigrations
 | `zafira-obsidian` | `#090101` | Obsidian - Fondos oscuros, sombras |
 | `zafira-slate` | `#94A3BB` | Cool Slate - Texto secundario, bordes |
 
-Ver `docs/DESIGN_SYSTEM.md` para la paleta completa y patrones de uso.
+Ver `docs/design-system.md` para la paleta completa y patrones de uso.
 
 ---
 
