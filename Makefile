@@ -6,17 +6,15 @@ MANAGE ?= $(PYTHON) manage.py
 PIP    ?= pip
 HOST   ?= 0.0.0.0
 PORT   ?= 8000
+COMPOSE ?= docker compose -f deploy/docker/docker-compose.yml
+SQLITE_DB ?= var/db/db.sqlite3
 
 .DEFAULT_GOAL := help
 
 # ── Help ──────────────────────────────────────────────────────────────
 .PHONY: help
 help: ## Muestra esta ayuda
-	@echo ""
-	@echo "  ZAFIRA-CORE — comandos disponibles:"
-	@echo ""
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
-	@echo ""
+	@$(PYTHON) scripts/make_help.py $(MAKEFILE_LIST)
 
 # ── Setup inicial ─────────────────────────────────────────────────────
 .PHONY: install
@@ -116,9 +114,60 @@ freeze: ## Vuelca las dependencias instaladas a requirements/_freeze.txt
 	@echo "  ✅ requirements/_freeze.txt actualizado"
 
 .PHONY: reset-db
-reset-db: ## ⚠ Borra db.sqlite3 y vuelve a migrar + insert-data
+reset-db: ## ⚠ Borra la BD SQLite local y vuelve a migrar + insert-data
 	@echo "  ⚠  Esto borrará TODOS los datos locales."
 	@read -p "  ¿Continuar? [y/N] " ans && [ "$$ans" = "y" ] || exit 1
-	rm -f db.sqlite3
+	rm -f $(SQLITE_DB)
 	$(MAKE) migrate
 	$(MAKE) insert-data
+
+# ── Code style / linting ──────────────────────────────────────────────
+.PHONY: format
+format: ## Formatea con black + isort
+	black core/ config/
+	isort core/ config/
+
+.PHONY: format-check
+format-check: ## Verifica formato sin modificar (CI)
+	black --check core/ config/
+	isort --check-only core/ config/
+
+.PHONY: lint
+lint: ## Corre flake8 sobre core/ y config/
+	flake8 core/ config/ --max-line-length=100 --extend-ignore=E203,W503
+
+.PHONY: pre-commit-install
+pre-commit-install: ## Instala los git hooks de pre-commit
+	$(PIP) install pre-commit
+	pre-commit install
+	@echo "  ✅ Hooks instalados (corren en cada git commit)"
+
+.PHONY: pre-commit-run
+pre-commit-run: ## Corre todos los hooks de pre-commit sobre todo el repo
+	pre-commit run --all-files
+
+# ── Docker ────────────────────────────────────────────────────────────
+.PHONY: docker-build
+docker-build: ## Build de la imagen Docker
+	$(COMPOSE) build
+
+.PHONY: docker-up
+docker-up: ## Levanta stack (db + web) en background
+	$(COMPOSE) up -d --build
+	@echo "  ✅ Stack arriba en http://localhost:8000 (admin/admin)"
+
+.PHONY: docker-down
+docker-down: ## Baja el stack (preserva volúmenes)
+	$(COMPOSE) down
+
+.PHONY: docker-logs
+docker-logs: ## Sigue los logs del web container
+	$(COMPOSE) logs -f web
+
+.PHONY: docker-shell
+docker-shell: ## Abre shell en el web container
+	$(COMPOSE) exec web bash
+
+.PHONY: docker-clean
+docker-clean: ## ⚠ Baja el stack y BORRA volúmenes (db reset)
+	$(COMPOSE) down -v

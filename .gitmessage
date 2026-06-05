@@ -1,0 +1,23 @@
+# <tipo>(<scope>): <subject>
+#
+# <body>
+#
+# <footer>
+#
+# ── Tipos ──────────────────────────────────────────────────────────────
+#   feat     Nueva funcionalidad
+#   fix      Corrección de bug
+#   docs     Cambios solo de documentación
+#   style    Formato (espacios, comas, etc.) sin cambio de lógica
+#   refactor Cambio de código que no añade feature ni arregla bug
+#   perf     Mejora de performance
+#   test     Añadir o corregir tests
+#   chore    Tooling, deps, configuración
+#
+# ── Scope (opcional) ───────────────────────────────────────────────────
+#   security, auth, profiles, common, catalog, ui, infra, ci, docs, ...
+#
+# ── Reglas ─────────────────────────────────────────────────────────────
+#   - Subject en imperativo, minúscula, sin punto final, ≤ 72 chars
+#   - Body explica el PORQUÉ, no el qué (el diff ya dice qué)
+#   - Footer para BREAKING CHANGE: ... o refs a issues (#123)

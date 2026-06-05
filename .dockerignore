@@ -1,0 +1,61 @@
+# Git
+.git
+.gitignore
+.gitattributes
+.gitmessage
+
+# IDEs
+.idea
+.vscode
+.cursor
+.zed
+
+# Local AI / assistants
+.claude
+.codex
+.agents
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.coverage
+htmlcov
+.tox
+
+# Virtualenvs
+venv
+.venv
+env
+ENV
+
+# Local data
+.env
+.env.*
+!.env.example
+db.sqlite3
+var
+*.sqlite3
+media
+staticfiles
+
+# Node
+node_modules
+npm-debug.log*
+yarn-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docs / plans
+docs/_build
+*.log
+
+# CI / hooks que no necesitamos en la imagen
+.pre-commit-config.yaml
+.github
+.gitlab

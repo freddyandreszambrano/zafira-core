@@ -1,0 +1,88 @@
+[project]
+name = "zafira-core"
+version = "0.1.0"
+description = "Sistema administrativo Django con módulos configurables en base de datos."
+requires-python = ">=3.11"
+
+# ── Black ──────────────────────────────────────────────────────────────
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+extend-exclude = """
+/(
+  | migrations
+  | staticfiles
+  | media
+  | \\.venv
+)/
+"""
+
+# ── isort ──────────────────────────────────────────────────────────────
+[tool.isort]
+profile = "black"
+line_length = 100
+known_django = ["django"]
+known_drf = ["rest_framework"]
+known_first_party = ["core", "config"]
+sections = ["FUTURE", "STDLIB", "DJANGO", "DRF", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+skip = ["migrations", "staticfiles", "media", ".venv"]
+
+# ── Ruff ───────────────────────────────────────────────────────────────
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+exclude = [
+    "migrations",
+    "staticfiles",
+    "media",
+    ".venv",
+    ".git",
+    "__pycache__",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "DJ",  # flake8-django
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501",  # line-too-long — black ya maneja esto
+]
+
+[tool.ruff.lint.per-file-ignores]
+"**/migrations/*.py" = ["E", "F", "I"]
+"**/settings.py" = ["F405", "F403"]
+
+# ── pytest ─────────────────────────────────────────────────────────────
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings"
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-ra --strict-markers"
+markers = [
+    "slow: tests lentos (marcar con @pytest.mark.slow)",
+]
+
+# ── Coverage ───────────────────────────────────────────────────────────
+[tool.coverage.run]
+source = ["core", "config"]
+omit = [
+    "*/migrations/*",
+    "*/tests/*",
+    "manage.py",
+    "config/wsgi.py",
+    "config/asgi.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+]

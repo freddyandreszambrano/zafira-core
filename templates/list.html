@@ -4,16 +4,16 @@
 {% block title %}{{ title|default:'Listado' }} - ZAFIRA{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gradient-to-br from-white via-zafira-primary-soft/20 to-zafira-secondary-soft/20 py-10">
+<div class="z-page py-10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {# ── Header ──────────────────────────────────────────────────── #}
         <div class="flex items-start justify-between mb-6">
             <div>
-                <h1 class="text-2xl font-bold text-zafira-obsidian">{{ title|default:'Listado' }}</h1>
+                <h1 class="text-2xl font-bold z-heading">{{ title|default:'Listado' }}</h1>
                 {% block list_subtitle %}
                     {% if subtitle %}
-                        <p class="text-sm text-zafira-slate-deep mt-1">{{ subtitle }}</p>
+                        <p class="text-sm z-soft mt-1">{{ subtitle }}</p>
                     {% endif %}
                 {% endblock %}
             </div>

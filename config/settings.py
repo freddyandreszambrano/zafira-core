@@ -19,6 +19,7 @@ load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+VAR_DIR = BASE_DIR / 'var'
 
 
 # Quick-start development settings - unsuitable for production
@@ -99,7 +100,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': VAR_DIR / 'db' / 'db.sqlite3',
         'OPTIONS': {
             'timeout': 120,
         }

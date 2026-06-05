@@ -3,13 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
     <title>{% block title %}ZAFIRA - Sistema Administrativo{% endblock %}</title>
 
     <script>
         (function () {
             const saved = localStorage.getItem('zafira-theme');
+            const meta = document.querySelector('meta[name="color-scheme"]');
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+            if (saved && meta) meta.content = saved;
         })();
     </script>
 
@@ -47,20 +50,27 @@
 
     <style>
         :root {
-            --z-bg: #f8fafc;
+            color-scheme: light dark;
+            --z-bg: #f6f8fb;
             --z-surface: #ffffff;
             --z-text: #0f172a;
             --z-text-soft: #475569;
-            --z-text-mute: #94A3BB;
-            --z-border: #f1f5f9;
+            --z-text-mute: #64748b;
+            --z-border: #e2e8f0;
+            --z-primary: #e617a6;
+            --z-focus: rgba(230, 23, 166, .22);
+            accent-color: var(--z-primary);
         }
         html.dark {
-            --z-bg: #0b0b12;
-            --z-surface: #15151c;
-            --z-text: #e2e8f0;
+            color-scheme: dark;
+            --z-bg: #0b1020;
+            --z-surface: #111827;
+            --z-text: #f8fafc;
             --z-text-soft: #cbd5e1;
-            --z-text-mute: #64748b;
-            --z-border: #262630;
+            --z-text-mute: #94a3b8;
+            --z-border: #2b3548;
+            --z-primary: #ff6acb;
+            --z-focus: rgba(255, 106, 203, .24);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -69,9 +79,13 @@
             background: var(--z-bg);
             color: var(--z-text);
         }
+        :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+            outline: 3px solid var(--z-focus);
+            outline-offset: 2px;
+        }
 
         .gradient-primary { background: linear-gradient(135deg, #FF3BBE 0%, #8E54FF 100%); }
-        .gradient-dark    { background: linear-gradient(135deg, #090101 0%, #1F1F23 100%); }
+        .gradient-dark    { background: radial-gradient(circle at top left, rgba(255, 59, 190, .22), transparent 32%), linear-gradient(135deg, #0b1020 0%, #151827 100%); }
 
         .zafira-text-gradient {
             background: linear-gradient(135deg, #FF3BBE 0%, #8E54FF 100%);

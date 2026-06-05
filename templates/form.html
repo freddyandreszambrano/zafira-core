@@ -4,18 +4,18 @@
 {% block title %}{{ title|default:'Formulario' }} - ZAFIRA{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gradient-to-br from-white via-zafira-primary-soft/30 to-zafira-secondary-soft/30 dark:from-zafira-obsidian dark:via-zafira-obsidian-soft dark:to-zafira-obsidian py-10">
+<div class="z-page py-10">
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-3xl font-bold zafira-text-gradient">{{ title|default:'Formulario' }}</h1>
             {% if list_url %}
-                <a href="{{ list_url }}" class="text-zafira-slate-deep dark:text-zafira-slate hover:text-zafira-primary transition inline-flex items-center">
+                <a href="{{ list_url }}" class="z-soft hover:text-zafira-primary transition inline-flex items-center">
                     <i class="fas fa-arrow-left mr-2"></i>Volver
                 </a>
             {% endif %}
         </div>
 
-        <div class="bg-white dark:bg-zafira-obsidian-soft rounded-2xl shadow-md p-8">
+        <div class="z-card p-8">
             <form id="frmForm" method="post" enctype="multipart/form-data"
                   data-action="{{ action|default:'add' }}"
                   data-success="{{ list_url }}"
@@ -25,12 +25,12 @@
                 {% block form_components %}
                     {% for field in form.visible_fields %}
                         <div class="form-group">
-                            <label class="block text-sm font-semibold text-zafira-slate-deep dark:text-zafira-slate-soft mb-1">
+                            <label class="block text-sm font-semibold z-soft mb-1">
                                 {{ field.label }}{% if field.field.required %} <span class="text-zafira-primary">*</span>{% endif %}
                             </label>
-                            {{ field|add_class:'w-full px-4 py-2 border border-zafira-slate-soft dark:border-zafira-obsidian dark:bg-zafira-obsidian dark:text-zafira-slate-soft rounded-lg focus:outline-none focus:ring-2 focus:ring-zafira-primary focus:border-zafira-primary' }}
+                            {{ field|add_class:'z-field px-4 py-2' }}
                             {% if field.help_text %}
-                                <small class="text-zafira-slate text-xs mt-1 block">{{ field.help_text }}</small>
+                                <small class="z-muted text-xs mt-1 block">{{ field.help_text }}</small>
                             {% endif %}
                         </div>
                     {% endfor %}
@@ -38,7 +38,7 @@
 
                 <div class="flex justify-end gap-3 pt-4">
                     {% if list_url %}
-                        <a href="{{ list_url }}" class="bg-white dark:bg-zafira-obsidian border border-zafira-slate-soft dark:border-zafira-obsidian text-zafira-slate-deep dark:text-zafira-slate-soft font-semibold px-5 py-2.5 rounded-xl hover:bg-zafira-slate-soft/40 dark:hover:bg-zafira-obsidian-soft transition">
+                        <a href="{{ list_url }}" class="z-btn-ghost px-5 py-2.5">
                             Cancelar
                         </a>
                     {% endif %}

@@ -3,13 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
     <title>{% block title %}ZAFIRA - Sistema Administrativo{% endblock %}</title>
 
     <script>
         (function () {
             const saved = localStorage.getItem('zafira-theme');
+            const meta = document.querySelector('meta[name="color-scheme"]');
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+            if (saved && meta) meta.content = saved;
         })();
     </script>
 
@@ -50,32 +53,56 @@
 
     <style>
         :root {
-            --z-bg:           #f8fafc;
+            color-scheme: light dark;
+            --z-bg:           #f6f8fb;
+            --z-bg-2:         #ffffff;
+            --z-bg-3:         #f8f4ff;
             --z-surface:      #ffffff;
             --z-surface-2:    #f8fafc;
-            --z-surface-hover:#fef7fc;
-            --z-border:       #f1f5f9;
-            --z-border-soft:  #f8fafc;
+            --z-surface-3:    #f1f5f9;
+            --z-surface-hover:#fff4fb;
+            --z-border:       #e2e8f0;
+            --z-border-soft:  #eef2f7;
             --z-text:         #0f172a;
             --z-text-soft:    #475569;
-            --z-text-mute:    #94A3BB;
+            --z-text-mute:    #64748b;
+            --z-primary:      #e617a6;
+            --z-primary-2:    #7c3aed;
+            --z-primary-soft: #ffe5f6;
+            --z-focus:        rgba(230, 23, 166, .22);
             --z-badge-off-bg: #f1f5f9;
             --z-badge-off-fg: #475569;
             --z-dropdown-shadow: 0 12px 32px -8px rgba(15, 23, 42, .15);
+            --z-card-shadow: 0 1px 2px rgba(15, 23, 42, .05), 0 16px 32px -28px rgba(15, 23, 42, .38);
+            --z-card-shadow-hover: 0 18px 40px -28px rgba(15, 23, 42, .42);
+            accent-color: var(--z-primary);
+            scrollbar-color: #cbd5e1 #f8fafc;
+            scrollbar-width: thin;
         }
         html.dark {
-            --z-bg:           #0b0b12;
-            --z-surface:      #15151c;
-            --z-surface-2:    #1a1a22;
-            --z-surface-hover:#23202c;
-            --z-border:       #262630;
-            --z-border-soft:  #1f1f29;
-            --z-text:         #e2e8f0;
+            color-scheme: dark;
+            --z-bg:           #0b1020;
+            --z-bg-2:         #101827;
+            --z-bg-3:         #171024;
+            --z-surface:      #111827;
+            --z-surface-2:    #172033;
+            --z-surface-3:    #202a3d;
+            --z-surface-hover:#1f293d;
+            --z-border:       #2b3548;
+            --z-border-soft:  #243047;
+            --z-text:         #f8fafc;
             --z-text-soft:    #cbd5e1;
-            --z-text-mute:    #64748b;
-            --z-badge-off-bg: #262630;
+            --z-text-mute:    #94a3b8;
+            --z-primary:      #ff6acb;
+            --z-primary-2:    #a78bfa;
+            --z-primary-soft: rgba(255, 106, 203, .14);
+            --z-focus:        rgba(255, 106, 203, .24);
+            --z-badge-off-bg: #263246;
             --z-badge-off-fg: #cbd5e1;
             --z-dropdown-shadow: 0 12px 32px -8px rgba(0, 0, 0, .6);
+            --z-card-shadow: 0 1px 0 rgba(255, 255, 255, .03), 0 18px 44px -30px rgba(0, 0, 0, .88);
+            --z-card-shadow-hover: 0 24px 54px -30px rgba(0, 0, 0, .92);
+            scrollbar-color: #475569 #111827;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -83,12 +110,57 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: var(--z-bg);
             color: var(--z-text);
+            min-height: 100vh;
+        }
+
+        :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+            outline: 3px solid var(--z-focus);
+            outline-offset: 2px;
         }
 
         .gradient-primary { background: linear-gradient(135deg, #FF3BBE 0%, #8E54FF 100%); }
-        .gradient-dark    { background: linear-gradient(135deg, #090101 0%, #1F1F23 100%); }
-        .gradient-soft    { background: linear-gradient(135deg, #FFE5F6 0%, #EFE7FF 100%); }
-        html.dark .gradient-soft { background: linear-gradient(135deg, rgba(255, 59, 190, .18) 0%, rgba(142, 84, 255, .22) 100%); }
+        .gradient-dark    { background: radial-gradient(circle at top left, rgba(255, 59, 190, .22), transparent 32%), linear-gradient(135deg, #0b1020 0%, #151827 100%); }
+        .gradient-soft    { background: linear-gradient(135deg, var(--z-primary-soft) 0%, color-mix(in srgb, var(--z-primary-2) 16%, transparent) 100%); }
+        .z-page {
+            min-height: calc(100vh - 64px);
+            background:
+                radial-gradient(circle at top left, color-mix(in srgb, var(--z-primary) 13%, transparent), transparent 28rem),
+                linear-gradient(135deg, var(--z-bg) 0%, var(--z-bg-2) 52%, var(--z-bg-3) 100%);
+        }
+        .z-card {
+            background: var(--z-surface);
+            border: 1px solid var(--z-border);
+            border-radius: 1rem;
+            box-shadow: var(--z-card-shadow);
+        }
+        .z-card:hover { box-shadow: var(--z-card-shadow-hover); }
+        .z-muted { color: var(--z-text-mute); }
+        .z-soft { color: var(--z-text-soft); }
+        .z-heading { color: var(--z-text); }
+        .z-field {
+            width: 100%;
+            background: var(--z-surface-2);
+            border: 1px solid var(--z-border);
+            border-radius: .7rem;
+            color: var(--z-text);
+            transition: background .15s ease, border-color .15s ease, box-shadow .15s ease;
+        }
+        .z-field::placeholder { color: var(--z-text-mute); }
+        .z-field:focus {
+            outline: none;
+            background: var(--z-surface);
+            border-color: var(--z-primary);
+            box-shadow: 0 0 0 3px var(--z-focus);
+        }
+        html.dark :where(.text-zafira-obsidian) { color: var(--z-text) !important; }
+        html.dark :where(.text-zafira-slate-deep) { color: var(--z-text-soft) !important; }
+        html.dark :where(.text-zafira-slate) { color: var(--z-text-mute) !important; }
+        html.dark [class*="dark:bg-zafira-obsidian"] { background-color: var(--z-bg) !important; }
+        html.dark [class*="dark:bg-zafira-obsidian-soft"] { background-color: var(--z-surface) !important; }
+        html.dark [class*="dark:border-zafira-obsidian"] { border-color: var(--z-border) !important; }
+        html.dark .bg-white { background-color: var(--z-surface) !important; }
+        html.dark .border-zafira-slate-soft\/60,
+        html.dark .border-zafira-slate-soft { border-color: var(--z-border) !important; }
 
         .zafira-text-gradient {
             background: linear-gradient(135deg, #FF3BBE 0%, #8E54FF 100%);
@@ -140,8 +212,7 @@
             font-weight: 500;
             transition: all .15s ease;
         }
-        .z-sidebar__home:hover { background: #FFE5F6; color: #FF3BBE; }
-        html.dark .z-sidebar__home:hover { background: rgba(255, 59, 190, .12); }
+        .z-sidebar__home:hover { background: var(--z-primary-soft); color: var(--z-primary); }
         .z-sidebar__home.is-active {
             background: linear-gradient(135deg, #FF3BBE 0%, #8E54FF 100%);
             color: #fff;
@@ -180,7 +251,7 @@
             transition: all .15s ease;
             position: relative;
         }
-        .z-nav-link:hover { background: var(--z-surface-2); color: #FF3BBE; }
+        .z-nav-link:hover { background: var(--z-surface-2); color: var(--z-primary); }
         .z-nav-link i {
             width: 1rem;
             text-align: center;
@@ -188,14 +259,13 @@
             transition: color .15s ease;
             font-size: .8rem;
         }
-        .z-nav-link:hover i { color: #FF3BBE; }
+        .z-nav-link:hover i { color: var(--z-primary); }
         .z-nav-link.is-active {
-            background: #FFE5F6;
-            color: #FF3BBE;
+            background: var(--z-primary-soft);
+            color: var(--z-primary);
             font-weight: 600;
         }
-        html.dark .z-nav-link.is-active { background: rgba(255, 59, 190, .14); }
-        .z-nav-link.is-active i { color: #FF3BBE; }
+        .z-nav-link.is-active i { color: var(--z-primary); }
         .z-nav-link.is-active::before {
             content: '';
             position: absolute;
@@ -267,8 +337,7 @@
             cursor: pointer;
             transition: all .15s ease;
         }
-        .z-theme-toggle:hover { background: #FFE5F6; border-color: #FFB6E2; color: #FF3BBE; }
-        html.dark .z-theme-toggle:hover { background: rgba(255, 59, 190, .12); border-color: rgba(255, 59, 190, .35); }
+        .z-theme-toggle:hover { background: var(--z-primary-soft); border-color: color-mix(in srgb, var(--z-primary) 36%, var(--z-border)); color: var(--z-primary); }
         .z-theme-toggle .icon-sun { display: none; }
         html.dark .z-theme-toggle .icon-sun { display: inline; }
         html.dark .z-theme-toggle .icon-moon { display: none; }
@@ -341,8 +410,7 @@
             background: none;
             border: 0;
         }
-        .z-dropdown__item:hover { background: #FFE5F6; color: #FF3BBE; }
-        html.dark .z-dropdown__item:hover { background: rgba(255, 59, 190, .12); }
+        .z-dropdown__item:hover { background: var(--z-primary-soft); color: var(--z-primary); }
         .z-dropdown__item--danger:hover { background: #fee2e2; color: #dc2626; }
         html.dark .z-dropdown__item--danger:hover { background: rgba(220, 38, 38, .18); color: #fca5a5; }
         .z-dropdown__item i { width: 1rem; text-align: center; font-size: .8rem; }
@@ -362,11 +430,10 @@
         .z-table-card {
             background: var(--z-surface);
             border-radius: 1rem;
-            box-shadow: 0 1px 2px rgba(15, 23, 42, .04), 0 4px 12px rgba(15, 23, 42, .04);
+            box-shadow: var(--z-card-shadow);
             border: 1px solid var(--z-border);
             overflow: hidden;
         }
-        html.dark .z-table-card { box-shadow: 0 1px 2px rgba(0, 0, 0, .25), 0 4px 12px rgba(0, 0, 0, .25); }
         .z-table-toolbar {
             display: flex; align-items: center; gap: .75rem;
             padding: 1rem 1.25rem;
@@ -389,8 +456,8 @@
         .z-search > input:focus {
             outline: none;
             background: var(--z-surface);
-            border-color: #FF3BBE;
-            box-shadow: 0 0 0 3px rgba(255, 59, 190, .12);
+            border-color: var(--z-primary);
+            box-shadow: 0 0 0 3px var(--z-focus);
         }
         .z-btn-ghost {
             display: inline-flex; align-items: center; gap: .5rem;
@@ -403,8 +470,7 @@
             cursor: pointer;
             transition: all .15s ease;
         }
-        .z-btn-ghost:hover { background: #FFE5F6; border-color: #FFB6E2; color: #FF3BBE; }
-        html.dark .z-btn-ghost:hover { background: rgba(255, 59, 190, .12); border-color: rgba(255, 59, 190, .35); }
+        .z-btn-ghost:hover { background: var(--z-primary-soft); border-color: color-mix(in srgb, var(--z-primary) 34%, var(--z-border)); color: var(--z-primary); }
         .z-btn-primary {
             display: inline-flex; align-items: center; gap: .5rem;
             padding: .55rem 1rem;
@@ -468,8 +534,7 @@
             font-size: .8rem !important; font-weight: 500;
             cursor: pointer; transition: all .15s ease;
         }
-        .z-table-pager .paginate_button:hover { background: #FFE5F6 !important; border-color: #FFB6E2 !important; color: #FF3BBE !important; }
-        html.dark .z-table-pager .paginate_button:hover { background: rgba(255, 59, 190, .12) !important; border-color: rgba(255, 59, 190, .35) !important; }
+        .z-table-pager .paginate_button:hover { background: var(--z-primary-soft) !important; border-color: color-mix(in srgb, var(--z-primary) 34%, var(--z-border)) !important; color: var(--z-primary) !important; }
         .z-table-pager .paginate_button.current,
         .z-table-pager .paginate_button.current:hover {
             background: linear-gradient(135deg, #FF3BBE 0%, #8E54FF 100%) !important;
@@ -490,8 +555,7 @@
             text-transform: uppercase; letter-spacing: .03em;
             cursor: pointer; border: 0;
         }
-        .z-badge--on  { background: #FFE5F6; color: #b3007a; }
-        html.dark .z-badge--on { background: rgba(255, 59, 190, .18); color: #ffb6e2; }
+        .z-badge--on  { background: var(--z-primary-soft); color: var(--z-primary); }
         .z-badge--off { background: var(--z-badge-off-bg); color: var(--z-badge-off-fg); }
         .z-badge__dot { width: .4rem; height: .4rem; border-radius: 9999px; }
         .z-badge--on  .z-badge__dot { background: #FF3BBE; box-shadow: 0 0 0 3px rgba(255,59,190,.15); }
@@ -504,8 +568,7 @@
             border-radius: .5rem;
             color: var(--z-text-mute); transition: all .15s ease;
         }
-        .z-icon-btn:hover { background: #FFE5F6; color: #FF3BBE; }
-        html.dark .z-icon-btn:hover { background: rgba(255, 59, 190, .12); }
+        .z-icon-btn:hover { background: var(--z-primary-soft); color: var(--z-primary); }
         .z-icon-btn--danger:hover { background: #fee2e2; color: #dc2626; }
         html.dark .z-icon-btn--danger:hover { background: rgba(220, 38, 38, .18); color: #fca5a5; }
 
@@ -564,8 +627,8 @@
                             {{ user.first_name|default:user.username|slice:":1"|upper }}{{ user.last_name|slice:":1"|upper }}
                         </span>
                         <div class="flex-1 min-w-0">
-                            <div class="text-sm font-semibold text-zafira-obsidian truncate">{{ user.get_full_name|default:user.username }}</div>
-                            <div class="text-xs text-zafira-slate truncate">{{ user.email }}</div>
+                            <div class="text-sm font-semibold z-heading truncate">{{ user.get_full_name|default:user.username }}</div>
+                            <div class="text-xs z-muted truncate">{{ user.email }}</div>
                         </div>
                         <i class="fas fa-ellipsis-vertical text-zafira-slate text-sm"></i>
                     </div>
@@ -613,7 +676,7 @@
             {% if messages %}
             <div class="px-6 pt-4">
                 {% for message in messages %}
-                <div class="bg-zafira-primary-soft border-l-4 border-zafira-primary text-zafira-obsidian p-4 mb-4 rounded">
+                <div class="z-card border-l-4 border-l-zafira-primary text-sm p-4 mb-4">
                     <i class="fas fa-check-circle mr-2 text-zafira-primary"></i>{{ message }}
                 </div>
                 {% endfor %}
@@ -783,8 +846,10 @@
 
         Zafira.toggleTheme = function () {
             const root = document.documentElement;
+            const meta = document.querySelector('meta[name="color-scheme"]');
             const isDark = root.classList.toggle('dark');
             localStorage.setItem('zafira-theme', isDark ? 'dark' : 'light');
+            if (meta) meta.content = isDark ? 'dark' : 'light';
         };
 
         document.addEventListener('click', e => {

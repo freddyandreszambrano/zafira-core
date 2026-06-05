@@ -219,7 +219,7 @@ user.groups.add(group)
 ### Cambiar a archivo SQLite
 En `config/settings.py`:
 ```python
-'NAME': BASE_DIR / 'db.sqlite3',  # Cambiar ':memory:' por esto
+'NAME': BASE_DIR / 'var' / 'db' / 'db.sqlite3',  # SQLite local persistente
 ```
 
 ### Usar PostgreSQL (Producción)
@@ -284,35 +284,24 @@ Accede a: **http://localhost:8000/admin/**
 
 ```
 ZAFIRA-CORE/
-├── core/
-│   ├── auth/                     # Autenticación
-│   │   ├── models.py            # User model (350+ líneas)
-│   │   ├── views.py             # ViewSets y endpoints
-│   │   ├── serializers.py       # 8 Serializers
-│   │   ├── admin.py             # Admin interface
-│   │   ├── urls.py              # Rutas REST
-│   │   ├── utils.py             # Funciones auxiliares
-│   │   ├── signals.py           # Django signals
-│   │   └── management/commands/ # init_groups.py
-│   │
-│   └── profiles/                 # Perfiles corporativos
-│       ├── models.py            # UserProfile
-│       ├── views.py             # ViewSets
-│       ├── serializers.py       # Serializers
-│       ├── admin.py             # Admin
-│       ├── urls.py              # Rutas
-│       └── signals.py           # Auto-create
-│
-├── config/
-│   ├── settings.py              # Django config
-│   ├── urls.py                  # Rutas principales
-│   └── wsgi.py
-│
-├── requirements.txt             # Dependencias
-├── quick_setup.py               # Setup automático
-├── setup_db.py                  # Setup alternativo
-├── manage.py
-└── db.sqlite3                   # Base de datos (si usa file)
+├── ai/                          # Gobernanza, contexto y workflows para agentes IA
+├── core/                        # Apps Django del dominio
+│   ├── auth/                    # Autenticación, dashboard, perfil y usuarios
+│   ├── common/                  # Utilidades compartidas
+│   ├── profiles/                # Datos extendidos del usuario
+│   ├── scraper/                 # Herramientas de extracción
+│   └── security/                # Módulos, grupos y permisos dinámicos
+├── config/                      # Settings, URLs y WSGI/ASGI
+├── deploy/
+│   └── docker/                  # Dockerfile y Compose
+├── docs/                        # Documentación técnica
+├── requirements/                # Dependencias por entorno
+├── scripts/                     # Automatizaciones locales
+├── static/                      # Assets globales
+├── templates/                   # Bases compartidos
+├── var/                         # Runtime local ignorado por git
+│   └── db/db.sqlite3            # Base SQLite local
+└── manage.py                    # Entrada CLI de Django
 ```
 
 ---

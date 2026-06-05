@@ -1,6 +1,8 @@
-# ZAFIRA-CORE — Guía para Codex
+# ZAFIRA-CORE — Guía para agentes IA
 
-Este archivo es la gobernanza del proyecto para cualquier sesión de Codex. Léelo entero antes de hacer cambios.
+Este archivo es la gobernanza del proyecto para cualquier sesión de agentes IA (Claude, Codex, Gemini, Cursor, Copilot). Léelo entero antes de hacer cambios.
+
+> `CLAUDE.md` es un symlink a este archivo — manténgase como única fuente de verdad.
 
 > Para humanos: este es también un buen onboarding técnico.
 
@@ -437,7 +439,7 @@ Luego: `make migrate && make insert-data`. El módulo aparecerá en nav y dashbo
 | `make insert-data` | Carga módulos + grupo Admin + usuario `admin/admin` |
 | `make test` / `make test-fast` | Tests |
 | `make kill-python` | Si la BD queda locked (común en WSL/Windows mixto) |
-| `make reset-db` | ⚠ Borra `db.sqlite3` y recrea |
+| `make reset-db` | ⚠ Borra `var/db/db.sqlite3` y recrea |
 
 ---
 
@@ -454,6 +456,6 @@ Luego: `make migrate && make insert-data`. El módulo aparecerá en nav y dashbo
 
 ## 7. Pendientes conocidos / trampas
 
-- **WSL + Windows Python + SQLite**: la BD se queda lockeada con frecuencia si tienes un IDE con `db.sqlite3` abierto. Usar `make kill-python` o cerrar el IDE.
+- **WSL + Windows Python + SQLite**: la BD se queda lockeada con frecuencia si tienes un IDE con `var/db/db.sqlite3` abierto. Usar `make kill-python` o cerrar el IDE.
 - **`Token` viejos**: `signals.py` crea Token al guardar User. Si refactorizas auth, mantenlo o moverlo a `insert_data`.
 - **Profile signals**: hay un signal en `profiles` que crea `UserProfile` automáticamente al crear User. No instanciar `UserProfile` directamente en views.

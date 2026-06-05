@@ -1,0 +1,94 @@
+---
+description: ZAFIRA-CORE — Django CRUD rules y patrones del proyecto
+globs: ["**/*.py", "**/templates/**/*.html", "**/static/**/*.js", "**/forms/**/*.py"]
+alwaysApply: true
+---
+
+# ZAFIRA-CORE — Reglas para Cursor
+
+> Manual completo en `AGENTS.md` / `CLAUDE.md`. Esto es el resumen ejecutable.
+
+## Patrón CRUD
+
+- **4 views explícitas por entidad**: `XxxListView`, `XxxCreateView`, `XxxUpdateView`, `XxxDeleteView`.
+- Cada `post()` se escribe **inline** con `if/elif action == ...`. NO heredar de "CrudXxx" base — la repetición controlada se prefiere a la abstracción.
+- Acciones convencionales:
+  - **List**: `'search'` (DataTables AJAX), `'change_state'` (toggle `is_active`).
+  - **Create**: `'add'`, `'validate_data'`.
+  - **Update**: `'edit'`, `'validate_data'` (con `.exclude(pk=self.object.pk)`).
+  - **Delete**: sin `action`, POST directo.
+
+## Permisos
+
+- Toda view CRUD usa `PermissionMixin` (de `core.security.mixins`) con:
+  ```python
+  permission_required = 'view_xxx' | 'add_xxx' | 'change_xxx' | 'delete_xxx'
+  ```
+- Vistas públicas (login/register): `PublicMixin` (de `core.common.mixins`).
+- Superuser bypass automático en `PermissionMixin`.
+
+## Ubicación de templates y JS
+
+- **Por entidad, dentro de la app**:
+  ```
+  core/<app>/templates/<entity>/{list,form,delete}.html
+  core/<app>/static/<entity>/js/{list,form}.js
+  ```
+- `templates/` raíz solo contiene bases compartidos: `base.html`, `base_public.html`, `list.html`, `form.html`, `delete.html`.
+- Cada base expone un bloque para scripts:
+  - `list.html` → `{% block head_list %}`
+  - `form.html` → `{% block head_form %}`
+  - `delete.html` → `{% block head_delete %}`
+- **Nunca JS inline en templates**.
+
+## Modelos
+
+- Todo modelo necesita `to_json()` para que el list AJAX serialice.
+- `verbose_name` OK en español; mensajes de UI en `core.common.constants.MSG_*`.
+- Choices con `TextChoicesCustom` (de `core.common.choices`), no listas de tuplas.
+
+## Forms y widgets
+
+- `FORM_INPUT_CLASS` y factories de `core.common.forms.widgets` (`text_input()`, `password_input()`, etc.) — no duplicar la clase Tailwind.
+
+## Módulos dinámicos
+
+- Para que un CRUD aparezca en el nav/dashboard:
+  1. Agregarlo a `core/security/management/commands/insert_data.py` con `type`, `name`, `url`, `icon`, `permits_app`, `permits_model`, `order`.
+  2. `make migrate && make insert-data`.
+- El nav y el dashboard se rellenan vía `core.security.context_processors.available_modules`.
+
+## Code style
+
+- **Modularizar agresivamente**: si un archivo pasa de ~200 líneas, dividir en paquete con `__init__.py` que re-exporte.
+- **Sin docstrings obvios** — solo comentarios cuando el WHY no sea evidente.
+- **Sin templates pass-through vacíos** que solo digan `{% extends 'form.html' %}` — apuntar `template_name = 'form.html'` directo al base.
+- **Imports al top del archivo**, nunca dentro de métodos.
+
+## Errores que NO cometer
+
+- ❌ JS inline en templates.
+- ❌ Vistas AJAX separadas (`XxxAjaxView`).
+- ❌ Mixins "CrudXxxView" para deduplicar el CRUD.
+- ❌ `dict(MODEL_CHOICES)` en views — usar `Choice.get_label(value)` o `obj.get_field_display()`.
+- ❌ Archivos vacíos "por consistencia".
+- ❌ Mensajes UI hardcoded en modelos.
+
+## Comandos clave
+
+```bash
+make setup        # primera vez (install + migrate + insert-data)
+make run          # server en 0.0.0.0:8000
+make test         # tests
+make test-fast    # tests reusando BD
+make kill-python  # si la BD queda lockeada (WSL+Windows)
+make format       # black + isort
+make lint         # flake8 + ruff
+```
+
+## Stack
+
+- Django 5.2 + DRF
+- SQLite (dev) / PostgreSQL (prod, via docker-compose)
+- Tailwind CSS 4 (CDN) + DataTables + FormValidation
+- `django-crum` (request actual desde modelos) + `django-widget-tweaks`
