@@ -4,21 +4,24 @@
 
 ```text
 ZAFIRA-CORE/
-├── ai/              # Contexto mínimo para agentes IA
-├── core/            # Apps Django
+├── ai/              # Contexto y gobernanza para agentes IA
 ├── config/          # Settings, URLs, WSGI/ASGI
+├── core/            # Apps Django
+├── dev/             # Configuración de herramientas de desarrollo
 ├── deploy/          # Archivos de despliegue
 ├── docs/            # Documentación técnica
 ├── requirements/    # Dependencias por entorno
 ├── scripts/         # Automatizaciones
 ├── static/          # Assets globales
 ├── templates/       # Bases compartidos
-├── var/             # Runtime local ignorado por git
 ├── manage.py
 ├── Makefile
-├── AGENTS.md
+├── AGENTS.md        # Symlink a ai/AGENTS.md
+├── CLAUDE.md        # Symlink a AGENTS.md
 └── README.md
 ```
+
+Ver [project/root-files.md](project/root-files.md) para el detalle de los archivos que permanecen en la raíz.
 
 ## Apps
 
@@ -52,11 +55,10 @@ core/<app>/static/<entity>/js/
 
 ## Runtime
 
-La base SQLite local vive en:
+La base SQLite local se genera en:
 
 ```text
-var/db/db.sqlite3
+db.sqlite3
 ```
 
-`var/` no se versiona salvo `.gitkeep`.
-
+`db.sqlite3` no se versiona.

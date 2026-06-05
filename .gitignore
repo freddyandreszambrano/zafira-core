@@ -10,11 +10,6 @@ htmlcov/
 
 # Django
 db.sqlite3
-var/*
-!var/.gitkeep
-!var/db/
-var/db/*
-!var/db/.gitkeep
 *.sqlite3
 media/
 staticfiles/
@@ -23,6 +18,7 @@ staticfiles/
 .env
 .env.*
 !.env.example
+.python-version
 venv/
 .venv/
 env/

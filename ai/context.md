@@ -5,7 +5,7 @@ ZAFIRA-CORE es un sistema administrativo Django con dashboard y módulos configu
 ## Stack
 
 - Django 5.2 y Django REST Framework.
-- SQLite local en `var/db/db.sqlite3`.
+- SQLite local en `db.sqlite3`.
 - PostgreSQL para despliegue con Docker.
 - Tailwind CSS vía CDN, DataTables y FormValidation.
 - `django-crum` y `django-widget-tweaks`.
@@ -24,4 +24,3 @@ ZAFIRA-CORE es un sistema administrativo Django con dashboard y módulos configu
 - Arquitectura: `docs/architecture.md`.
 - Desarrollo: `docs/development.md`.
 - Diseño: `docs/design-system.md`.
-

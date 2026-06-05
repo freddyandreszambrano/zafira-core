@@ -6,6 +6,6 @@ Contexto mínimo para agentes IA que trabajen en ZAFIRA-CORE.
 
 - `context.md`: resumen del proyecto y stack.
 - `instructions.md`: reglas operativas para agentes.
+- `AGENTS.md`: gobernanza completa del proyecto para agentes IA.
 
-`AGENTS.md` en la raíz sigue siendo la fuente de verdad. Esta carpeta solo contiene contexto breve para evitar repetir explicaciones en cada sesión.
-
+`AGENTS.md` y `CLAUDE.md` permanecen como symlinks en la raíz porque Codex, Claude y otras herramientas los descubren automáticamente ahí.

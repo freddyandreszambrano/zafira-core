@@ -24,7 +24,13 @@ services:
     env_file:
       - ../../.env
     environment:
-      DATABASE_URL: postgres://${POSTGRES_USER:-zafira}:${POSTGRES_PASSWORD:-zafira}@db:5432/${POSTGRES_DB:-zafira}
+      PSQL: 1
+      DB_NAME: ${POSTGRES_DB:-zafira}
+      DB_USER: ${POSTGRES_USER:-zafira}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-zafira}
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_SCHEMA: public
     depends_on:
       db:
         condition: service_healthy

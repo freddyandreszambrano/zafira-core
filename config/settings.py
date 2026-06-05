@@ -10,16 +10,18 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
-from pathlib import Path
 from datetime import timedelta
 import os
+import sys
+from pathlib import Path
 from dotenv import load_dotenv
+
+from config import db
 
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-VAR_DIR = BASE_DIR / 'var'
 
 
 # Quick-start development settings - unsuitable for production
@@ -94,18 +96,30 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 
+def _use_sqlite_for_tests() -> bool:
+    if os.environ.get('FORCE_SQLITE_TESTS', '').strip().lower() in ('0', 'false', 'no'):
+        return False
+    if os.environ.get('FORCE_SQLITE_TESTS', '').strip().lower() in ('1', 'true', 'yes'):
+        return True
+    if len(sys.argv) >= 2 and sys.argv[1] == 'test':
+        return True
+    if 'PYTEST_VERSION' in os.environ:
+        return True
+    return False
+
+
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': VAR_DIR / 'db' / 'db.sqlite3',
-        'OPTIONS': {
-            'timeout': 120,
-        }
+if _use_sqlite_for_tests():
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',
+        },
     }
-}
+else:
+    DATABASES = db.POSTGRESQL if int(db.env('PSQL', default=0)) == 1 else db.SQLITE
 
 
 # Password validation

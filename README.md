@@ -8,31 +8,31 @@ Sistema completo de **autenticación corporativa** con **permisos**, **grupos**,
 
 ---
 
-## ⚡ Setup Rápido (30 segundos)
+## ⚡ Setup Rápido
 
 ```bash
 # 1. Instalar dependencias
-pip install -r requirements.txt
+pip install -r requirements/base.txt
 
-# 2. Ejecutar setup automático
-python quick_setup.py
+# 2. Migrar y cargar datos iniciales
+make migrate
+make insert-data
 
-# 3. Crear superusuario
-python manage.py createsuperuser
-
-# 4. Iniciar servidor
-python manage.py runserver
+# 3. Iniciar servidor
+make run
 ```
 
-✅ **Listo en http://localhost:8000/admin/**
+Usuario inicial: `admin / admin`.
+
+Listo en `http://localhost:8000/`.
 
 ---
 
 ## 📦 ¿Qué Incluye?
 
-### **2 Aplicaciones Django**
+### **Apps Django principales**
 
-#### 🔐 **App AUTH** - Autenticación y Permisos
+#### 🔐 **Security + Auth** - Módulos, permisos y usuarios
 - ✅ User model personalizado con campos corporativos
 - ✅ Login/Registro con validación completa
 - ✅ Token + JWT authentication dual
@@ -41,7 +41,7 @@ python manage.py runserver
 - ✅ Admin panel completo
 - ✅ 7 endpoints REST principales
 
-#### 👤 **App PROFILES** - Datos Corporativos
+#### 👤 **Profiles** - Datos corporativos
 - ✅ Perfil extendido de usuario
 - ✅ Departamentos, cargos, teléfono
 - ✅ Relaciones jerárquicas (manager)
@@ -214,34 +214,30 @@ user.groups.add(group)
 
 ## 🗄️ Base de Datos
 
-**Por defecto usa base de datos en memoria** (sin problemas WSL/SQLite).
+**Por defecto usa SQLite local** en `db.sqlite3`.
 
-### Cambiar a archivo SQLite
-En `config/settings.py`:
-```python
-'NAME': BASE_DIR / 'var' / 'db' / 'db.sqlite3',  # SQLite local persistente
+### Cambiar entre SQLite y PostgreSQL
+En `.env`:
+```env
+PSQL=0  # SQLite local
+PSQL=1  # PostgreSQL con DB_*
 ```
 
-### Usar PostgreSQL (Producción)
-```bash
-pip install psycopg2-binary
+### Usar PostgreSQL
+
+En `.env`:
+
+```env
+PSQL=1
+DB_NAME=zafira
+DB_USER=postgres
+DB_PASSWORD=postgres
+DB_HOST=localhost
+DB_PORT=5432
+DB_SCHEMA=public
 ```
 
-En `config/settings.py`:
-```python
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'zafira',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
-}
-```
-
-Ver: `DATABASE_SETUP.md` para más opciones.
+La selección de motor vive en `config/db.py` y `config/settings.py`.
 
 ---
 
@@ -299,8 +295,7 @@ ZAFIRA-CORE/
 ├── scripts/                     # Automatizaciones locales
 ├── static/                      # Assets globales
 ├── templates/                   # Bases compartidos
-├── var/                         # Runtime local ignorado por git
-│   └── db/db.sqlite3            # Base SQLite local
+├── db.sqlite3                   # Base SQLite local ignorada por git
 └── manage.py                    # Entrada CLI de Django
 ```
 
@@ -340,13 +335,12 @@ python manage.py showmigrations
 
 ## 📚 Documentación Adicional
 
-- **`SETUP_GUIDE.md`** - Guía completa de instalación
-- **`DATABASE_SETUP.md`** - Configuración de bases de datos
-- **`docs/design-system.md`** - 🎨 Sistema de diseño ZAFIRA (tokens, modo oscuro, patrones UI)
+- **`AGENTS.md`** - Gobernanza obligatoria del proyecto
 - **`docs/architecture.md`** - Estructura del repositorio y ubicación de archivos
 - **`docs/development.md`** - Patrones de desarrollo, CRUD, permisos y comandos
-- **`quick_setup.py`** - Script de setup automático
-- **`setup_db.py`** - Setup manual alternativo
+- **`docs/design-system.md`** - Sistema de diseño ZAFIRA
+- **`docs/project/root-files.md`** - Mapa de archivos raíz y por qué existen
+- **`docs/project/changelog.md`** - Historial de cambios
 
 ### 🎨 Colores de Marca ZAFIRA (Quick Reference)
 
@@ -388,11 +382,15 @@ gunicorn config.wsgi:application --bind 0.0.0.0:8000
 ## 🐛 Troubleshooting
 
 ### "database is locked"
-**Solución:** Usar base de datos en memoria (por defecto) o PostgreSQL.
+**Solución:** cerrar procesos que tengan abierto `db.sqlite3` o ejecutar:
+
+```bash
+make kill-python
+```
 
 ### "No module named 'django'"
 ```bash
-pip install -r requirements.txt
+pip install -r requirements/base.txt
 ```
 
 ### "Table does not exist"
@@ -437,7 +435,7 @@ MIT License - Libre para uso comercial y personal.
 ## 🤝 Soporte
 
 Para preguntas o problemas:
-1. Revisa `SETUP_GUIDE.md` y `DATABASE_SETUP.md`
+1. Revisa `AGENTS.md` y `docs/`
 2. Verifica los logs: `python manage.py runserver`
 3. Usa Django shell: `python manage.py shell`
 
@@ -446,9 +444,8 @@ Para preguntas o problemas:
 ## 📞 ¡Listo para Usar!
 
 ```bash
-python quick_setup.py
-python manage.py createsuperuser
-python manage.py runserver
+make setup
+make run
 ```
 
-**¡Accede a http://localhost:8000/admin/ y comienza a usar tu sistema de autenticación corporativo!** 🚀
+Accede a `http://localhost:8000/` con `admin / admin`.

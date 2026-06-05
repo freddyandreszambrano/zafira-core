@@ -12,7 +12,7 @@
 | `make makemigrations` | Genera migraciones |
 | `make insert-data` | Carga módulos y admin/admin |
 | `make test` | Ejecuta tests |
-| `make reset-db` | Borra `var/db/db.sqlite3` y recrea datos |
+| `make reset-db` | Borra `db.sqlite3` y recrea datos |
 
 ## CRUD
 
@@ -56,4 +56,3 @@ Reglas:
 - Delete: `delete_xxx`.
 
 `PermissionMixin` valida permisos contra el grupo activo en sesión.
-

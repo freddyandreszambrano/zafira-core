@@ -7,7 +7,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y 
 ## [Unreleased]
 
 ### Added
-- Tooling: `.editorconfig`, `.gitattributes`, `.python-version`, `.gitmessage`
+- Tooling: `.editorconfig`, `.gitattributes`, `.gitmessage`
 - Linters unificados en `pyproject.toml` (black, isort, ruff, pytest)
 - Pre-commit hooks (`.pre-commit-config.yaml`)
 - Cursor IDE rules (`.cursor/rules/project.mdc`)
@@ -17,6 +17,11 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y 
 
 ### Changed
 - `CLAUDE.md` ahora es symlink a `AGENTS.md` (dedupe del manual de IA)
+- Configuración de base de datos alineada con BACKOFFICE: `config/db.py`, `PSQL=0|1` y SQLite local en `db.sqlite3`
+- `Makefile` reestructurado por secciones con comentarios visuales
+- Gobernanza IA movida a `ai/AGENTS.md`; `AGENTS.md` y `CLAUDE.md` quedan como symlinks de compatibilidad
+- Configuración de pre-commit movida a `dev/pre-commit-config.yaml`
+- `.python-version` removido del repo; queda como archivo local opcional
 
 ## [0.1.0] - 2026-06-05
 
@@ -30,5 +35,4 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y 
 - Templates y JS app-local por entidad (`<app>/templates/<entity>/`, `<app>/static/<entity>/`)
 - Tailwind CSS 4 vía CDN + DataTables + FormValidation
 - Management command `insert_data` (seed: módulos + grupo Admin + usuario `admin/admin`)
-- Makefile con 27 targets
-- Documentación de gobernanza en `docs/governance/`
+- Documentación de gobernanza en `AGENTS.md`

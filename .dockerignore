@@ -56,6 +56,6 @@ docs/_build
 *.log
 
 # CI / hooks que no necesitamos en la imagen
-.pre-commit-config.yaml
+dev
 .github
 .gitlab
