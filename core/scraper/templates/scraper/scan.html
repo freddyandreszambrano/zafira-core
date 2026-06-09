@@ -6,12 +6,17 @@
 {% block topbar_title %}{{ title }}{% endblock %}
 
 {% block content %}
-<div class="z-page py-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-        <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+<div class="z-page">
+    <div class="z-page-shell">
+
+        <div class="z-page-header">
             <div>
-                <h1 class="text-2xl font-bold text-zafira-obsidian dark:text-zafira-slate-soft">{{ title }}</h1>
-                <p class="text-sm text-zafira-slate-deep dark:text-zafira-slate mt-1">Extraccion temporal de prendas desde tienda web.</p>
+                <div class="z-page-eyebrow">
+                    <i class="fas fa-spider"></i>
+                    <span>Scraper</span>
+                </div>
+                <h1 class="z-page-title">{{ title }}</h1>
+                <p class="z-page-subtitle">Extracción temporal de prendas desde tienda web.</p>
             </div>
             <button type="button" class="z-btn-ghost" data-copy-json disabled>
                 <i class="fas fa-copy"></i>
@@ -19,13 +24,13 @@
             </button>
         </div>
 
-        <section class="z-card p-5">
-            <form id="frmScraperScan" class="grid grid-cols-1 lg:grid-cols-[160px_1fr_140px_auto] gap-4 items-end">
+        <section class="z-card" style="padding:1.25rem 1.5rem; margin-bottom:1rem">
+            <form id="frmScraperScan" class="z-scan-form">
                 {% csrf_token %}
                 <input type="hidden" name="action" value="scan">
 
-                <div>
-                    <label for="id_store" class="block text-sm font-semibold text-zafira-slate-deep dark:text-zafira-slate-soft mb-1">Tienda</label>
+                <div class="z-form-group">
+                    <label class="z-form-label" for="id_store">Tienda</label>
                     <select id="id_store" name="store" class="z-field px-4 py-2.5">
                         {% for store in stores %}
                             <option value="{{ store }}" {% if store == default_store %}selected{% endif %}>{{ store }}</option>
@@ -33,30 +38,32 @@
                     </select>
                 </div>
 
-                <div>
-                    <label for="id_url" class="block text-sm font-semibold text-zafira-slate-deep dark:text-zafira-slate-soft mb-1">URL</label>
-                    <input id="id_url" type="url" name="url" required placeholder="https://www.modarm.com/..."
+                <div class="z-form-group" style="flex:1">
+                    <label class="z-form-label" for="id_url">URL de categoría o producto</label>
+                    <input id="id_url" type="url" name="url" required
+                           placeholder="https://www.modarm.com/..."
                            class="z-field px-4 py-2.5">
                 </div>
 
-                <div>
-                    <label for="id_max_products" class="block text-sm font-semibold text-zafira-slate-deep dark:text-zafira-slate-soft mb-1">Max.</label>
-                    <input id="id_max_products" type="number" name="max_products" value="{{ default_max_products }}" min="1" max="50"
-                           class="z-field px-4 py-2.5">
+                <div class="z-form-group">
+                    <label class="z-form-label" for="id_max_products">Máximo</label>
+                    <input id="id_max_products" type="number" name="max_products"
+                           value="{{ default_max_products }}" min="1" max="50"
+                           class="z-field px-4 py-2.5" style="width:90px">
                 </div>
 
-                <button type="submit" class="z-btn-primary justify-center h-[42px]" data-scan-submit>
+                <button type="submit" class="z-btn-primary" data-scan-submit style="align-self:flex-end; height:42px">
                     <i class="fas fa-magnifying-glass"></i>
                     <span>Escanear</span>
                 </button>
             </form>
         </section>
 
-        <section class="z-table-card">
+        <section class="z-table-card" style="margin-bottom:1rem">
             <div class="z-table-toolbar">
                 <div>
-                    <h2 class="text-sm font-bold text-zafira-obsidian dark:text-zafira-slate-soft">Productos</h2>
-                    <p class="text-xs text-zafira-slate" data-scan-summary>Sin resultados</p>
+                    <h2 class="z-panel__title">Productos encontrados</h2>
+                    <p class="z-panel__subtitle" data-scan-summary>Sin resultados aún.</p>
                 </div>
                 <div class="ml-auto flex items-center gap-2">
                     <span class="z-badge z-badge--off" data-scan-status>
@@ -64,14 +71,13 @@
                     </span>
                 </div>
             </div>
-
             <div class="overflow-x-auto">
                 <table class="w-full">
                     <thead>
                         <tr>
                             <th>Imagen</th>
                             <th>Nombre</th>
-                            <th>Categoria</th>
+                            <th>Categoría</th>
                             <th>Precio</th>
                             <th>Estado</th>
                             <th>URL</th>
@@ -79,22 +85,79 @@
                     </thead>
                     <tbody data-products-body>
                         <tr>
-                            <td colspan="6" class="text-center text-zafira-slate py-10">No hay productos para mostrar</td>
+                            <td colspan="6" class="text-center" style="padding:3rem 1.25rem; color:var(--z-text-mute)">
+                                Ingresa una URL y presiona Escanear para ver resultados.
+                            </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </section>
 
-        <section class="bg-zafira-obsidian text-zafira-slate-soft rounded-xl shadow-card overflow-hidden">
-            <div class="flex items-center justify-between px-4 py-3 border-b border-white/10">
-                <h2 class="text-sm font-semibold">JSON</h2>
-                <span class="text-xs text-zafira-slate" data-json-size>0 productos</span>
+        <section class="z-card" style="overflow:hidden">
+            <div class="z-json-header">
+                <span class="z-page-eyebrow" style="margin:0"><i class="fas fa-code"></i><span>JSON</span></span>
+                <span class="z-json-size" data-json-size>0 productos</span>
             </div>
-            <pre class="max-h-[480px] overflow-auto p-4 text-xs leading-5" data-json-output>{}</pre>
+            <pre class="z-json-output" data-json-output>{}</pre>
         </section>
+
     </div>
 </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .z-table-card table thead th {
+        padding: .75rem 1.25rem;
+        background: var(--z-surface-2);
+        border-bottom: 1px solid var(--z-border);
+        color: var(--z-text-soft);
+        font-size: .7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        text-align: left;
+    }
+    .z-table-card table tbody td {
+        padding: .85rem 1.25rem;
+        border-bottom: 1px solid var(--z-border-soft);
+        color: var(--z-text);
+        font-size: .875rem;
+        vertical-align: middle;
+    }
+    .z-table-card table tbody tr:last-child td { border-bottom: 0; }
+    .z-table-card table tbody tr:hover { background: var(--z-surface-hover); }
+    .z-scan-form {
+        display: flex;
+        align-items: flex-end;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    .z-json-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: .85rem 1.25rem;
+        border-bottom: 1px solid rgba(255,255,255,.08);
+        background: #0d1117;
+    }
+    .z-json-header .z-page-eyebrow { color: #58a6ff; }
+    .z-json-size { font-size: .74rem; font-weight: 600; color: #6e7681; }
+    .z-json-output {
+        background: #0d1117;
+        color: #e6edf3;
+        padding: 1.25rem;
+        font-size: .78rem;
+        line-height: 1.6;
+        max-height: 480px;
+        overflow: auto;
+        margin: 0;
+        font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+    }
+    .z-json-output::-webkit-scrollbar { width: 6px; height: 6px; }
+    .z-json-output::-webkit-scrollbar-thumb { background: #30363d; border-radius: 4px; }
+</style>
 {% endblock %}
 
 {% block extra_js %}

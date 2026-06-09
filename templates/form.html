@@ -6,14 +6,20 @@
 {% block content %}
 <div class="z-page">
     <div class="z-page-shell z-page-shell--narrow">
+
         <div class="z-page-header">
             <div>
                 <div class="z-page-eyebrow">
-                    <i class="fas fa-pen-to-square"></i>
-                    <span>Formulario</span>
+                    {% if action == 'update' %}
+                        <i class="fas fa-pen-to-square"></i>
+                        <span>Edición</span>
+                    {% else %}
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Creación</span>
+                    {% endif %}
                 </div>
                 <h1 class="z-page-title">{{ title|default:'Formulario' }}</h1>
-                <p class="z-page-subtitle">Completa la información requerida y guarda los cambios cuando todo esté correcto.</p>
+                <p class="z-page-subtitle">Completa los campos requeridos y guarda cuando todo esté correcto.</p>
             </div>
             {% if list_url %}
                 <a href="{{ list_url }}" class="z-btn-ghost">
@@ -64,6 +70,7 @@
                 </div>
             </form>
         </div>
+
     </div>
 </div>
 {% endblock %}

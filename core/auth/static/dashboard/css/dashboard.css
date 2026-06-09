@@ -1,8 +1,3 @@
-/* Componentes específicos del dashboard. Los primitivos z-* compartidos
- * (stat-card, panel, chip, table-card) viven en base.html; aquí solo van
- * las piezas que únicamente usa /dashboard/. */
-
-/* Línea de contexto bajo el valor de cada stat card */
 .z-stat-card > div { min-width: 0; }
 .z-stat-card__meta {
     margin-top: .4rem;
@@ -16,15 +11,101 @@
 .z-stat-card__meta i { font-size: .62rem; }
 .z-stat-card__meta--up { color: #16a34a; }
 
-/* Salud de cuentas */
+.z-stat-ring {
+    position: relative;
+    width: 3.25rem;
+    height: 3.25rem;
+    flex-shrink: 0;
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.z-stat-ring svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+.z-stat-ring__bg { fill: none; stroke: var(--z-surface-3); stroke-width: 3.5; }
+.z-stat-ring__fill {
+    fill: none;
+    stroke: url(#ring-grad);
+    stroke-width: 3.5;
+    stroke-linecap: round;
+    stroke-dashoffset: 0;
+    transition: stroke-dasharray .6s cubic-bezier(.4,0,.2,1);
+}
+.z-stat-ring span {
+    position: relative;
+    z-index: 1;
+    font-size: .6rem;
+    font-weight: 800;
+    color: var(--z-primary);
+}
+
+.z-action-tile {
+    display: flex;
+    align-items: center;
+    gap: .85rem;
+    padding: .9rem 1rem;
+    border: 1px solid var(--z-border);
+    border-radius: .85rem;
+    color: var(--z-text);
+    background: var(--z-surface-2);
+    transition: all .18s ease;
+    text-decoration: none;
+}
+.z-action-tile:hover {
+    border-color: color-mix(in srgb, var(--z-primary) 34%, var(--z-border));
+    background: var(--z-primary-soft);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px -8px rgba(255, 59, 190, .28);
+}
+.z-action-tile .z-action-tile__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    flex-shrink: 0;
+    border-radius: .65rem;
+    font-size: .9rem;
+    color: var(--z-primary);
+    background: var(--z-primary-soft);
+}
+.z-action-tile .z-action-tile__icon--violet {
+    color: var(--z-primary-2);
+    background: color-mix(in srgb, var(--z-primary-2) 14%, transparent);
+}
+.z-action-tile .z-action-tile__icon--violet i { color: var(--z-primary-2); }
+.z-action-tile .z-action-tile__label { font-size: .875rem; font-weight: 700; color: var(--z-text); line-height: 1.2; }
+.z-action-tile .z-action-tile__hint { font-size: .72rem; color: var(--z-text-mute); margin-top: .1rem; }
+.z-action-tile .z-action-tile__arrow { margin-left: auto; color: var(--z-text-mute); font-size: .72rem; flex-shrink: 0; width: auto; }
+.z-action-tile:hover .z-action-tile__arrow { color: var(--z-primary); }
+
+.z-user-tiles { display: grid; gap: .45rem; }
+.z-user-tile {
+    display: flex;
+    align-items: center;
+    gap: .85rem;
+    padding: .75rem .85rem;
+    border-radius: .75rem;
+    background: var(--z-surface-2);
+    transition: background .15s ease;
+}
+.z-user-tile:hover { background: var(--z-surface-hover); }
+.z-user-tile__avatar { width: 2.1rem; height: 2.1rem; font-size: .65rem; flex-shrink: 0; }
+.z-user-tile__info { flex: 1; min-width: 0; }
+.z-user-tile__name { font-size: .88rem; font-weight: 700; color: var(--z-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.z-user-tile__meta { font-size: .74rem; color: var(--z-text-mute); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: .1rem; }
+.z-user-tile__side { flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: .25rem; }
+.z-user-tile__date { font-size: .7rem; color: var(--z-text-mute); }
+
 .z-health { display: grid; gap: .4rem; }
 .z-health__item {
     display: flex;
     align-items: center;
     gap: .75rem;
-    padding: .65rem .7rem;
+    padding: .65rem .85rem;
     border-radius: .75rem;
     background: var(--z-surface-2);
+    border-left: 3px solid transparent;
 }
 .z-health__icon {
     display: inline-flex;
@@ -54,14 +135,17 @@
     font-size: .95rem;
     font-weight: 800;
 }
+.z-health__item--danger { border-left-color: #dc2626; }
 .z-health__item--danger .z-health__icon { color: #dc2626; background: color-mix(in srgb, #dc2626 14%, transparent); }
 .z-health__item--danger .z-health__value { color: #dc2626; }
+.z-health__item--warn { border-left-color: #d97706; }
 .z-health__item--warn .z-health__icon { color: #d97706; background: color-mix(in srgb, #d97706 16%, transparent); }
 .z-health__item--warn .z-health__value { color: #d97706; }
+.z-health__item--ok { border-left-color: #16a34a; }
 .z-health__item--ok .z-health__icon { color: #16a34a; background: color-mix(in srgb, #16a34a 14%, transparent); }
+.z-health__item--info { border-left-color: var(--z-primary-2); }
 .z-health__item--info .z-health__icon { color: var(--z-primary-2); background: color-mix(in srgb, var(--z-primary-2) 14%, transparent); }
 
-/* Distribución por grupo */
 .z-dist { display: grid; gap: .95rem; }
 .z-dist__row { display: grid; gap: .45rem; }
 .z-dist__head {
@@ -86,11 +170,7 @@
     font-weight: 600;
 }
 .z-dist__meta strong { color: var(--z-text); font-weight: 800; }
-.z-dist__meta span + span::before {
-    content: "·";
-    margin: 0 .4rem;
-    color: var(--z-border);
-}
+.z-dist__meta span + span::before { content: "·"; margin: 0 .4rem; color: var(--z-border); }
 .z-bar {
     height: .5rem;
     border-radius: 999px;
@@ -102,6 +182,7 @@
     min-width: .5rem;
     border-radius: 999px;
     background: linear-gradient(90deg, var(--z-primary) 0%, var(--z-primary-2) 100%);
+    transition: width .6s cubic-bezier(.4,0,.2,1);
 }
 .z-dashboard-empty {
     padding: 1.75rem 1rem;

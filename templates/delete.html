@@ -5,22 +5,25 @@
 {% block content %}
 <div class="z-page">
     <div class="z-page-shell z-page-shell--compact">
-        <div class="z-form-card">
-            <div class="z-form-card__body text-center">
-                <div class="inline-flex items-center justify-center w-14 h-14 rounded-xl gradient-soft mb-4">
-                    <i class="fas fa-trash text-zafira-primary text-xl"></i>
+
+        <div class="z-delete-card">
+            <div class="z-delete-card__accent"></div>
+
+            <div class="z-delete-card__body">
+                <div class="z-delete-icon">
+                    <i class="fas fa-trash-xmark"></i>
                 </div>
-                <div class="z-page-eyebrow justify-center">
+                <div class="z-page-eyebrow justify-center" style="margin-bottom:.5rem">
                     <i class="fas fa-triangle-exclamation"></i>
-                    <span>Confirmación</span>
+                    <span>Acción irreversible</span>
                 </div>
-                <h1 class="z-page-title">¿Eliminar registro?</h1>
-                <p class="z-page-subtitle mx-auto">
-                    Esta acción no se puede deshacer. Revisa la información antes de continuar.
+                <h1 class="z-page-title" style="font-size:1.5rem; text-align:center">¿Eliminar registro?</h1>
+                <p class="z-page-subtitle" style="text-align:center; max-width:28rem; margin:0 auto">
+                    Esta acción no puede deshacerse. El registro desaparecerá permanentemente del sistema.
                 </p>
             </div>
 
-            <form method="post" id="frmDelete" class="z-form-card__footer">
+            <form method="post" id="frmDelete" class="z-delete-card__footer">
                 {% csrf_token %}
                 {% if list_url %}
                     <a href="{{ list_url }}" class="z-btn-ghost">
@@ -30,15 +33,58 @@
                 {% endif %}
                 <button type="submit" class="z-btn-danger">
                     <i class="fas fa-trash"></i>
-                    <span>Eliminar</span>
+                    <span>Sí, eliminar</span>
                 </button>
             </form>
         </div>
+
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
+<style>
+    .z-delete-card {
+        position: relative;
+        background: var(--z-surface);
+        border: 1px solid var(--z-border);
+        border-radius: 1rem;
+        box-shadow: var(--z-card-shadow);
+        overflow: hidden;
+    }
+    .z-delete-card__accent {
+        height: 4px;
+        background: linear-gradient(90deg, #dc2626 0%, #ef4444 100%);
+    }
+    .z-delete-card__body {
+        padding: 2.5rem clamp(1.25rem, 4vw, 2.5rem) 1.75rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: .5rem;
+        text-align: center;
+    }
+    .z-delete-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 4rem;
+        height: 4rem;
+        border-radius: 1rem;
+        background: color-mix(in srgb, #dc2626 12%, transparent);
+        color: #dc2626;
+        font-size: 1.5rem;
+        margin-bottom: .5rem;
+    }
+    .z-delete-card__footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: .75rem;
+        padding: 1rem clamp(1.25rem, 4vw, 2.5rem);
+        border-top: 1px solid var(--z-border);
+        background: var(--z-surface-2);
+    }
+</style>
 <script>
     document.getElementById('frmDelete').addEventListener('submit', function (e) {
         e.preventDefault();

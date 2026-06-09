@@ -5,53 +5,126 @@
 {% block topbar_title %}Mi perfil{% endblock %}
 
 {% block content %}
-    <div class="px-6 py-8 max-w-5xl mx-auto">
-        <div class="bg-white dark:bg-zafira-obsidian-soft rounded-2xl border border-zafira-slate-soft/60 dark:border-zafira-obsidian-soft shadow-card">
+<div class="z-page">
+    <div class="z-page-shell z-page-shell--narrow">
 
-            <div class="flex items-center gap-4 px-6 py-5 border-b border-zafira-slate-soft/60 dark:border-zafira-obsidian-soft">
-            <span class="inline-flex items-center justify-center w-12 h-12 rounded-full gradient-primary text-white font-bold shadow-zafira">
-                {{ user.first_name|default:user.username|slice:":1"|upper }}{{ user.last_name|slice:":1"|upper }}
-            </span>
-                <div>
-                    <h2 class="text-xl font-bold text-zafira-obsidian dark:text-zafira-slate-soft">{{ user.get_full_name|default:user.username }}</h2>
-                    <p class="text-sm text-zafira-slate">{{ user.email }}</p>
+        <div class="z-page-header">
+            <div>
+                <div class="z-page-eyebrow">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Mi cuenta</span>
+                </div>
+                <h1 class="z-page-title">Mi perfil</h1>
+                <p class="z-page-subtitle">Información personal y configuración de seguridad.</p>
+            </div>
+            <a href="{% url 'profile_edit' %}" class="z-btn-primary">
+                <i class="fas fa-pen"></i>
+                <span>Editar</span>
+            </a>
+        </div>
+
+        <div class="z-card" style="overflow:hidden">
+            <div class="z-profile-hero">
+                <span class="z-avatar z-profile-hero__avatar">
+                    {{ user.first_name|default:user.username|slice:":1"|upper }}{{ user.last_name|slice:":1"|upper }}
+                </span>
+                <div class="z-profile-hero__info">
+                    <h2 class="z-profile-hero__name">{{ user.get_full_name|default:user.username }}</h2>
+                    <p class="z-profile-hero__email">{{ user.email }}</p>
+                    <div class="z-chip-list" style="margin-top:.6rem">
+                        {% if user.is_superuser %}
+                            <span class="z-badge z-badge--on"><span class="z-badge__dot"></span>Administrador</span>
+                        {% elif user.is_staff %}
+                            <span class="z-badge z-badge--on"><span class="z-badge__dot"></span>Equipo</span>
+                        {% else %}
+                            <span class="z-badge z-badge--off"><span class="z-badge__dot"></span>Usuario</span>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
 
-            <div class="px-6 py-6 grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-zafira-slate mb-4">Información
-                        personal</h3>
-                    <dl class="space-y-3 text-sm">
-                        <div class="flex justify-between gap-4">
-                            <dt class="text-zafira-slate-deep dark:text-zafira-slate">Usuario</dt>
-                            <dd class="text-zafira-obsidian dark:text-zafira-slate-soft font-medium">{{ user.username }}</dd>
+            <div class="z-profile-body">
+                <section class="z-profile-section">
+                    <h3 class="z-profile-section__title">
+                        <i class="fas fa-id-card"></i>
+                        Información personal
+                    </h3>
+                    <dl class="z-detail-list">
+                        <div><dt>Usuario</dt><dd>{{ user.username }}</dd></div>
+                        <div><dt>Correo electrónico</dt><dd>{{ user.email }}</dd></div>
+                        <div><dt>Cédula</dt><dd>{{ user.dni }}</dd></div>
+                        <div><dt>Miembro desde</dt><dd>{{ user.date_joined|date:'d/m/Y' }}</dd></div>
+                    </dl>
+                </section>
+
+                <section class="z-profile-section">
+                    <h3 class="z-profile-section__title">
+                        <i class="fas fa-shield-halved"></i>
+                        Seguridad
+                    </h3>
+                    <dl class="z-detail-list">
+                        <div>
+                            <dt>Último acceso</dt>
+                            <dd>{{ user.last_login|date:"d/m/Y H:i"|default:"Sin registro" }}</dd>
                         </div>
-                        <div class="flex justify-between gap-4">
-                            <dt class="text-zafira-slate-deep dark:text-zafira-slate">Correo</dt>
-                            <dd class="text-zafira-obsidian dark:text-zafira-slate-soft font-medium">{{ user.email }}</dd>
-                        </div>
-                        <div class="flex justify-between gap-4">
-                            <dt class="text-zafira-slate-deep dark:text-zafira-slate">Cédula</dt>
-                            <dd class="text-zafira-obsidian dark:text-zafira-slate-soft font-medium">{{ user.dni }}</dd>
-                        </div>
-                        <div class="flex justify-between gap-4">
-                            <dt class="text-zafira-slate-deep dark:text-zafira-slate">Registrado</dt>
-                            <dd class="text-zafira-obsidian dark:text-zafira-slate-soft font-medium">{{ user.date_joined|date:'d/m/Y' }}</dd>
+                        <div>
+                            <dt>Contraseña actualizada</dt>
+                            <dd>{{ user.last_password_change_at|date:"d/m/Y"|default:"Sin registro" }}</dd>
                         </div>
                     </dl>
-                </div>
-            </div>
-
-            <div class="px-6 py-4 border-t border-zafira-slate-soft/60 dark:border-zafira-obsidian-soft flex flex-wrap gap-2">
-                <a href="{% url 'profile_edit' %}" class="z-btn-primary">
-                    <i class="fas fa-pen"></i>Editar perfil
-                </a>
-
-                <a href="{% url 'password_change' %}" class="z-btn-ghost">
-                    <i class="fas fa-key"></i>Cambiar contraseña
-                </a>
+                    <div style="margin-top:1rem">
+                        <a href="{% url 'password_change' %}" class="z-btn-ghost">
+                            <i class="fas fa-key"></i>
+                            <span>Cambiar contraseña</span>
+                        </a>
+                    </div>
+                </section>
             </div>
         </div>
+
     </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .z-profile-hero {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        padding: 1.75rem 1.75rem 1.5rem;
+        border-bottom: 1px solid var(--z-border);
+        background: linear-gradient(135deg, var(--z-primary-soft) 0%, color-mix(in srgb, var(--z-primary-2) 8%, transparent) 100%);
+    }
+    .z-profile-hero__avatar { width: 3.5rem; height: 3.5rem; font-size: .95rem; flex-shrink: 0; }
+    .z-profile-hero__name { font-size: 1.25rem; font-weight: 800; color: var(--z-text); }
+    .z-profile-hero__email { font-size: .85rem; color: var(--z-text-soft); margin-top: .2rem; }
+    .z-profile-body {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0;
+    }
+    .z-profile-section {
+        padding: 1.5rem 1.75rem;
+    }
+    .z-profile-section + .z-profile-section {
+        border-left: 1px solid var(--z-border);
+    }
+    .z-profile-section__title {
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        font-size: .72rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        color: var(--z-primary);
+        margin-bottom: 1rem;
+    }
+    @media (max-width: 640px) {
+        .z-profile-body { grid-template-columns: 1fr; }
+        .z-profile-section + .z-profile-section { border-left: 0; border-top: 1px solid var(--z-border); }
+        .z-profile-hero { flex-direction: column; text-align: center; }
+    }
+</style>
 {% endblock %}
