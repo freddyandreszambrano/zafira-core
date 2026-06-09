@@ -1,12 +1,16 @@
 let tblModule;
 
 const module_crud = {
-    list: function () {
+    list() {
         tblModule = Zafira.dataTable('#data', [
-            { data: 'name', render: data => Zafira.escape(data) },
+            {
+                data: 'name',
+                render: data => Zafira.escape(data),
+            },
             {
                 data: 'url',
-                render: data => `<code class="px-2 py-0.5 rounded bg-zafira-slate-soft/40 text-xs text-zafira-slate-deep">${Zafira.escape(data)}</code>`,
+                render: data =>
+                    `<code class="px-2 py-0.5 rounded bg-zafira-slate-soft/40 text-xs text-zafira-slate-deep">${Zafira.escape(data)}</code>`,
             },
             {
                 data: 'module_type',
@@ -31,7 +35,7 @@ const module_crud = {
                 render: id => Zafira.rowActions(id),
             },
         ], { toggleConfirm: '¿Cambiar el estado de este módulo?' });
-    }
+    },
 };
 
 $(function () {

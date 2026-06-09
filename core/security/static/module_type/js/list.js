@@ -1,9 +1,12 @@
 let tblModuleType;
 
 const module_type = {
-    list: function () {
+    list() {
         tblModuleType = Zafira.dataTable('#data', [
-            { data: 'name', render: data => Zafira.escape(data) },
+            {
+                data: 'name',
+                render: data => Zafira.escape(data),
+            },
             {
                 data: 'icon',
                 render: data => data
@@ -27,7 +30,7 @@ const module_type = {
                 render: id => Zafira.rowActions(id),
             },
         ], { toggleConfirm: '¿Cambiar el estado de este tipo de módulo?' });
-    }
+    },
 };
 
 $(function () {

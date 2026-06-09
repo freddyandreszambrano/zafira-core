@@ -1,7 +1,7 @@
 let tblGroup;
 
 const group = {
-    list: function () {
+    list() {
         tblGroup = Zafira.dataTable('#data', [
             {
                 data: 'name',
@@ -30,7 +30,7 @@ const group = {
                 render: id => Zafira.rowActions(id),
             },
         ], { toggleConfirm: '¿Cambiar el estado de este grupo?' });
-    }
+    },
 };
 
 $(function () {
