@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function () {
             },
             url: {
                 validators: {
-                    notEmpty: { message: 'Ingrese la URL del módulo' },
+                    notEmpty: { message: 'Ingrese la dirección del módulo' },
                     remote: {
                         url: pathname,
                         data: () => ({
@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             pattern: 'url',
                             action: 'validate_data',
                         }),
-                        message: 'La URL ya se encuentra registrada',
+                        message: 'La dirección ya se encuentra registrada',
                         method: 'POST',
                         headers: { 'X-CSRFToken': csrftoken },
                     },

@@ -9,13 +9,13 @@ const group = {
                     <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg gradient-soft">
                         <i class="fas fa-user-tag text-zafira-primary text-xs"></i>
                     </span>
-                    <span class="font-medium">${data}</span>
+                    <span class="font-medium">${Zafira.escape(data)}</span>
                 </div>`,
             },
             {
                 data: 'description',
                 render: data => data
-                    ? `<span class="text-zafira-slate-deep">${data}</span>`
+                    ? `<span class="text-zafira-slate-deep">${Zafira.escape(data)}</span>`
                     : '<span class="text-zafira-slate">Sin descripción</span>',
             },
             {

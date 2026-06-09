@@ -1,292 +1,311 @@
 {% extends 'base.html' %}
-{% block title %}Dashboard - ZAFIRA{% endblock %}
-{% block topbar_crumb %}ZAFIRA · Suite{% endblock %}
+{% load static %}
+
+{% block title %}Inicio - ZAFIRA{% endblock %}
+{% block topbar_crumb %}ZAFIRA{% endblock %}
 {% block topbar_title %}Inicio{% endblock %}
 
-{% block content %}
-<div class="px-6 py-8 max-w-7xl mx-auto">
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'dashboard/css/dashboard.css' %}">
+{% endblock %}
 
-    {# ── Hero ──────────────────────────────────────────────────── #}
-    <section class="relative overflow-hidden rounded-3xl gradient-primary p-8 mb-8 shadow-zafira-lg">
-        <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 20% 50%, rgba(255,255,255,.4) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255,255,255,.3) 0%, transparent 50%);"></div>
-        <div class="relative flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-            <div class="text-white">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm mb-3 text-xs font-medium">
-                    <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
-                    Sistema operativo · Todos los servicios activos
+{% block content %}
+<div class="z-page">
+    <div class="z-page-shell">
+
+        <section class="z-dashboard-hero">
+            <div>
+                <div class="z-page-eyebrow">
+                    <i class="fas fa-shield-halved"></i>
+                    <span>Panel principal</span>
                 </div>
-                <h1 class="text-3xl md:text-4xl font-bold mb-2">
-                    Hola, {{ user.first_name|default:user.username }} 👋
-                </h1>
-                <p class="text-white/85 text-base max-w-xl">
-                    Bienvenido a <strong>ZAFIRA</strong>, tu suite de autenticación corporativa con
-                    permisos modulares, perfiles extendidos y gestión total desde un solo lugar.
+                <h1 class="z-dashboard-hero__title">Hola, {{ user.first_name|default:user.username }}</h1>
+                <p class="z-dashboard-hero__copy">
+                    Gestiona usuarios, accesos y módulos desde un espacio claro, ordenado y listo para el trabajo diario.
                 </p>
             </div>
-            <div class="flex flex-col sm:flex-row gap-2">
-                <a href="{% url 'user_list' %}" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white text-zafira-primary font-semibold rounded-xl shadow-lg hover:scale-105 transition-transform">
-                    <i class="fas fa-user-plus"></i>
-                    <span>Gestionar usuarios</span>
+            <div class="z-dashboard-hero__actions">
+                <a href="{% url 'user_list' %}" class="z-btn-primary">
+                    <i class="fas fa-users"></i>
+                    <span>Usuarios</span>
                 </a>
-                <a href="{% url 'module_list' %}" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white/15 backdrop-blur-sm text-white border border-white/30 font-semibold rounded-xl hover:bg-white/25 transition">
-                    <i class="fas fa-puzzle-piece"></i>
-                    <span>Configurar módulos</span>
+                <a href="{% url 'module_list' %}" class="z-btn-ghost">
+                    <i class="fas fa-layer-group"></i>
+                    <span>Módulos</span>
                 </a>
             </div>
-        </div>
-    </section>
+        </section>
 
-    {# ── Stats ─────────────────────────────────────────────────── #}
-    <section class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {% with stats=True %}
-        <div class="bg-white dark:bg-zafira-obsidian-soft rounded-2xl border border-zafira-slate-soft/60 dark:border-zafira-obsidian-soft p-5 hover:shadow-card transition-shadow">
-            <div class="flex items-start justify-between mb-3">
-                <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-zafira-primary-soft dark:bg-zafira-primary/20">
-                    <i class="fas fa-users text-zafira-primary"></i>
-                </span>
-                <span class="text-[10px] font-bold uppercase tracking-wider text-zafira-slate">Total</span>
-            </div>
-            <div class="text-3xl font-bold text-zafira-obsidian dark:text-zafira-slate-soft">{{ total_users }}</div>
-            <div class="text-xs text-zafira-slate-deep mt-1">Usuarios registrados</div>
-        </div>
+        <section class="z-dashboard-stats">
+            <article class="z-stat-card">
+                <span class="z-stat-card__icon"><i class="fas fa-users"></i></span>
+                <div>
+                    <div class="z-stat-card__value">{{ total_users }}</div>
+                    <div class="z-stat-card__label">Usuarios registrados</div>
+                    <div class="z-stat-card__meta z-stat-card__meta--up">
+                        <i class="fas fa-arrow-trend-up"></i>{{ new_users_30d }} nuevos · 30 días
+                    </div>
+                </div>
+            </article>
+            <article class="z-stat-card">
+                <span class="z-stat-card__icon z-stat-card__icon--violet"><i class="fas fa-user-check"></i></span>
+                <div>
+                    <div class="z-stat-card__value">{{ active_users }}</div>
+                    <div class="z-stat-card__label">Cuentas activas</div>
+                    <div class="z-stat-card__meta">{{ active_pct }}% del total · {{ inactive_users }} inactivas</div>
+                </div>
+            </article>
+            <article class="z-stat-card">
+                <span class="z-stat-card__icon"><i class="fas fa-layer-group"></i></span>
+                <div>
+                    <div class="z-stat-card__value">{{ total_modules }}</div>
+                    <div class="z-stat-card__label">Módulos activos</div>
+                    <div class="z-stat-card__meta">{{ visible_modules }} visibles en el menú</div>
+                </div>
+            </article>
+            <article class="z-stat-card">
+                <span class="z-stat-card__icon z-stat-card__icon--violet"><i class="fas fa-user-tag"></i></span>
+                <div>
+                    <div class="z-stat-card__value">{{ total_groups }}</div>
+                    <div class="z-stat-card__label">Grupos de acceso</div>
+                    <div class="z-stat-card__meta">{{ staff_users }} de equipo · {{ superusers }} admin</div>
+                </div>
+            </article>
+        </section>
 
-        <div class="bg-white dark:bg-zafira-obsidian-soft rounded-2xl border border-zafira-slate-soft/60 dark:border-zafira-obsidian-soft p-5 hover:shadow-card transition-shadow">
-            <div class="flex items-start justify-between mb-3">
-                <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-zafira-secondary-soft dark:bg-zafira-secondary/20">
-                    <i class="fas fa-user-check text-zafira-secondary"></i>
-                </span>
-                <span class="text-[10px] font-bold uppercase tracking-wider text-zafira-slate">Activos</span>
-            </div>
-            <div class="text-3xl font-bold text-zafira-obsidian dark:text-zafira-slate-soft">{{ active_users }}</div>
-            <div class="text-xs text-zafira-slate-deep mt-1">Cuentas habilitadas</div>
-        </div>
-
-        <div class="bg-white dark:bg-zafira-obsidian-soft rounded-2xl border border-zafira-slate-soft/60 dark:border-zafira-obsidian-soft p-5 hover:shadow-card transition-shadow">
-            <div class="flex items-start justify-between mb-3">
-                <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-zafira-primary-soft dark:bg-zafira-primary/20">
-                    <i class="fas fa-puzzle-piece text-zafira-primary"></i>
-                </span>
-                <span class="text-[10px] font-bold uppercase tracking-wider text-zafira-slate">Módulos</span>
-            </div>
-            <div class="text-3xl font-bold text-zafira-obsidian dark:text-zafira-slate-soft">{{ total_modules }}</div>
-            <div class="text-xs text-zafira-slate-deep mt-1">Disponibles en el sistema</div>
-        </div>
-
-        <div class="bg-white dark:bg-zafira-obsidian-soft rounded-2xl border border-zafira-slate-soft/60 dark:border-zafira-obsidian-soft p-5 hover:shadow-card transition-shadow">
-            <div class="flex items-start justify-between mb-3">
-                <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-zafira-secondary-soft dark:bg-zafira-secondary/20">
-                    <i class="fas fa-user-tag text-zafira-secondary"></i>
-                </span>
-                <span class="text-[10px] font-bold uppercase tracking-wider text-zafira-slate">Grupos</span>
-            </div>
-            <div class="text-3xl font-bold text-zafira-obsidian dark:text-zafira-slate-soft">{{ total_groups }}</div>
-            <div class="text-xs text-zafira-slate-deep mt-1">Roles configurados</div>
-        </div>
-        {% endwith %}
-    </section>
-
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-
-        {# ── Identidad / contexto del usuario ────────────────────── #}
-        <div class="lg:col-span-1">
-            <div class="bg-white dark:bg-zafira-obsidian-soft rounded-2xl border border-zafira-slate-soft/60 dark:border-zafira-obsidian-soft p-6 h-full">
-                <div class="flex items-center gap-4 mb-5">
-                    <span class="z-avatar" style="width:3rem; height:3rem; font-size:.9rem">
+        <div class="z-dashboard-grid">
+            <section class="z-card z-panel">
+                <div class="z-panel__header">
+                    <div>
+                        <h2 class="z-panel__title">Tu cuenta</h2>
+                        <p class="z-panel__subtitle">Resumen de acceso y datos principales.</p>
+                    </div>
+                </div>
+                <div class="z-profile-summary">
+                    <span class="z-avatar z-profile-summary__avatar">
                         {{ user.first_name|default:user.username|slice:":1"|upper }}{{ user.last_name|slice:":1"|upper }}
                     </span>
                     <div class="min-w-0">
-                        <div class="font-bold text-zafira-obsidian dark:text-zafira-slate-soft truncate">{{ user.get_full_name|default:user.username }}</div>
-                        <div class="text-xs text-zafira-slate truncate">{{ user.email }}</div>
+                        <div class="z-profile-summary__name">{{ user.get_full_name|default:user.username }}</div>
+                        <div class="z-profile-summary__email">{{ user.email }}</div>
                     </div>
                 </div>
-
-                <dl class="space-y-3 text-sm">
-                    <div class="flex items-center justify-between">
-                        <dt class="text-zafira-slate-deep">Tipo de cuenta</dt>
+                <dl class="z-detail-list">
+                    <div>
+                        <dt>Tipo de cuenta</dt>
                         <dd>
                             {% if user.is_superuser %}
-                                <span class="z-badge z-badge--on"><span class="z-badge__dot"></span>Superuser</span>
+                                <span class="z-badge z-badge--on"><span class="z-badge__dot"></span>Administrador</span>
                             {% elif user.is_staff %}
-                                <span class="z-badge z-badge--on"><span class="z-badge__dot"></span>Staff</span>
+                                <span class="z-badge z-badge--on"><span class="z-badge__dot"></span>Equipo</span>
                             {% else %}
                                 <span class="z-badge z-badge--off"><span class="z-badge__dot"></span>Usuario</span>
                             {% endif %}
                         </dd>
                     </div>
-                    <div class="flex items-center justify-between">
-                        <dt class="text-zafira-slate-deep">Último acceso</dt>
-                        <dd class="text-zafira-obsidian dark:text-zafira-slate-soft font-medium">{{ user.last_login|date:"d/m/Y H:i"|default:"—" }}</dd>
+                    <div>
+                        <dt>Último acceso</dt>
+                        <dd>{{ user.last_login|date:"d/m/Y H:i"|default:"Sin registro" }}</dd>
                     </div>
-                    <div class="flex items-center justify-between">
-                        <dt class="text-zafira-slate-deep">Miembro desde</dt>
-                        <dd class="text-zafira-obsidian dark:text-zafira-slate-soft font-medium">{{ user.date_joined|date:"d/m/Y" }}</dd>
+                    <div>
+                        <dt>Contraseña actualizada</dt>
+                        <dd>{{ user.last_password_change_at|date:"d/m/Y"|default:"Sin registro" }}</dd>
+                    </div>
+                    <div>
+                        <dt>Miembro desde</dt>
+                        <dd>{{ user.date_joined|date:"d/m/Y" }}</dd>
                     </div>
                 </dl>
-
                 {% if user_groups %}
-                    <div class="border-t border-zafira-slate-soft/60 dark:border-zafira-obsidian-soft mt-5 pt-5">
-                        <div class="text-[10px] font-bold uppercase tracking-wider text-zafira-slate mb-3">Grupos asignados</div>
-                        <div class="flex flex-wrap gap-2">
-                            {% for g in user_groups %}
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-zafira-primary-soft dark:bg-zafira-primary/20 text-zafira-primary text-xs font-semibold">
-                                    <i class="fas fa-user-tag text-[10px]"></i>{{ g.name }}
-                                </span>
+                    <div class="z-panel__divider"></div>
+                    <div class="z-chip-list">
+                        {% for g in user_groups %}
+                            <span class="z-chip"><i class="fas fa-user-tag"></i>{{ g.name }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </section>
+
+            <section class="z-card z-panel">
+                <div class="z-panel__header">
+                    <div>
+                        <h2 class="z-panel__title">Acciones rápidas</h2>
+                        <p class="z-panel__subtitle">Atajos frecuentes para administrar el sistema.</p>
+                    </div>
+                </div>
+                <div class="z-action-grid">
+                    <a href="{% url 'user_list' %}" class="z-action-tile">
+                        <i class="fas fa-users"></i>
+                        <span>Gestionar usuarios</span>
+                    </a>
+                    <a href="{% url 'group_list' %}" class="z-action-tile">
+                        <i class="fas fa-user-tag"></i>
+                        <span>Gestionar grupos</span>
+                    </a>
+                    <a href="{% url 'module_list' %}" class="z-action-tile">
+                        <i class="fas fa-layer-group"></i>
+                        <span>Gestionar módulos</span>
+                    </a>
+                    <a href="{% url 'profile' %}" class="z-action-tile">
+                        <i class="fas fa-user"></i>
+                        <span>Ver mi perfil</span>
+                    </a>
+                </div>
+            </section>
+        </div>
+
+        <div class="z-dashboard-grid">
+            <section class="z-card z-panel">
+                <div class="z-panel__header">
+                    <div>
+                        <h2 class="z-panel__title">Estado de las cuentas</h2>
+                        <p class="z-panel__subtitle">Señales de seguridad que requieren atención.</p>
+                    </div>
+                </div>
+                <div class="z-health">
+                    {% for item in account_health %}
+                        <div class="z-health__item z-health__item--{{ item.level }}">
+                            <span class="z-health__icon"><i class="{{ item.icon }}"></i></span>
+                            <span class="z-health__label">{{ item.label }}</span>
+                            <span class="z-health__value">{{ item.value }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section class="z-card z-panel">
+                <div class="z-panel__header">
+                    <div>
+                        <h2 class="z-panel__title">Distribución por grupo</h2>
+                        <p class="z-panel__subtitle">Usuarios activos y accesos asignados por grupo.</p>
+                    </div>
+                    <a href="{% url 'group_list' %}" class="z-btn-ghost">
+                        <span>Grupos</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                {% if group_distribution %}
+                    <div class="z-dist">
+                        {% for g in group_distribution %}
+                            <div class="z-dist__row">
+                                <div class="z-dist__head">
+                                    <span class="z-dist__name">{{ g.name }}</span>
+                                    <span class="z-dist__meta">
+                                        <span><strong>{{ g.members }}</strong> usuarios</span>
+                                        <span><strong>{{ g.modules }}</strong> módulos</span>
+                                    </span>
+                                </div>
+                                <div class="z-bar">
+                                    <div class="z-bar__fill" style="width: {{ g.share }}%"></div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="z-dashboard-empty">
+                        <i class="fas fa-user-tag"></i>
+                        Aún no hay grupos activos configurados.
+                    </div>
+                {% endif %}
+            </section>
+        </div>
+
+        {% if available_modules %}
+            <section class="z-panel-block">
+                <div class="z-page-header">
+                    <div>
+                        <div class="z-page-eyebrow">
+                            <i class="fas fa-table-cells"></i>
+                            <span>Módulos</span>
+                        </div>
+                        <h2 class="z-page-title">Accesos disponibles</h2>
+                        <p class="z-page-subtitle">Ingresa rápidamente a las secciones habilitadas para tu cuenta.</p>
+                    </div>
+                </div>
+
+                {% for type_name, type_modules in available_modules.items %}
+                    <div class="z-module-section">
+                        <div class="z-module-section__title">{{ type_name }}</div>
+                        <div class="z-module-grid">
+                            {% for module in type_modules %}
+                                <a href="{{ module.url }}" class="z-module-card">
+                                    <span class="z-module-card__icon">
+                                        <i class="{{ module.icon|default:'fas fa-cube' }}"></i>
+                                    </span>
+                                    <span class="z-module-card__body">
+                                        <strong>{{ module.name }}</strong>
+                                        <small>{{ module.description|default:'Acceso disponible' }}</small>
+                                    </span>
+                                    <i class="fas fa-arrow-right z-module-card__arrow"></i>
+                                </a>
                             {% endfor %}
                         </div>
                     </div>
-                {% endif %}
-            </div>
-        </div>
+                {% endfor %}
+            </section>
+        {% endif %}
 
-        {# ── Features del proyecto ──────────────────────────────── #}
-        <div class="lg:col-span-2">
-            <div class="bg-white dark:bg-zafira-obsidian-soft rounded-2xl border border-zafira-slate-soft/60 dark:border-zafira-obsidian-soft p-6 h-full">
-                <div class="flex items-center justify-between mb-5">
-                    <div>
-                        <h2 class="text-base font-bold text-zafira-obsidian dark:text-zafira-slate-soft">¿Qué puedes hacer con ZAFIRA?</h2>
-                        <p class="text-xs text-zafira-slate-deep mt-1">Capacidades clave de la plataforma</p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div class="flex gap-3 p-3 rounded-xl hover:bg-zafira-primary-soft/30 dark:hover:bg-zafira-primary/10 transition">
-                        <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg gradient-soft flex-shrink-0">
-                            <i class="fas fa-shield-halved text-zafira-primary"></i>
-                        </span>
-                        <div>
-                            <div class="text-sm font-semibold text-zafira-obsidian dark:text-zafira-slate-soft">Permisos modulares</div>
-                            <div class="text-xs text-zafira-slate-deep">Cada módulo del dashboard se configura desde la BD, sin tocar código.</div>
-                        </div>
-                    </div>
-
-                    <div class="flex gap-3 p-3 rounded-xl hover:bg-zafira-primary-soft/30 dark:hover:bg-zafira-primary/10 transition">
-                        <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg gradient-soft flex-shrink-0">
-                            <i class="fas fa-key text-zafira-primary"></i>
-                        </span>
-                        <div>
-                            <div class="text-sm font-semibold text-zafira-obsidian dark:text-zafira-slate-soft">Auth dual</div>
-                            <div class="text-xs text-zafira-slate-deep">Token + JWT, listo para web y móvil con DRF.</div>
-                        </div>
-                    </div>
-
-                    <div class="flex gap-3 p-3 rounded-xl hover:bg-zafira-primary-soft/30 dark:hover:bg-zafira-primary/10 transition">
-                        <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg gradient-soft flex-shrink-0">
-                            <i class="fas fa-id-card text-zafira-primary"></i>
-                        </span>
-                        <div>
-                            <div class="text-sm font-semibold text-zafira-obsidian dark:text-zafira-slate-soft">Perfiles corporativos</div>
-                            <div class="text-xs text-zafira-slate-deep">Datos extendidos: departamento, cargo, jerarquía, contacto.</div>
-                        </div>
-                    </div>
-
-                    <div class="flex gap-3 p-3 rounded-xl hover:bg-zafira-primary-soft/30 dark:hover:bg-zafira-primary/10 transition">
-                        <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg gradient-soft flex-shrink-0">
-                            <i class="fas fa-bolt text-zafira-primary"></i>
-                        </span>
-                        <div>
-                            <div class="text-sm font-semibold text-zafira-obsidian dark:text-zafira-slate-soft">CRUD estandarizado</div>
-                            <div class="text-xs text-zafira-slate-deep">Listas con DataTables, formularios validados, todo reutilizable.</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    {# ── Módulos del usuario ───────────────────────────────────── #}
-    {% if available_modules %}
-    <section class="mb-8">
-        <div class="flex items-center justify-between mb-5">
-            <div>
-                <h2 class="text-base font-bold text-zafira-obsidian dark:text-zafira-slate-soft">Módulos disponibles</h2>
-                <p class="text-xs text-zafira-slate-deep mt-1">Accesos rápidos a tus módulos asignados</p>
-            </div>
-        </div>
-
-        {% for type_name, type_modules in available_modules.items %}
-            <div class="mb-6">
-                <div class="flex items-center mb-3">
-                    <span class="h-px flex-1 bg-zafira-slate-soft/60"></span>
-                    <span class="px-3 text-[10px] font-bold uppercase tracking-widest text-zafira-slate">{{ type_name }}</span>
-                    <span class="h-px flex-1 bg-zafira-slate-soft/60"></span>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {% for module in type_modules %}
-                        <a href="{{ module.url }}" class="group bg-white dark:bg-zafira-obsidian-soft rounded-xl border border-zafira-slate-soft/60 dark:border-zafira-obsidian-soft p-4 hover:border-zafira-primary/40 hover:shadow-card transition-all hover:-translate-y-0.5 flex items-start gap-3">
-                            <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg gradient-soft flex-shrink-0 group-hover:scale-110 transition-transform">
-                                <i class="{{ module.icon|default:'fas fa-cube' }} text-zafira-primary"></i>
-                            </span>
-                            <div class="min-w-0">
-                                <h4 class="font-semibold text-zafira-obsidian dark:text-zafira-slate-soft truncate text-sm">{{ module.name }}</h4>
-                                <p class="text-xs text-zafira-slate-deep line-clamp-2 mt-0.5">{{ module.description|default:'—' }}</p>
-                            </div>
-                            <i class="fas fa-arrow-right text-zafira-slate text-xs opacity-0 group-hover:opacity-100 transition-opacity ml-auto self-center"></i>
-                        </a>
-                    {% endfor %}
-                </div>
-            </div>
-        {% endfor %}
-    </section>
-    {% endif %}
-
-    {# ── Actividad reciente ────────────────────────────────────── #}
-    <section>
-        <div class="z-table-card">
-            <div class="flex items-center justify-between px-5 py-4 border-b border-zafira-slate-soft/60 dark:border-zafira-obsidian-soft">
+        <section class="z-table-card">
+            <div class="z-table-toolbar">
                 <div>
-                    <h2 class="text-base font-bold text-zafira-obsidian dark:text-zafira-slate-soft">Usuarios recientes</h2>
-                    <p class="text-xs text-zafira-slate-deep mt-0.5">Últimas 5 cuentas creadas en el sistema</p>
+                    <h2 class="z-panel__title">Usuarios recientes</h2>
+                    <p class="z-panel__subtitle">Últimas cuentas creadas.</p>
                 </div>
-                <a href="{% url 'user_list' %}" class="text-xs font-semibold text-zafira-primary hover:underline inline-flex items-center gap-1">
-                    Ver todos <i class="fas fa-arrow-right text-[10px]"></i>
-                </a>
+                <div class="ml-auto">
+                    <a href="{% url 'user_list' %}" class="z-btn-ghost">
+                        <span>Ver todos</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
             </div>
-            <table class="w-full">
-                <thead>
-                    <tr>
-                        <th class="px-5 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-zafira-slate-deep bg-zafira-slate-soft/30">Usuario</th>
-                        <th class="px-5 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-zafira-slate-deep bg-zafira-slate-soft/30">Email</th>
-                        <th class="px-5 py-3 text-center text-[10px] font-bold uppercase tracking-wider text-zafira-slate-deep bg-zafira-slate-soft/30">Estado</th>
-                        <th class="px-5 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-zafira-slate-deep bg-zafira-slate-soft/30">Registrado</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for u in recent_users %}
-                        <tr class="border-t border-zafira-slate-soft/60 dark:border-zafira-obsidian-soft hover:bg-zafira-primary-soft/20 transition">
-                            <td class="px-5 py-3">
-                                <div class="flex items-center gap-3">
-                                    <span class="z-avatar" style="width:2rem; height:2rem; font-size:.65rem">
-                                        {{ u.first_name|default:u.username|slice:":1"|upper }}{{ u.last_name|slice:":1"|upper }}
-                                    </span>
-                                    <div>
-                                        <div class="text-sm font-medium text-zafira-obsidian dark:text-zafira-slate-soft">{{ u.get_full_name|default:u.username }}</div>
-                                        <div class="text-xs text-zafira-slate">@{{ u.username }}</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-5 py-3 text-sm text-zafira-slate-deep">{{ u.email }}</td>
-                            <td class="px-5 py-3 text-center">
-                                {% if u.is_active %}
-                                    <span class="z-badge z-badge--on"><span class="z-badge__dot"></span>Activo</span>
-                                {% else %}
-                                    <span class="z-badge z-badge--off"><span class="z-badge__dot"></span>Inactivo</span>
-                                {% endif %}
-                            </td>
-                            <td class="px-5 py-3 text-sm text-zafira-slate-deep">{{ u.date_joined|date:"d/m/Y H:i" }}</td>
-                        </tr>
-                    {% empty %}
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
                         <tr>
-                            <td colspan="4" class="px-5 py-10 text-center text-zafira-slate">
-                                <i class="fas fa-inbox text-3xl mb-2 block opacity-40"></i>
-                                <div class="text-sm">No hay usuarios registrados</div>
-                            </td>
+                            <th>Usuario</th>
+                            <th>Correo</th>
+                            <th class="text-center">Estado</th>
+                            <th>Registrado</th>
                         </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </section>
-
+                    </thead>
+                    <tbody>
+                        {% for u in recent_users %}
+                            <tr>
+                                <td>
+                                    <div class="flex items-center gap-3">
+                                        <span class="z-avatar" style="width:2rem; height:2rem; font-size:.65rem">
+                                            {{ u.first_name|default:u.username|slice:":1"|upper }}{{ u.last_name|slice:":1"|upper }}
+                                        </span>
+                                        <div class="min-w-0">
+                                            <div class="font-medium z-heading truncate">{{ u.get_full_name|default:u.username }}</div>
+                                            <div class="text-xs z-muted truncate">@{{ u.username }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="z-soft">{{ u.email }}</td>
+                                <td class="text-center">
+                                    {% if u.is_active %}
+                                        <span class="z-badge z-badge--on"><span class="z-badge__dot"></span>Activo</span>
+                                    {% else %}
+                                        <span class="z-badge z-badge--off"><span class="z-badge__dot"></span>Inactivo</span>
+                                    {% endif %}
+                                </td>
+                                <td class="z-soft">{{ u.date_joined|date:"d/m/Y H:i" }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="4">
+                                    <div class="z-table-card__empty">
+                                        <i class="fas fa-inbox text-3xl mb-2 block opacity-40"></i>
+                                        <div>No hay usuarios registrados</div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
 </div>
 {% endblock %}

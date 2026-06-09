@@ -1,0 +1,112 @@
+/* Componentes específicos del dashboard. Los primitivos z-* compartidos
+ * (stat-card, panel, chip, table-card) viven en base.html; aquí solo van
+ * las piezas que únicamente usa /dashboard/. */
+
+/* Línea de contexto bajo el valor de cada stat card */
+.z-stat-card > div { min-width: 0; }
+.z-stat-card__meta {
+    margin-top: .4rem;
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    color: var(--z-text-mute);
+    font-size: .72rem;
+    font-weight: 650;
+}
+.z-stat-card__meta i { font-size: .62rem; }
+.z-stat-card__meta--up { color: #16a34a; }
+
+/* Salud de cuentas */
+.z-health { display: grid; gap: .4rem; }
+.z-health__item {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .65rem .7rem;
+    border-radius: .75rem;
+    background: var(--z-surface-2);
+}
+.z-health__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    flex: 0 0 auto;
+    border-radius: .6rem;
+    font-size: .78rem;
+    color: var(--z-text-soft);
+    background: var(--z-surface-3);
+}
+.z-health__label {
+    flex: 1;
+    min-width: 0;
+    color: var(--z-text);
+    font-size: .82rem;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.z-health__value {
+    flex: 0 0 auto;
+    color: var(--z-text);
+    font-size: .95rem;
+    font-weight: 800;
+}
+.z-health__item--danger .z-health__icon { color: #dc2626; background: color-mix(in srgb, #dc2626 14%, transparent); }
+.z-health__item--danger .z-health__value { color: #dc2626; }
+.z-health__item--warn .z-health__icon { color: #d97706; background: color-mix(in srgb, #d97706 16%, transparent); }
+.z-health__item--warn .z-health__value { color: #d97706; }
+.z-health__item--ok .z-health__icon { color: #16a34a; background: color-mix(in srgb, #16a34a 14%, transparent); }
+.z-health__item--info .z-health__icon { color: var(--z-primary-2); background: color-mix(in srgb, var(--z-primary-2) 14%, transparent); }
+
+/* Distribución por grupo */
+.z-dist { display: grid; gap: .95rem; }
+.z-dist__row { display: grid; gap: .45rem; }
+.z-dist__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: .75rem;
+}
+.z-dist__name {
+    min-width: 0;
+    color: var(--z-text);
+    font-size: .86rem;
+    font-weight: 700;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.z-dist__meta {
+    flex: 0 0 auto;
+    color: var(--z-text-mute);
+    font-size: .74rem;
+    font-weight: 600;
+}
+.z-dist__meta strong { color: var(--z-text); font-weight: 800; }
+.z-dist__meta span + span::before {
+    content: "·";
+    margin: 0 .4rem;
+    color: var(--z-border);
+}
+.z-bar {
+    height: .5rem;
+    border-radius: 999px;
+    background: var(--z-surface-3);
+    overflow: hidden;
+}
+.z-bar__fill {
+    height: 100%;
+    min-width: .5rem;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--z-primary) 0%, var(--z-primary-2) 100%);
+}
+.z-dashboard-empty {
+    padding: 1.75rem 1rem;
+    text-align: center;
+    color: var(--z-text-mute);
+    font-size: .82rem;
+}
+.z-dashboard-empty i { display: block; margin-bottom: .4rem; font-size: 1.4rem; opacity: .5; }

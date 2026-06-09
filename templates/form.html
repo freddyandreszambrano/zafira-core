@@ -4,46 +4,62 @@
 {% block title %}{{ title|default:'Formulario' }} - ZAFIRA{% endblock %}
 
 {% block content %}
-<div class="z-page py-10">
-    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between mb-6">
-            <h1 class="text-3xl font-bold zafira-text-gradient">{{ title|default:'Formulario' }}</h1>
+<div class="z-page">
+    <div class="z-page-shell z-page-shell--narrow">
+        <div class="z-page-header">
+            <div>
+                <div class="z-page-eyebrow">
+                    <i class="fas fa-pen-to-square"></i>
+                    <span>Formulario</span>
+                </div>
+                <h1 class="z-page-title">{{ title|default:'Formulario' }}</h1>
+                <p class="z-page-subtitle">Completa la información requerida y guarda los cambios cuando todo esté correcto.</p>
+            </div>
             {% if list_url %}
-                <a href="{{ list_url }}" class="z-soft hover:text-zafira-primary transition inline-flex items-center">
-                    <i class="fas fa-arrow-left mr-2"></i>Volver
+                <a href="{{ list_url }}" class="z-btn-ghost">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Volver</span>
                 </a>
             {% endif %}
         </div>
 
-        <div class="z-card p-8">
+        <div class="z-form-card">
             <form id="frmForm" method="post" enctype="multipart/form-data"
                   data-action="{{ action|default:'add' }}"
-                  data-success="{{ list_url }}"
-                  class="space-y-5">
+                  data-success="{{ list_url }}">
                 {% csrf_token %}
 
-                {% block form_components %}
-                    {% for field in form.visible_fields %}
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold z-soft mb-1">
-                                {{ field.label }}{% if field.field.required %} <span class="text-zafira-primary">*</span>{% endif %}
-                            </label>
-                            {{ field|add_class:'z-field px-4 py-2' }}
-                            {% if field.help_text %}
-                                <small class="z-muted text-xs mt-1 block">{{ field.help_text }}</small>
-                            {% endif %}
-                        </div>
-                    {% endfor %}
-                {% endblock %}
+                <div class="z-form-card__body">
+                    <div class="z-form-grid">
+                        {% block form_components %}
+                            {% for field in form.visible_fields %}
+                                <div class="z-form-group {% if field.field.widget.input_type == 'textarea' %}z-form-group--full{% endif %}">
+                                    <label class="z-form-label" for="{{ field.id_for_label }}">
+                                        {{ field.label }}{% if field.field.required %} <span class="z-required">*</span>{% endif %}
+                                    </label>
+                                    {{ field|add_class:'z-field px-4 py-2.5' }}
+                                    {% if field.help_text %}
+                                        <small class="z-help">{{ field.help_text }}</small>
+                                    {% endif %}
+                                    {% for error in field.errors %}
+                                        <div class="invalid-feedback">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endfor %}
+                        {% endblock %}
+                    </div>
+                </div>
 
-                <div class="flex justify-end gap-3 pt-4">
+                <div class="z-form-card__footer">
                     {% if list_url %}
-                        <a href="{{ list_url }}" class="z-btn-ghost px-5 py-2.5">
-                            Cancelar
+                        <a href="{{ list_url }}" class="z-btn-ghost">
+                            <i class="fas fa-xmark"></i>
+                            <span>Cancelar</span>
                         </a>
                     {% endif %}
-                    <button type="submit" class="gradient-primary zafira-glow text-white font-bold px-6 py-2.5 rounded-xl inline-flex items-center transition-transform hover:-translate-y-0.5">
-                        <i class="fas fa-save mr-2"></i>Guardar
+                    <button type="submit" class="z-btn-primary">
+                        <i class="fas fa-bookmark"></i>
+                        <span>Guardar</span>
                     </button>
                 </div>
             </form>

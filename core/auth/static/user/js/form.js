@@ -38,8 +38,8 @@ document.addEventListener('DOMContentLoaded', function () {
             },
             email: {
                 validators: {
-                    notEmpty: { message: 'Ingrese un email' },
-                    emailAddress: { message: 'Email inválido' },
+                    notEmpty: { message: 'Ingrese un correo' },
+                    emailAddress: { message: 'Ingrese un correo válido' },
                     remote: uniqueRemote('email'),
                 },
             },

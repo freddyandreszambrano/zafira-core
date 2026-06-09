@@ -3,11 +3,11 @@ let tblModuleType;
 const module_type = {
     list: function () {
         tblModuleType = Zafira.dataTable('#data', [
-            { data: 'name' },
+            { data: 'name', render: data => Zafira.escape(data) },
             {
                 data: 'icon',
                 render: data => data
-                    ? `<span class="inline-flex items-center justify-center w-8 h-8 rounded-lg gradient-soft"><i class="${data} text-zafira-primary"></i></span>`
+                    ? `<span class="inline-flex items-center justify-center w-8 h-8 rounded-lg gradient-soft"><i class="${Zafira.escape(data)} text-zafira-primary"></i></span>`
                     : '<span class="text-zafira-slate">—</span>',
             },
             {

@@ -3,26 +3,34 @@
 {% block title %}Eliminar - ZAFIRA{% endblock %}
 
 {% block content %}
-<div class="z-page py-10">
-    <div class="max-w-md mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="z-card p-8 text-center">
-            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full gradient-soft mb-4">
-                <i class="fas fa-exclamation-triangle text-zafira-primary text-2xl"></i>
+<div class="z-page">
+    <div class="z-page-shell z-page-shell--compact">
+        <div class="z-form-card">
+            <div class="z-form-card__body text-center">
+                <div class="inline-flex items-center justify-center w-14 h-14 rounded-xl gradient-soft mb-4">
+                    <i class="fas fa-trash text-zafira-primary text-xl"></i>
+                </div>
+                <div class="z-page-eyebrow justify-center">
+                    <i class="fas fa-triangle-exclamation"></i>
+                    <span>Confirmación</span>
+                </div>
+                <h1 class="z-page-title">¿Eliminar registro?</h1>
+                <p class="z-page-subtitle mx-auto">
+                    Esta acción no se puede deshacer. Revisa la información antes de continuar.
+                </p>
             </div>
-            <h1 class="text-2xl font-bold z-heading mb-2">¿Eliminar registro?</h1>
-            <p class="z-soft mb-6">
-                Esta acción no se puede deshacer.
-            </p>
 
-            <form method="post" id="frmDelete" class="flex justify-center gap-3">
+            <form method="post" id="frmDelete" class="z-form-card__footer">
                 {% csrf_token %}
                 {% if list_url %}
-                    <a href="{{ list_url }}" class="z-btn-ghost px-5 py-2.5">
-                        Cancelar
+                    <a href="{{ list_url }}" class="z-btn-ghost">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>Cancelar</span>
                     </a>
                 {% endif %}
-                <button type="submit" class="bg-zafira-primary text-white font-bold px-6 py-2.5 rounded-xl hover:opacity-90 inline-flex items-center transition">
-                    <i class="fas fa-trash mr-2"></i>Eliminar
+                <button type="submit" class="z-btn-danger">
+                    <i class="fas fa-trash"></i>
+                    <span>Eliminar</span>
                 </button>
             </form>
         </div>
