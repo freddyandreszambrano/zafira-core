@@ -17,7 +17,6 @@ class TestMockAdapter(BaseAdapter):
         ]
 
     def parse_product(self, url: str) -> Dict:
-        # Extract ID from URL
         product_id = url.split('/p/')[1].split('/')[0] if '/p/' in url else 'UNKNOWN'
         
         return {

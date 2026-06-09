@@ -1,0 +1,10 @@
+# Workflow para agregar/cambiar una dependencia:
+# 1. Editar el .in correspondiente
+# 2. Recompilar
+make compile
+
+# Actualizar todo a versiones más recientes:
+make compile-upgrade
+
+# Instalar dev (ahora también instala pip-tools automáticamente):
+make install-dev

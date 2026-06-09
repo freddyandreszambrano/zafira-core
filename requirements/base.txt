@@ -1,17 +1,50 @@
-# Core dependencies for all environments
-Django==5.2.14
-djangorestframework==3.14.0
+asgiref==3.11.1
+    # via django
+beautifulsoup4==4.15.0
+    # via -r requirements/base.in
+certifi==2026.5.20
+    # via requests
+charset-normalizer==3.4.7
+    # via requests
+django==5.2.14
+    # via
+    #   -r requirements/base.in
+    #   django-cors-headers
+    #   django-crum
+    #   django-widget-tweaks
+    #   djangorestframework
+    #   djangorestframework-simplejwt
 django-cors-headers==4.0.0
-djangorestframework-simplejwt==5.3.0
-Pillow==10.1.0
-python-dotenv==1.0.0
-python-decouple==3.8
-django-environ==0.11.2
-
-# Module-based permission system
+    # via -r requirements/base.in
 django-crum==0.7.9
+    # via -r requirements/base.in
+django-environ==0.11.2
+    # via -r requirements/base.in
 django-widget-tweaks==1.5.1
-
-# Scraper
-requests>=2.31.0
-beautifulsoup4>=4.12.0
+    # via -r requirements/base.in
+djangorestframework==3.14.0
+    # via
+    #   -r requirements/base.in
+    #   djangorestframework-simplejwt
+djangorestframework-simplejwt==5.3.0
+    # via -r requirements/base.in
+idna==3.18
+    # via requests
+pillow==10.1.0
+    # via -r requirements/base.in
+pyjwt==2.13.0
+    # via djangorestframework-simplejwt
+python-dotenv==1.0.0
+    # via -r requirements/base.in
+pytz==2026.2
+    # via djangorestframework
+requests==2.34.2
+    # via -r requirements/base.in
+soupsieve==2.8.4
+    # via beautifulsoup4
+sqlparse==0.5.5
+    # via django
+typing-extensions==4.15.0
+    # via beautifulsoup4
+urllib3==2.7.0
+    # via requests

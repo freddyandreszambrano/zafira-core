@@ -1,0 +1,16 @@
+-r base.txt
+
+# ── Testing ──────────────────────────────────────────────────────────────────
+pytest==7.4.3
+pytest-django==4.7.0
+
+# ── Formato y linting ────────────────────────────────────────────────────────
+black==23.12.1
+flake8==6.1.0
+isort==5.13.2
+
+# ── Herramientas de desarrollo ───────────────────────────────────────────────
+# Nota: debug_toolbar y django-extensions no están en INSTALLED_APPS todavía.
+# Activarlos requiere agregarlos a settings.py primero.
+django-debug-toolbar==4.2.0
+django-extensions==3.2.3

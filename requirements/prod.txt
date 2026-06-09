@@ -1,6 +1,78 @@
-# Production dependencies
--r base.txt
+asgiref==3.11.1
+    # via
+    #   -r requirements/base.txt
+    #   django
+beautifulsoup4==4.15.0
+    # via -r requirements/base.txt
+certifi==2026.5.20
+    # via
+    #   -r requirements/base.txt
+    #   requests
+charset-normalizer==3.4.7
+    # via
+    #   -r requirements/base.txt
+    #   requests
+django==5.2.14
+    # via
+    #   -r requirements/base.txt
+    #   django-cors-headers
+    #   django-crum
+    #   django-widget-tweaks
+    #   djangorestframework
+    #   djangorestframework-simplejwt
+django-cors-headers==4.0.0
+    # via -r requirements/base.txt
+django-crum==0.7.9
+    # via -r requirements/base.txt
+django-environ==0.11.2
+    # via -r requirements/base.txt
+django-widget-tweaks==1.5.1
+    # via -r requirements/base.txt
+djangorestframework==3.14.0
+    # via
+    #   -r requirements/base.txt
+    #   djangorestframework-simplejwt
+djangorestframework-simplejwt==5.3.0
+    # via -r requirements/base.txt
 gunicorn==21.2.0
+    # via -r requirements/prod.in
+idna==3.18
+    # via
+    #   -r requirements/base.txt
+    #   requests
+packaging==26.2
+    # via gunicorn
+pillow==10.1.0
+    # via -r requirements/base.txt
 psycopg2-binary==2.9.9
+    # via -r requirements/prod.in
+pyjwt==2.13.0
+    # via
+    #   -r requirements/base.txt
+    #   djangorestframework-simplejwt
+python-dotenv==1.0.0
+    # via -r requirements/base.txt
+pytz==2026.2
+    # via
+    #   -r requirements/base.txt
+    #   djangorestframework
+requests==2.34.2
+    # via -r requirements/base.txt
+soupsieve==2.8.4
+    # via
+    #   -r requirements/base.txt
+    #   beautifulsoup4
+sqlparse==0.5.5
+    # via
+    #   -r requirements/base.txt
+    #   django
+typing-extensions==4.15.0
+    # via
+    #   -r requirements/base.txt
+    #   beautifulsoup4
+urllib3==2.7.0
+    # via
+    #   -r requirements/base.txt
+    #   requests
 whitenoise==6.6.0
-django-health-check==3.16.7
+    # via -r requirements/prod.in

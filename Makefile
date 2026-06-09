@@ -30,7 +30,8 @@ install: ## Instala dependencias base
 	$(PIP) install -r requirements/base.txt
 
 .PHONY: install-dev
-install-dev: ## Instala dependencias de desarrollo
+install-dev: ## Instala pip-tools y dependencias de desarrollo
+	$(PIP) install pip-tools
 	$(PIP) install -r requirements/dev.txt
 
 .PHONY: setup
@@ -165,8 +166,22 @@ kill-python: ## Mata procesos Python que puedan bloquear SQLite
 	@taskkill.exe //F //IM python.exe 2>/dev/null || pkill -9 python 2>/dev/null || true
 	@echo "  ✅ Procesos python finalizados"
 
+.PHONY: compile
+compile: ## Recompila los .txt bloqueados desde los .in (requiere pip-tools)
+	pip-compile requirements/base.in -o requirements/base.txt --no-header --strip-extras
+	pip-compile requirements/dev.in  -o requirements/dev.txt  --no-header --strip-extras
+	pip-compile requirements/prod.in -o requirements/prod.txt --no-header --strip-extras
+	@echo "  ✅ requirements/*.txt regenerados"
+
+.PHONY: compile-upgrade
+compile-upgrade: ## Recompila actualizando a las últimas versiones compatibles
+	pip-compile --upgrade requirements/base.in -o requirements/base.txt --no-header --strip-extras
+	pip-compile --upgrade requirements/dev.in  -o requirements/dev.txt  --no-header --strip-extras
+	pip-compile --upgrade requirements/prod.in -o requirements/prod.txt --no-header --strip-extras
+	@echo "  ✅ Dependencias actualizadas"
+
 .PHONY: freeze
-freeze: ## Vuelca dependencias instaladas a requirements/_freeze.txt
+freeze: ## Vuelca dependencias instaladas (debug) a requirements/_freeze.txt
 	$(PIP) freeze > requirements/_freeze.txt
 	@echo "  ✅ requirements/_freeze.txt actualizado"
 

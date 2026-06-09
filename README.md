@@ -11,20 +11,30 @@ Sistema completo de **autenticación corporativa** con **permisos**, **grupos**,
 ## ⚡ Setup Rápido
 
 ```bash
-# 1. Instalar dependencias
-pip install -r requirements/base.txt
+# 1. Crear y activar entorno virtual
+python -m venv .venv
+source .venv/bin/activate   # Linux / Mac
+.venv\Scripts\activate      # Windows
 
-# 2. Migrar y cargar datos iniciales
+# 2. Instalar dependencias de desarrollo
+pip install pip-tools
+pip install -r requirements/dev.txt
+
+# 3. Migrar y cargar datos iniciales
 make migrate
 make insert-data
 
-# 3. Iniciar servidor
+# 4. Iniciar servidor
 make run
 ```
 
-Usuario inicial: `admin / admin`.
+O con el comando combinado:
 
-Listo en `http://localhost:8000/`.
+```bash
+make install-dev && make setup && make run
+```
+
+Usuario inicial: `admin / admin`. Listo en `http://localhost:8000/`.
 
 ---
 
@@ -352,6 +362,47 @@ python manage.py showmigrations
 | `zafira-slate` | `#94A3BB` | Cool Slate - Texto secundario, bordes |
 
 Ver `docs/design-system.md` para la paleta completa y patrones de uso.
+
+---
+
+## 📦 Gestión de dependencias (pip-tools)
+
+El proyecto usa **pip-tools** para separar dependencias directas de transitivas:
+
+| Archivo | Propósito |
+|---|---|
+| `requirements/base.in` | Dependencias directas compartidas (editar aquí) |
+| `requirements/dev.in` | Dependencias directas de desarrollo (editar aquí) |
+| `requirements/prod.in` | Dependencias directas de producción (editar aquí) |
+| `requirements/base.txt` | Lock file generado — **no editar a mano** |
+| `requirements/dev.txt` | Lock file generado — **no editar a mano** |
+| `requirements/prod.txt` | Lock file generado — **no editar a mano** |
+
+### Agregar una nueva dependencia
+
+```bash
+# 1. Editar el .in correspondiente
+echo "nueva-libreria==1.2.3" >> requirements/base.in   # o dev.in / prod.in
+
+# 2. Recompilar los lock files
+make compile
+
+# 3. Instalar
+pip install -r requirements/dev.txt
+```
+
+### Actualizar todas las dependencias
+
+```bash
+make compile-upgrade
+pip install -r requirements/dev.txt
+```
+
+### Instalación para producción
+
+```bash
+pip install -r requirements/prod.txt
+```
 
 ---
 

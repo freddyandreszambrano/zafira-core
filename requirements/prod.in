@@ -1,0 +1,11 @@
+-r base.txt
+
+# ── Servidor WSGI ────────────────────────────────────────────────────────────
+gunicorn==21.2.0
+
+# ── Base de datos ────────────────────────────────────────────────────────────
+psycopg2-binary==2.9.9
+
+# ── Archivos estáticos ───────────────────────────────────────────────────────
+# Nota: whitenoise requiere WhiteNoiseMiddleware en settings.MIDDLEWARE para activarse.
+whitenoise==6.6.0

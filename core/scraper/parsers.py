@@ -13,16 +13,13 @@ def normalize_price(price_str: str) -> Optional[float]:
         return None
 
     try:
-        # Strip spaces
         price_str = price_str.strip()
 
-        # Remove all characters except digits, comma, and dot
         cleaned = ''.join(char for char in price_str if char.isdigit() or char in '.,')
 
         if not cleaned:
             return None
 
-        # Replace comma with dot for proper float conversion
         cleaned = cleaned.replace(',', '.')
 
         return float(cleaned)
@@ -55,11 +52,9 @@ def extract_images(container) -> List[str]:
     if container is None:
         return images
 
-    # Find all img tags
     img_tags = container.find_all('img')
 
     for img in img_tags:
-        # Try src first, then data-src
         url = img.get('src') or img.get('data-src')
 
         if url and not url.startswith('data:') and url not in seen:

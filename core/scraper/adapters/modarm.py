@@ -55,7 +55,6 @@ class ModarmAdapter(BaseAdapter):
 
             soup = BeautifulSoup(response.content, 'html.parser')
 
-            # Buscar todos los links de productos (href contiene /p/)
             product_links = soup.find_all('a', href=True)
             seen = set()
 
@@ -64,7 +63,6 @@ class ModarmAdapter(BaseAdapter):
                 if '/p/' not in href:
                     continue
 
-                # Extraer datos básicos del producto
                 product_id = self._extract_product_id(href)
                 if product_id in seen:
                     continue
@@ -74,7 +72,6 @@ class ModarmAdapter(BaseAdapter):
                     continue
                 seen.add(product_id)
 
-                # Construir URL completa del producto
                 product_url = urljoin(self.BASE_URL, href)
 
                 products.append({
@@ -121,7 +118,6 @@ class ModarmAdapter(BaseAdapter):
 
             soup = BeautifulSoup(response.content, 'html.parser')
 
-            # Extraer datos del producto
             result['id'] = self._extract_product_id(url)
             result['name'] = self._extract_name(soup)
             result['category'] = self._extract_category(soup)
@@ -166,24 +162,19 @@ class ModarmAdapter(BaseAdapter):
         if element is None:
             return None
 
-        # Si es un tag <a>, intentar extraer del atributo o del texto
         if hasattr(element, 'name') and element.name == 'a':
-            # Buscar data-product-name
             name = element.get('data-product-name', '').strip()
             if name:
                 return name
 
-            # Intentar extraer del atributo title
             name = element.get('title', '').strip()
             if name:
                 return name
 
-            # Usar el texto del elemento
             name = element.get_text(strip=True)
             if name:
                 return name
 
-        # Si es un BeautifulSoup object (página completa)
         if hasattr(element, 'find'):
             page_title_name = element.select_one('.product-details.page-title .name')
             if page_title_name:
@@ -197,21 +188,18 @@ class ModarmAdapter(BaseAdapter):
                 if name:
                     return name
 
-            # Buscar h1
             h1 = element.find('h1')
             if h1:
                 name = h1.get_text(strip=True)
                 if name and name.lower() != 'antes de empezar a comprar':
                     return name
 
-            # Buscar h2
             h2 = element.find('h2')
             if h2:
                 name = h2.get_text(strip=True)
                 if name and name.lower() != 'antes de empezar a comprar':
                     return name
 
-            # Buscar elemento con clase product-name
             product_name = element.find(class_='product-name')
             if product_name:
                 return product_name.get_text(strip=True)
@@ -227,7 +215,6 @@ class ModarmAdapter(BaseAdapter):
         if soup is None:
             return None
 
-        # Buscar breadcrumb
         breadcrumb = soup.find('nav', class_='breadcrumb')
         if not breadcrumb:
             breadcrumb = soup.find('ol', class_='breadcrumb')
@@ -306,7 +293,6 @@ class ModarmAdapter(BaseAdapter):
         if soup is None:
             return sizes
 
-        # Buscar select con tallas
         size_select = soup.find('select', {'name': 'size'})
         if size_select:
             options = size_select.find_all('option')
@@ -316,7 +302,6 @@ class ModarmAdapter(BaseAdapter):
                     sizes.append(size)
             return sizes
 
-        # Buscar div con clase size-options
         size_options = soup.find('div', class_='size-options')
         if size_options:
             buttons = size_options.find_all(['button', 'span'])
@@ -347,7 +332,6 @@ class ModarmAdapter(BaseAdapter):
         if soup is None:
             return colors
 
-        # Buscar select con colores
         color_select = soup.find('select', {'name': 'color'})
         if color_select:
             options = color_select.find_all('option')
@@ -357,7 +341,6 @@ class ModarmAdapter(BaseAdapter):
                     colors.append(color)
             return colors
 
-        # Buscar div con clase color-options
         color_options = soup.find('div', class_='color-options')
         if color_options:
             buttons = color_options.find_all(['button', 'span'])
@@ -404,7 +387,6 @@ class ModarmAdapter(BaseAdapter):
         if soup is None:
             return None
 
-        # Buscar div con clase description
         desc_elem = soup.find('div', class_='description')
         if not desc_elem:
             desc_elem = soup.find('div', class_='product-description')
@@ -426,7 +408,6 @@ class ModarmAdapter(BaseAdapter):
         if soup is None:
             return 'unknown'
 
-        # Buscar elemento con clase availability
         avail_elem = soup.find(class_='availability')
         if avail_elem:
             text = avail_elem.get_text(strip=True).lower()
@@ -435,7 +416,6 @@ class ModarmAdapter(BaseAdapter):
             if 'disponible' in text or 'available' in text:
                 return 'available'
 
-        # Buscar texto de agotado en la página
         page_text = soup.get_text().lower()
         if 'agotado' in page_text or 'out of stock' in page_text:
             return 'out_of_stock'

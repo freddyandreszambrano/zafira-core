@@ -1,9 +1,111 @@
-# Development dependencies
--r base.txt
-django-debug-toolbar==4.2.0
-django-extensions==3.2.3
-pytest==7.4.3
-pytest-django==4.7.0
+asgiref==3.11.1
+    # via
+    #   -r requirements/base.txt
+    #   django
+beautifulsoup4==4.15.0
+    # via -r requirements/base.txt
 black==23.12.1
+    # via -r requirements/dev.in
+certifi==2026.5.20
+    # via
+    #   -r requirements/base.txt
+    #   requests
+charset-normalizer==3.4.7
+    # via
+    #   -r requirements/base.txt
+    #   requests
+click==8.4.1
+    # via black
+django==5.2.14
+    # via
+    #   -r requirements/base.txt
+    #   django-cors-headers
+    #   django-crum
+    #   django-debug-toolbar
+    #   django-extensions
+    #   django-widget-tweaks
+    #   djangorestframework
+    #   djangorestframework-simplejwt
+django-cors-headers==4.0.0
+    # via -r requirements/base.txt
+django-crum==0.7.9
+    # via -r requirements/base.txt
+django-debug-toolbar==4.2.0
+    # via -r requirements/dev.in
+django-environ==0.11.2
+    # via -r requirements/base.txt
+django-extensions==3.2.3
+    # via -r requirements/dev.in
+django-widget-tweaks==1.5.1
+    # via -r requirements/base.txt
+djangorestframework==3.14.0
+    # via
+    #   -r requirements/base.txt
+    #   djangorestframework-simplejwt
+djangorestframework-simplejwt==5.3.0
+    # via -r requirements/base.txt
 flake8==6.1.0
+    # via -r requirements/dev.in
+idna==3.18
+    # via
+    #   -r requirements/base.txt
+    #   requests
+iniconfig==2.3.0
+    # via pytest
 isort==5.13.2
+    # via -r requirements/dev.in
+mccabe==0.7.0
+    # via flake8
+mypy-extensions==1.1.0
+    # via black
+packaging==26.2
+    # via
+    #   black
+    #   pytest
+pathspec==1.1.1
+    # via black
+pillow==10.1.0
+    # via -r requirements/base.txt
+platformdirs==4.10.0
+    # via black
+pluggy==1.6.0
+    # via pytest
+pycodestyle==2.11.1
+    # via flake8
+pyflakes==3.1.0
+    # via flake8
+pyjwt==2.13.0
+    # via
+    #   -r requirements/base.txt
+    #   djangorestframework-simplejwt
+pytest==7.4.3
+    # via
+    #   -r requirements/dev.in
+    #   pytest-django
+pytest-django==4.7.0
+    # via -r requirements/dev.in
+python-dotenv==1.0.0
+    # via -r requirements/base.txt
+pytz==2026.2
+    # via
+    #   -r requirements/base.txt
+    #   djangorestframework
+requests==2.34.2
+    # via -r requirements/base.txt
+soupsieve==2.8.4
+    # via
+    #   -r requirements/base.txt
+    #   beautifulsoup4
+sqlparse==0.5.5
+    # via
+    #   -r requirements/base.txt
+    #   django
+    #   django-debug-toolbar
+typing-extensions==4.15.0
+    # via
+    #   -r requirements/base.txt
+    #   beautifulsoup4
+urllib3==2.7.0
+    # via
+    #   -r requirements/base.txt
+    #   requests

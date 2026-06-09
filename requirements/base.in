@@ -1,0 +1,18 @@
+# ── Core (todos los entornos) ───────────────────────────────────────────────
+Django==5.2.14
+djangorestframework==3.14.0
+django-cors-headers==4.0.0
+djangorestframework-simplejwt==5.3.0
+django-crum==0.7.9
+django-widget-tweaks==1.5.1
+
+# ── Config / entorno ────────────────────────────────────────────────────────
+python-dotenv==1.0.0
+django-environ==0.11.2
+
+# ── Imágenes ────────────────────────────────────────────────────────────────
+Pillow==10.1.0
+
+# ── Scraper ──────────────────────────────────────────────────────────────────
+requests>=2.31.0
+beautifulsoup4>=4.12.0
