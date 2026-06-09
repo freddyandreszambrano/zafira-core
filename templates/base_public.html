@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -47,6 +48,7 @@
     </script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'auth/css/public.css' %}">
 
     <style>
         :root {
@@ -109,8 +111,14 @@
     </div>
     {% endif %}
 
+    <button type="button" class="auth-theme-toggle" data-theme-toggle aria-label="Cambiar tema">
+        <i class="fas fa-moon icon-moon"></i>
+        <i class="fas fa-sun icon-sun"></i>
+    </button>
+
     {% block content %}{% endblock %}
 
+    <script src="{% static 'auth/js/public.js' %}" defer></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

@@ -44,7 +44,7 @@
             .then(r => r.json())
             .then(data => {
                 if (data.error) {
-                    alert(data.error);
+                    zafira_alert(data.error);
                 } else {
                     window.location.href = '{{ list_url }}';
                 }

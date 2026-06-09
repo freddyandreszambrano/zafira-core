@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -49,7 +50,9 @@
     </script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="{% static 'lib/datatables-1.13.7/css/jquery.dataTables.min.css' %}">
+    <link rel="stylesheet" href="{% static 'lib/formvalidation-1.9.0/css/formValidation.min.css' %}">
+    <link rel="stylesheet" href="{% static 'lib/sweetalert2-11.26.24/css/sweetalert2.min.css' %}">
 
     <style>
         :root {
@@ -574,6 +577,26 @@
 
         .dataTables_empty { padding: 3rem 1.25rem !important; text-align: center !important; color: var(--z-text-mute) !important; font-size: .9rem !important; }
         .dataTables_processing { background: color-mix(in srgb, var(--z-surface) 85%, transparent) !important; border: 0 !important; box-shadow: none !important; color: #FF3BBE !important; font-weight: 500 !important; }
+
+        .swal2-popup.z-swal {
+            border: 1px solid var(--z-border);
+            border-radius: .8rem;
+            color: var(--z-text);
+            background: var(--z-surface);
+            box-shadow: var(--z-dropdown-shadow);
+        }
+        .swal2-popup.z-swal .swal2-title { color: var(--z-text); font-size: 1.15rem; }
+        .swal2-popup.z-swal .swal2-html-container { color: var(--z-text-soft); font-size: .92rem; }
+        .swal2-popup.z-swal .swal2-confirm {
+            border-radius: .65rem !important;
+            background: linear-gradient(135deg, #FF3BBE 0%, #8E54FF 100%) !important;
+            box-shadow: 0 8px 20px -10px rgba(255, 59, 190, .65) !important;
+        }
+        .swal2-popup.z-swal .swal2-cancel {
+            border-radius: .65rem !important;
+            color: var(--z-text-soft) !important;
+            background: var(--z-surface-2) !important;
+        }
     </style>
 
     {% block extra_css %}{% endblock %}
@@ -688,17 +711,49 @@
 
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/formvalidation@2.4.0/dist/js/FormValidation.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/formvalidation@2.4.0/dist/js/locales/es_ES.min.js"></script>
+    <script src="{% static 'lib/jquery-3.7.1/jquery.min.js' %}"></script>
+    <script src="{% static 'lib/datatables-1.13.7/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'lib/formvalidation-1.9.0/js/FormValidation.full.min.js' %}"></script>
+    <script src="{% static 'lib/formvalidation-1.9.0/js/locales/es_ES.min.js' %}"></script>
+    <script src="{% static 'lib/sweetalert2-11.26.24/js/sweetalert2.all.min.js' %}"></script>
 
     <script>
         const csrftoken = '{{ csrf_token }}';
         const pathname = window.location.pathname;
 
-        function submit_with_ajax(title, message, url, params, onSuccess) {
-            if (!confirm(`${title}\n\n${message}`)) return;
+        function zafira_alert(message, title = 'Aviso', icon = 'error') {
+            if (!window.Swal) {
+                alert(message);
+                return Promise.resolve();
+            }
+            return Swal.fire({
+                title,
+                text: message,
+                icon,
+                customClass: { popup: 'z-swal' },
+                confirmButtonText: 'Entendido',
+            });
+        }
+
+        function zafira_confirm(title, message) {
+            if (!window.Swal) {
+                return Promise.resolve(confirm(`${title}\n\n${message}`));
+            }
+            return Swal.fire({
+                title,
+                text: message,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Confirmar',
+                cancelButtonText: 'Cancelar',
+                reverseButtons: true,
+                customClass: { popup: 'z-swal' },
+            }).then(result => result.isConfirmed);
+        }
+
+        async function submit_with_ajax(title, message, url, params, onSuccess) {
+            const confirmed = await zafira_confirm(title, message);
+            if (!confirmed) return;
             const formData = new FormData();
             Object.entries(params).forEach(([k, v]) => formData.append(k, v));
             fetch(url, {
@@ -708,7 +763,7 @@
             })
                 .then(r => r.json())
                 .then(data => {
-                    if (data.error) alert(data.error);
+                    if (data.error) zafira_alert(data.error);
                     else if (onSuccess) onSuccess(data);
                 });
         }
@@ -724,7 +779,7 @@
             })
                 .then(r => r.json())
                 .then(data => {
-                    if (data.error) alert(data.error);
+                    if (data.error) zafira_alert(data.error);
                     else window.location.href = form.dataset.success || pathname.replace(/(create|update\/\d+)\/?$/, '');
                 });
         }
