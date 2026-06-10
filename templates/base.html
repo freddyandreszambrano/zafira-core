@@ -14,6 +14,11 @@
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
             if (saved && meta) meta.content = saved;
+            // Restaurar el estado colapsado del menú antes de pintar (evita parpadeo)
+            try {
+                if (localStorage.getItem('zafira-sidebar-collapsed') === '1')
+                    document.documentElement.classList.add('sidebar-collapsed');
+            } catch (e) {}
         })();
     </script>
 
@@ -81,6 +86,8 @@
             accent-color: var(--z-primary);
             scrollbar-color: #cbd5e1 #f8fafc;
             scrollbar-width: thin;
+            --z-scroll-thumb:       #cdd5e1;
+            --z-scroll-thumb-hover: color-mix(in srgb, var(--z-primary) 45%, #cdd5e1);
         }
         html.dark {
             color-scheme: dark;
@@ -106,6 +113,8 @@
             --z-card-shadow: 0 1px 0 rgba(255, 255, 255, .03), 0 18px 44px -30px rgba(0, 0, 0, .88);
             --z-card-shadow-hover: 0 24px 54px -30px rgba(0, 0, 0, .92);
             scrollbar-color: #475569 #111827;
+            --z-scroll-thumb:       #39435a;
+            --z-scroll-thumb-hover: color-mix(in srgb, var(--z-primary) 50%, #39435a);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -298,14 +307,10 @@
             position: sticky;
             top: 0;
             height: 100vh;
-            overflow-y: auto;
-            overflow-x: hidden;
-            transition: transform .3s cubic-bezier(.4,0,.2,1), background .2s ease, border-color .2s ease;
+            overflow: visible;
+            transition: transform .3s cubic-bezier(.4,0,.2,1), width .28s cubic-bezier(.4,0,.2,1), background .2s ease, border-color .2s ease;
             background-image: radial-gradient(ellipse at 50% -5%, color-mix(in srgb, var(--z-primary) 10%, transparent), transparent 55%);
         }
-        .z-sidebar::-webkit-scrollbar { width: 3px; }
-        .z-sidebar::-webkit-scrollbar-thumb { background: var(--z-border); border-radius: 4px; }
-        .z-sidebar::-webkit-scrollbar-track { background: transparent; }
 
         /* ── Logo ─────────────── */
         .z-sidebar__logo {
@@ -348,14 +353,60 @@
         }
         .z-sidebar__logo a:hover .z-sidebar__logo-glow { opacity: 1; }
 
-        /* ── Nav ────────────────── */
+        /* ── Nav (única zona con scroll) ────────────────── */
         .z-sidebar__nav {
             flex: 1;
+            min-height: 0;
             padding: .9rem .75rem;
             display: flex;
             flex-direction: column;
             gap: 2px;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            scroll-behavior: smooth;
+            scrollbar-width: thin;
+            scrollbar-color: var(--z-scroll-thumb) transparent;
+            container-type: scroll-state;
+            position: relative;
         }
+        .z-sidebar__nav:hover { scrollbar-color: var(--z-scroll-thumb-hover) transparent; }
+        /* Fallback WebKit (Safari ≤18.1) — sólo cuando scrollbar-color no existe */
+        @supports not (scrollbar-color: auto) {
+            .z-sidebar__nav::-webkit-scrollbar { width: 6px; }
+            .z-sidebar__nav::-webkit-scrollbar-thumb {
+                background: var(--z-scroll-thumb);
+                border-radius: 6px;
+            }
+            .z-sidebar__nav:hover::-webkit-scrollbar-thumb { background: var(--z-scroll-thumb-hover); }
+            .z-sidebar__nav::-webkit-scrollbar-track { background: transparent; }
+        }
+
+        /* ── Pistas de scroll (fade arriba/abajo) ──────────
+         * Mejora progresiva: aparecen sólo cuando hay más
+         * contenido en esa dirección. Chromium 133+; degradan
+         * a invisible en navegadores sin scroll-state. */
+        .z-scroll-fade {
+            position: sticky;
+            left: 0; right: 0;
+            height: 1.5rem;
+            flex-shrink: 0;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity .2s ease;
+            z-index: 3;
+        }
+        .z-scroll-fade--top {
+            top: 0;
+            margin-bottom: -1.5rem;
+            background: linear-gradient(to bottom, var(--z-surface) 20%, transparent);
+        }
+        .z-scroll-fade--bottom {
+            bottom: 0;
+            margin-top: -1.5rem;
+            background: linear-gradient(to top, var(--z-surface) 20%, transparent);
+        }
+        @container scroll-state(scrollable: top)    { .z-scroll-fade--top    { opacity: 1; } }
+        @container scroll-state(scrollable: bottom) { .z-scroll-fade--bottom { opacity: 1; } }
 
         /* ── Home link ──────────── */
         .z-sidebar__home {
@@ -635,8 +686,101 @@
         .z-group__items .z-nav-link:nth-child(4) { animation-delay: .21s; }
         .z-group__items .z-nav-link:nth-child(5) { animation-delay: .26s; }
 
+        /* ──────────────────────────────────────────────────────────────
+         * Botón de colapso + modo "rail" (sólo escritorio)
+         * ────────────────────────────────────────────────────────────── */
+        .z-collapse-btn {
+            position: absolute;
+            top: 1.45rem;
+            right: -12px;
+            z-index: 30;
+            width: 24px;
+            height: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9999px;
+            background: var(--z-surface);
+            border: 1px solid var(--z-border);
+            color: var(--z-text-mute);
+            font-size: .6rem;
+            cursor: pointer;
+            box-shadow: 0 2px 6px -2px rgba(15, 23, 42, .25);
+            transition: background .15s ease, color .15s ease, border-color .15s ease;
+        }
+        .z-collapse-btn:hover {
+            background: var(--z-primary-soft);
+            border-color: color-mix(in srgb, var(--z-primary) 40%, var(--z-border));
+            color: var(--z-primary);
+        }
+        .z-collapse-btn:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 3px var(--z-focus);
+        }
+        .z-collapse-btn i { transition: transform .28s cubic-bezier(.4,0,.2,1); }
+        html.sidebar-collapsed .z-collapse-btn i { transform: rotate(180deg); }
+
+        @media (min-width: 1024px) {
+            html.sidebar-collapsed .z-sidebar { width: 76px; }
+
+            /* Ocultar todas las etiquetas de texto */
+            html.sidebar-collapsed .z-sidebar__logo .flex.flex-col,
+            html.sidebar-collapsed .z-sidebar__home span,
+            html.sidebar-collapsed .z-nav-link span,
+            html.sidebar-collapsed .z-group__header span,
+            html.sidebar-collapsed .z-group__chevron,
+            html.sidebar-collapsed .z-user-card > .flex-1,
+            html.sidebar-collapsed .z-user-card > i {
+                display: none;
+            }
+
+            /* Centrar logo e iconos */
+            html.sidebar-collapsed .z-sidebar__logo { padding-inline: 0; }
+            html.sidebar-collapsed .z-sidebar__logo a { justify-content: center; gap: 0; }
+            html.sidebar-collapsed .z-sidebar__home,
+            html.sidebar-collapsed .z-nav-link {
+                justify-content: center;
+                gap: 0;
+                padding-left: .5rem;
+                padding-right: .5rem;
+            }
+            html.sidebar-collapsed .z-nav-link:hover,
+            html.sidebar-collapsed .z-nav-link.is-active { padding-left: .5rem; }
+            html.sidebar-collapsed .z-nav-link.is-active::before { left: -.5rem; }
+
+            /* Grupos: siempre abiertos; cabecera se vuelve un divisor */
+            html.sidebar-collapsed .z-group { margin-top: .5rem; }
+            html.sidebar-collapsed .z-group__header {
+                justify-content: center;
+                padding: .25rem .5rem;
+                cursor: default;
+            }
+            html.sidebar-collapsed .z-group__items { max-height: none !important; opacity: 1 !important; }
+
+            /* Footer / tarjeta de usuario centrada */
+            html.sidebar-collapsed .z-sidebar__footer { padding: .6rem .5rem; }
+            html.sidebar-collapsed .z-sidebar__footer .z-dropdown { display: flex; justify-content: center; }
+            html.sidebar-collapsed .z-user-card { justify-content: center; gap: 0; padding: .5rem; }
+            /* El menú del usuario se abre como flyout a la derecha del rail */
+            html.sidebar-collapsed .z-sidebar__footer .z-dropdown__menu[data-placement="top-right"] {
+                left: calc(100% + 8px);
+                right: auto;
+                bottom: 0;
+                top: auto;
+                transform: translateX(-6px);
+            }
+            html.sidebar-collapsed .z-sidebar__footer .z-dropdown.is-open > .z-dropdown__menu {
+                transform: translateX(0);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .z-sidebar, .z-collapse-btn i, .z-scroll-fade { transition: none; }
+        }
+
         @media (max-width: 1023px) {
             .z-mobile-btn { display: inline-flex; }
+            .z-collapse-btn { display: none; }
             .z-sidebar {
                 position: fixed;
                 z-index: 50;
@@ -1247,6 +1391,10 @@
 
         {# ── Sidebar ──────────────────────────────────────────── #}
         <aside class="z-sidebar" id="z-sidebar">
+            <button type="button" class="z-collapse-btn" data-toggle-collapse
+                    aria-label="Contraer o expandir el menú" title="Contraer menú">
+                <i class="fas fa-angles-left"></i>
+            </button>
             <div class="z-sidebar__logo">
                 <a href="{% url 'dashboard' %}">
                     <span class="z-sidebar__logo-icon">
@@ -1263,7 +1411,9 @@
             </div>
 
             <nav class="z-sidebar__nav">
-                <a href="{% url 'dashboard' %}" class="z-sidebar__home {% if request.path == '/dashboard/' %}is-active{% endif %}">
+                <span class="z-scroll-fade z-scroll-fade--top" aria-hidden="true"></span>
+
+                <a href="{% url 'dashboard' %}" class="z-sidebar__home {% if request.path == '/dashboard/' %}is-active{% endif %}" title="Inicio">
                     <i class="fas fa-house"></i>
                     <span>Inicio</span>
                 </a>
@@ -1276,7 +1426,7 @@
                         </div>
                         <div class="z-group__items">
                             {% for module in type_modules %}
-                                <a href="{{ module.url }}" class="z-nav-link {% if request.path == module.url %}is-active{% endif %}">
+                                <a href="{{ module.url }}" class="z-nav-link {% if request.path == module.url %}is-active{% endif %}" title="{{ module.name }}">
                                     <i class="{{ module.icon|default:'fas fa-circle' }}"></i>
                                     <span>{{ module.name }}</span>
                                 </a>
@@ -1284,6 +1434,8 @@
                         </div>
                     </div>
                 {% endfor %}
+
+                <span class="z-scroll-fade z-scroll-fade--bottom" aria-hidden="true"></span>
             </nav>
 
             <div class="z-sidebar__footer">
@@ -1623,6 +1775,20 @@
                 document.getElementById('z-sidebar').classList.remove('is-open');
                 document.getElementById('z-shell').classList.remove('is-overlay');
             }
+        });
+
+        // Colapsar / expandir el menú lateral (escritorio) — persistente
+        document.addEventListener('click', e => {
+            const btn = e.target.closest('[data-toggle-collapse]');
+            if (!btn) return;
+            const collapsed = document.documentElement.classList.toggle('sidebar-collapsed');
+            btn.title = collapsed ? 'Expandir menú' : 'Contraer menú';
+            try { localStorage.setItem('zafira-sidebar-collapsed', collapsed ? '1' : '0'); } catch (e) {}
+        });
+        document.addEventListener('DOMContentLoaded', () => {
+            const btn = document.querySelector('[data-toggle-collapse]');
+            if (btn && document.documentElement.classList.contains('sidebar-collapsed'))
+                btn.title = 'Expandir menú';
         });
     </script>
 
