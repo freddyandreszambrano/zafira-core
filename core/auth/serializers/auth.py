@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate
+
 from rest_framework import serializers
 
 from core.common.constants import MSG_INACTIVE_ACCOUNT, MSG_INVALID_CREDENTIALS
@@ -11,12 +12,12 @@ class LoginSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True, required=True)
 
     def validate(self, data):
-        user = authenticate(username=data['username'], password=data['password'])
+        user = authenticate(username=data["username"], password=data["password"])
         if not user:
             raise serializers.ValidationError(MSG_INVALID_CREDENTIALS)
         if not user.is_active:
             raise serializers.ValidationError(MSG_INACTIVE_ACCOUNT)
-        data['user'] = user
+        data["user"] = user
         return data
 
 

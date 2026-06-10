@@ -15,12 +15,12 @@ def normalize_price(price_str: str) -> Optional[float]:
     try:
         price_str = price_str.strip()
 
-        cleaned = ''.join(char for char in price_str if char.isdigit() or char in '.,')
+        cleaned = "".join(char for char in price_str if char.isdigit() or char in ".,")
 
         if not cleaned:
             return None
 
-        cleaned = cleaned.replace(',', '.')
+        cleaned = cleaned.replace(",", ".")
 
         return float(cleaned)
     except (ValueError, AttributeError):
@@ -34,9 +34,9 @@ def extract_category_path(breadcrumb: List[str]) -> str:
     Example: ['Hombres', 'Moda Hombre', 'Camisas'] -> 'Hombres/Moda Hombre/Camisas'
     """
     if not breadcrumb:
-        return ''
+        return ""
 
-    return '/'.join(str(item).strip() for item in breadcrumb if item)
+    return "/".join(str(item).strip() for item in breadcrumb if item)
 
 
 def extract_images(container) -> List[str]:
@@ -52,12 +52,12 @@ def extract_images(container) -> List[str]:
     if container is None:
         return images
 
-    img_tags = container.find_all('img')
+    img_tags = container.find_all("img")
 
     for img in img_tags:
-        url = img.get('src') or img.get('data-src')
+        url = img.get("src") or img.get("data-src")
 
-        if url and not url.startswith('data:') and url not in seen:
+        if url and not url.startswith("data:") and url not in seen:
             images.append(url)
             seen.add(url)
 

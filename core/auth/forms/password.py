@@ -10,12 +10,12 @@ def _validate_match(password, confirm, message=MSG_PASSWORDS_MISMATCH):
 
 
 class PasswordChangeForm(forms.Form):
-    old_password = forms.CharField(widget=password_input('Contraseña actual'))
+    old_password = forms.CharField(widget=password_input("Contraseña actual"))
     new_password = forms.CharField(
-        widget=password_input('Nueva contraseña', autocomplete='new-password'),
+        widget=password_input("Nueva contraseña", autocomplete="new-password"),
     )
     new_password_confirm = forms.CharField(
-        widget=password_input('Confirmar contraseña', autocomplete='new-password'),
+        widget=password_input("Confirmar contraseña", autocomplete="new-password"),
     )
 
     def __init__(self, user, *args, **kwargs):
@@ -24,26 +24,26 @@ class PasswordChangeForm(forms.Form):
 
     def clean(self):
         cleaned = super().clean()
-        old_password = cleaned.get('old_password')
+        old_password = cleaned.get("old_password")
         if old_password and not self.user.check_password(old_password):
-            raise forms.ValidationError('La contraseña actual es incorrecta.')
+            raise forms.ValidationError("La contraseña actual es incorrecta.")
         _validate_match(
-            cleaned.get('new_password'),
-            cleaned.get('new_password_confirm'),
-            'Las nuevas contraseñas no coinciden.',
+            cleaned.get("new_password"),
+            cleaned.get("new_password_confirm"),
+            "Las nuevas contraseñas no coinciden.",
         )
         return cleaned
 
 
 class ResetPasswordForm(forms.Form):
     new_password = forms.CharField(
-        widget=password_input('Nueva contraseña', autocomplete='new-password'),
+        widget=password_input("Nueva contraseña", autocomplete="new-password"),
     )
     new_password_confirm = forms.CharField(
-        widget=password_input('Confirmar contraseña', autocomplete='new-password'),
+        widget=password_input("Confirmar contraseña", autocomplete="new-password"),
     )
 
     def clean(self):
         cleaned = super().clean()
-        _validate_match(cleaned.get('new_password'), cleaned.get('new_password_confirm'))
+        _validate_match(cleaned.get("new_password"), cleaned.get("new_password_confirm"))
         return cleaned

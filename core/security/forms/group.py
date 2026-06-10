@@ -6,4 +6,4 @@ from core.security.models import Group
 class GroupForm(forms.ModelForm):
     class Meta:
         model = Group
-        fields = ['name', 'description', 'is_active']
+        fields = ["name", "description", "is_active"]

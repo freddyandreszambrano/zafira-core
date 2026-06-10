@@ -1,5 +1,5 @@
 import sys
-from typing import List, Dict, Optional
+from typing import Dict, List, Optional
 from urllib.parse import urljoin
 
 import requests
@@ -17,20 +17,20 @@ class ModarmAdapter(BaseAdapter):
     USER_AGENT = "Mozilla/5.0 (ZAFIRA-CORE-Scraper/1.0; +http://localhost)"
 
     CATEGORIES = [
-        {'name': 'Mujeres', 'path': '/es_RW/MUJERES/MODA-MUJER/'},
-        {'name': 'Hombres', 'path': '/es_RW/HOMBRES/MODA-HOMBRE/'},
-        {'name': 'Infantil', 'path': '/es_RW/INFANTIL/MODA-INFANTIL/'},
-        {'name': 'Calzado', 'path': '/es_RW/CALZADO/CALZADO-GENERAL/'},
-        {'name': 'Accesorios', 'path': '/es_RW/ACCESORIOS/ACCESORIOS-GENERAL/'},
+        {"name": "Mujeres", "path": "/es_RW/MUJERES/MODA-MUJER/"},
+        {"name": "Hombres", "path": "/es_RW/HOMBRES/MODA-HOMBRE/"},
+        {"name": "Infantil", "path": "/es_RW/INFANTIL/MODA-INFANTIL/"},
+        {"name": "Calzado", "path": "/es_RW/CALZADO/CALZADO-GENERAL/"},
+        {"name": "Accesorios", "path": "/es_RW/ACCESORIOS/ACCESORIOS-GENERAL/"},
     ]
 
     def get_categories(self) -> List[Dict]:
         """Retorna lista de categorías soportadas."""
         return [
             {
-                'name': cat['name'],
-                'path': cat['path'],
-                'url': f"{self.BASE_URL}{cat['path']}",
+                "name": cat["name"],
+                "path": cat["path"],
+                "url": f"{self.BASE_URL}{cat['path']}",
             }
             for cat in self.CATEGORIES
         ]
@@ -46,21 +46,21 @@ class ModarmAdapter(BaseAdapter):
             Lista de dicts con 'id', 'name', 'url'
         """
         products = []
-        url = category['url']
+        url = category["url"]
 
         try:
-            headers = {'User-Agent': self.USER_AGENT}
+            headers = {"User-Agent": self.USER_AGENT}
             response = requests.get(url, headers=headers, timeout=self.TIMEOUT)
             response.raise_for_status()
 
-            soup = BeautifulSoup(response.content, 'html.parser')
+            soup = BeautifulSoup(response.content, "html.parser")
 
-            product_links = soup.find_all('a', href=True)
+            product_links = soup.find_all("a", href=True)
             seen = set()
 
             for link in product_links:
-                href = link.get('href', '')
-                if '/p/' not in href:
+                href = link.get("href", "")
+                if "/p/" not in href:
                     continue
 
                 product_id = self._extract_product_id(href)
@@ -74,11 +74,13 @@ class ModarmAdapter(BaseAdapter):
 
                 product_url = urljoin(self.BASE_URL, href)
 
-                products.append({
-                    'id': product_id,
-                    'name': product_name,
-                    'url': product_url,
-                })
+                products.append(
+                    {
+                        "id": product_id,
+                        "name": product_name,
+                        "url": product_url,
+                    }
+                )
 
         except requests.RequestException as e:
             print(f"Error scraping category {category['name']}: {e}", file=sys.stderr)
@@ -96,38 +98,38 @@ class ModarmAdapter(BaseAdapter):
             Dict con campos normalizados del producto
         """
         result = {
-            'id': None,
-            'name': None,
-            'category': None,
-            'url': url,
-            'price': None,
-            'price_old': None,
-            'currency': 'USD',
-            'sizes': [],
-            'colors': [],
-            'description': None,
-            'image_urls': [],
-            'availability': 'unknown',
-            'extracted_at': parsers.now_iso(),
+            "id": None,
+            "name": None,
+            "category": None,
+            "url": url,
+            "price": None,
+            "price_old": None,
+            "currency": "USD",
+            "sizes": [],
+            "colors": [],
+            "description": None,
+            "image_urls": [],
+            "availability": "unknown",
+            "extracted_at": parsers.now_iso(),
         }
 
         try:
-            headers = {'User-Agent': self.USER_AGENT}
+            headers = {"User-Agent": self.USER_AGENT}
             response = requests.get(url, headers=headers, timeout=self.TIMEOUT)
             response.raise_for_status()
 
-            soup = BeautifulSoup(response.content, 'html.parser')
+            soup = BeautifulSoup(response.content, "html.parser")
 
-            result['id'] = self._extract_product_id(url)
-            result['name'] = self._extract_name(soup)
-            result['category'] = self._extract_category(soup)
-            result['price'] = self._extract_price(soup)
-            result['price_old'] = self._extract_price_old(soup)
-            result['sizes'] = self._extract_sizes(soup)
-            result['colors'] = self._extract_colors(soup)
-            result['description'] = self._extract_description(soup)
-            result['image_urls'] = self._extract_images(soup)
-            result['availability'] = self._extract_availability(soup)
+            result["id"] = self._extract_product_id(url)
+            result["name"] = self._extract_name(soup)
+            result["category"] = self._extract_category(soup)
+            result["price"] = self._extract_price(soup)
+            result["price_old"] = self._extract_price_old(soup)
+            result["sizes"] = self._extract_sizes(soup)
+            result["colors"] = self._extract_colors(soup)
+            result["description"] = self._extract_description(soup)
+            result["image_urls"] = self._extract_images(soup)
+            result["availability"] = self._extract_availability(soup)
 
         except requests.RequestException as e:
             print(f"Error parsing product {url}: {e}", file=sys.stderr)
@@ -140,15 +142,15 @@ class ModarmAdapter(BaseAdapter):
 
         Busca patrón: /p/<id>/ o /p/<id>
         """
-        if '/p/' not in url_or_href:
+        if "/p/" not in url_or_href:
             return None
 
         try:
-            parts = url_or_href.split('/p/')
+            parts = url_or_href.split("/p/")
             if len(parts) < 2:
                 return None
 
-            id_part = parts[1].split('/')[0].split('?')[0]
+            id_part = parts[1].split("/")[0].split("?")[0]
             return id_part if id_part else None
         except (IndexError, AttributeError):
             return None
@@ -162,12 +164,12 @@ class ModarmAdapter(BaseAdapter):
         if element is None:
             return None
 
-        if hasattr(element, 'name') and element.name == 'a':
-            name = element.get('data-product-name', '').strip()
+        if hasattr(element, "name") and element.name == "a":
+            name = element.get("data-product-name", "").strip()
             if name:
                 return name
 
-            name = element.get('title', '').strip()
+            name = element.get("title", "").strip()
             if name:
                 return name
 
@@ -175,32 +177,32 @@ class ModarmAdapter(BaseAdapter):
             if name:
                 return name
 
-        if hasattr(element, 'find'):
-            page_title_name = element.select_one('.product-details.page-title .name')
+        if hasattr(element, "find"):
+            page_title_name = element.select_one(".product-details.page-title .name")
             if page_title_name:
                 name = self._direct_text(page_title_name)
                 if name:
                     return name
 
-            name_elem = element.select_one('div.name')
+            name_elem = element.select_one("div.name")
             if name_elem:
                 name = self._direct_text(name_elem)
                 if name:
                     return name
 
-            h1 = element.find('h1')
+            h1 = element.find("h1")
             if h1:
                 name = h1.get_text(strip=True)
-                if name and name.lower() != 'antes de empezar a comprar':
+                if name and name.lower() != "antes de empezar a comprar":
                     return name
 
-            h2 = element.find('h2')
+            h2 = element.find("h2")
             if h2:
                 name = h2.get_text(strip=True)
-                if name and name.lower() != 'antes de empezar a comprar':
+                if name and name.lower() != "antes de empezar a comprar":
                     return name
 
-            product_name = element.find(class_='product-name')
+            product_name = element.find(class_="product-name")
             if product_name:
                 return product_name.get_text(strip=True)
 
@@ -215,16 +217,15 @@ class ModarmAdapter(BaseAdapter):
         if soup is None:
             return None
 
-        breadcrumb = soup.find('nav', class_='breadcrumb')
+        breadcrumb = soup.find("nav", class_="breadcrumb")
         if not breadcrumb:
-            breadcrumb = soup.find('ol', class_='breadcrumb')
+            breadcrumb = soup.find("ol", class_="breadcrumb")
 
         if breadcrumb:
-            items = breadcrumb.find_all('li')
+            items = breadcrumb.find_all("li")
             breadcrumb_list = [item.get_text(strip=True) for item in items]
             breadcrumb_list = [
-                item for item in breadcrumb_list
-                if item and item.lower() != 'inicio'
+                item for item in breadcrumb_list if item and item.lower() != "inicio"
             ]
             if breadcrumb_list:
                 breadcrumb_list = breadcrumb_list[:-1]
@@ -242,13 +243,13 @@ class ModarmAdapter(BaseAdapter):
             return None
 
         selectors = [
-            '.price-panel .priceDiscountDetails',
-            '.price-panel .priceRegularDetails',
-            '.price-panel .pdp-prices-box .direct-credit-price',
-            '.priceDiscount',
-            'span.price',
-            'span.current-price',
-            '.product-price',
+            ".price-panel .priceDiscountDetails",
+            ".price-panel .priceRegularDetails",
+            ".price-panel .pdp-prices-box .direct-credit-price",
+            ".priceDiscount",
+            "span.price",
+            "span.current-price",
+            ".product-price",
         ]
         price_elem = self._select_first(soup, selectors)
 
@@ -268,11 +269,11 @@ class ModarmAdapter(BaseAdapter):
             return None
 
         selectors = [
-            '.price-panel .priceOldDetails',
-            '.priceOld',
-            'span.old-price',
-            'span.original-price',
-            's',
+            ".price-panel .priceOldDetails",
+            ".priceOld",
+            "span.old-price",
+            "span.original-price",
+            "s",
         ]
         price_elem = self._select_first(soup, selectors)
 
@@ -293,27 +294,27 @@ class ModarmAdapter(BaseAdapter):
         if soup is None:
             return sizes
 
-        size_select = soup.find('select', {'name': 'size'})
+        size_select = soup.find("select", {"name": "size"})
         if size_select:
-            options = size_select.find_all('option')
+            options = size_select.find_all("option")
             for opt in options:
                 size = opt.get_text(strip=True)
-                if size and size.lower() != 'select':
+                if size and size.lower() != "select":
                     sizes.append(size)
             return sizes
 
-        size_options = soup.find('div', class_='size-options')
+        size_options = soup.find("div", class_="size-options")
         if size_options:
-            buttons = size_options.find_all(['button', 'span'])
+            buttons = size_options.find_all(["button", "span"])
             for btn in buttons:
                 size = btn.get_text(strip=True)
                 if size:
                     sizes.append(size)
             return sizes
 
-        variant_select = soup.find('select', id='priority1')
+        variant_select = soup.find("select", id="priority1")
         if variant_select:
-            for opt in variant_select.find_all('option'):
+            for opt in variant_select.find_all("option"):
                 size = opt.get_text(strip=True)
                 if size:
                     sizes.append(size)
@@ -332,18 +333,18 @@ class ModarmAdapter(BaseAdapter):
         if soup is None:
             return colors
 
-        color_select = soup.find('select', {'name': 'color'})
+        color_select = soup.find("select", {"name": "color"})
         if color_select:
-            options = color_select.find_all('option')
+            options = color_select.find_all("option")
             for opt in options:
                 color = opt.get_text(strip=True)
-                if color and color.lower() != 'select':
+                if color and color.lower() != "select":
                     colors.append(color)
             return colors
 
-        color_options = soup.find('div', class_='color-options')
+        color_options = soup.find("div", class_="color-options")
         if color_options:
-            buttons = color_options.find_all(['button', 'span'])
+            buttons = color_options.find_all(["button", "span"])
             for btn in buttons:
                 color = btn.get_text(strip=True)
                 if color:
@@ -356,9 +357,11 @@ class ModarmAdapter(BaseAdapter):
         images = []
         seen = set()
 
-        selectors = '.product-main-info img, .product-image-gallery img, .gallery-carousel img, img.lazyOwl'
+        selectors = (
+            ".product-main-info img, .product-image-gallery img, .gallery-carousel img, img.lazyOwl"
+        )
         for img in soup.select(selectors):
-            url = img.get('data-zoom-image') or img.get('data-src') or img.get('src')
+            url = img.get("data-zoom-image") or img.get("data-src") or img.get("src")
             if not self._is_product_image(url):
                 continue
             full_url = urljoin(self.BASE_URL, url)
@@ -387,11 +390,11 @@ class ModarmAdapter(BaseAdapter):
         if soup is None:
             return None
 
-        desc_elem = soup.find('div', class_='description')
+        desc_elem = soup.find("div", class_="description")
         if not desc_elem:
-            desc_elem = soup.find('div', class_='product-description')
+            desc_elem = soup.find("div", class_="product-description")
         if not desc_elem:
-            desc_elem = soup.find('section', class_='description')
+            desc_elem = soup.find("section", class_="description")
 
         if desc_elem:
             return desc_elem.get_text(strip=True)
@@ -406,21 +409,21 @@ class ModarmAdapter(BaseAdapter):
         Busca textos como "Agotado", "Out of Stock", o elementos con clase availability.
         """
         if soup is None:
-            return 'unknown'
+            return "unknown"
 
-        avail_elem = soup.find(class_='availability')
+        avail_elem = soup.find(class_="availability")
         if avail_elem:
             text = avail_elem.get_text(strip=True).lower()
-            if 'agotado' in text or 'out of stock' in text or 'no disponible' in text:
-                return 'out_of_stock'
-            if 'disponible' in text or 'available' in text:
-                return 'available'
+            if "agotado" in text or "out of stock" in text or "no disponible" in text:
+                return "out_of_stock"
+            if "disponible" in text or "available" in text:
+                return "available"
 
         page_text = soup.get_text().lower()
-        if 'agotado' in page_text or 'out of stock' in page_text:
-            return 'out_of_stock'
+        if "agotado" in page_text or "out of stock" in page_text:
+            return "out_of_stock"
 
-        return 'available'
+        return "available"
 
     def _select_first(self, soup, selectors):
         for selector in selectors:
@@ -438,16 +441,16 @@ class ModarmAdapter(BaseAdapter):
         return texts[0] if texts else None
 
     def _is_product_image(self, url) -> bool:
-        if not url or url.startswith('data:'):
+        if not url or url.startswith("data:"):
             return False
 
         lowered = url.lower()
-        path = lowered.split('?', 1)[0]
-        if not path.endswith(('.webp', '.jpg', '.jpeg', '.png')):
+        path = lowered.split("?", 1)[0]
+        if not path.endswith((".webp", ".jpg", ".jpeg", ".png")):
             return False
 
-        blocked = ('logo', 'lupa_', 'wsplogo', 'color-pago', 'banner', 'primera-compra')
+        blocked = ("logo", "lupa_", "wsplogo", "color-pago", "banner", "primera-compra")
         if any(item in lowered for item in blocked):
             return False
 
-        return '/medias/' in path and any(size in path for size in ('-1200-', '-515-', '-96-'))
+        return "/medias/" in path and any(size in path for size in ("-1200-", "-515-", "-96-"))

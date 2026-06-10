@@ -7,55 +7,76 @@ from .models import UserProfile
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
     fieldsets = (
-        (None, {'fields': ('user',)}),
-        (_('Información de Contacto'), {
-            'fields': ('phone', 'address', 'city', 'country'),
-        }),
-        (_('Información Profesional'), {
-            'fields': ('department', 'job_title', 'manager', 'employee_id', 'hire_date'),
-        }),
-        (_('Información Adicional'), {
-            'fields': ('bio', 'social_media', 'is_verified'),
-            'classes': ('collapse',),
-        }),
-        (_('Fechas'), {
-            'fields': ('created_at', 'updated_at'),
-            'classes': ('collapse',),
-        }),
+        (None, {"fields": ("user",)}),
+        (
+            _("Información de Contacto"),
+            {
+                "fields": ("phone", "address", "city", "country"),
+            },
+        ),
+        (
+            _("Información Profesional"),
+            {
+                "fields": ("department", "job_title", "manager", "employee_id", "hire_date"),
+            },
+        ),
+        (
+            _("Información Adicional"),
+            {
+                "fields": ("bio", "social_media", "is_verified"),
+                "classes": ("collapse",),
+            },
+        ),
+        (
+            _("Fechas"),
+            {
+                "fields": ("created_at", "updated_at"),
+                "classes": ("collapse",),
+            },
+        ),
     )
 
     list_display = (
-        'get_username', 'get_email', 'get_full_name', 'job_title',
-        'department', 'is_verified', 'created_at',
+        "get_username",
+        "get_email",
+        "get_full_name",
+        "job_title",
+        "department",
+        "is_verified",
+        "created_at",
     )
-    list_filter = ('department', 'is_verified', 'created_at', 'hire_date')
+    list_filter = ("department", "is_verified", "created_at", "hire_date")
     search_fields = (
-        'user__username', 'user__email', 'user__first_name',
-        'user__last_name', 'job_title', 'employee_id',
+        "user__username",
+        "user__email",
+        "user__first_name",
+        "user__last_name",
+        "job_title",
+        "employee_id",
     )
-    readonly_fields = ('created_at', 'updated_at')
-    ordering = ('-created_at',)
+    readonly_fields = ("created_at", "updated_at")
+    ordering = ("-created_at",)
 
-    actions = ['mark_as_verified', 'mark_as_unverified']
+    actions = ["mark_as_verified", "mark_as_unverified"]
 
-    @admin.display(description='Usuario')
+    @admin.display(description="Usuario")
     def get_username(self, obj):
         return obj.user.username
 
-    @admin.display(description='Correo')
+    @admin.display(description="Correo")
     def get_email(self, obj):
         return obj.user.email
 
-    @admin.display(description='Nombre Completo')
+    @admin.display(description="Nombre Completo")
     def get_full_name(self, obj):
         return obj.user.get_full_name()
 
-    @admin.action(description='Marcar como verificado')
+    @admin.action(description="Marcar como verificado")
     def mark_as_verified(self, request, queryset):
         count = queryset.update(is_verified=True)
-        self.message_user(request, f'{count} perfil(es) marcado(s) como verificado(s).')
+        self.message_user(request, f"{count} perfil(es) marcado(s) como verificado(s).")
 
-    @admin.action(description='Marcar como no verificado')
+    @admin.action(description="Marcar como no verificado")
     def mark_as_unverified(self, request, queryset):
         count = queryset.update(is_verified=False)
-        self.message_user(request, f'{count} perfil(es) marcado(s) como no verificado(s).')
+        self.message_user(request, f"{count} perfil(es) marcado(s) como no verificado(s).")

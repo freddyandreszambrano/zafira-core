@@ -11,39 +11,39 @@ from core.common.choices import Department
 
 
 class ProfileView(LoginRequiredMixin, TemplateView):
-    template_name = 'profile/view.html'
-    login_url = 'login'
+    template_name = "profile/view.html"
+    login_url = "login"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update({'user': self.request.user, 'profile': self.request.user.profile})
+        context.update({"user": self.request.user, "profile": self.request.user.profile})
         return context
 
 
 class ProfileEditView(LoginRequiredMixin, UpdateView):
-    template_name = 'profile/edit.html'
+    template_name = "profile/edit.html"
     form_class = ProfileUpdateForm
-    success_url = reverse_lazy('profile')
-    login_url = 'login'
+    success_url = reverse_lazy("profile")
+    login_url = "login"
 
     def get_object(self, queryset=None):
         return self.request.user
 
     def form_valid(self, form):
-        messages.success(self.request, 'Perfil actualizado correctamente.')
+        messages.success(self.request, "Perfil actualizado correctamente.")
         return super().form_valid(form)
 
 
 class PasswordChangeView(LoginRequiredMixin, View):
-    template_name = 'profile/change_password.html'
-    login_url = 'login'
+    template_name = "profile/change_password.html"
+    login_url = "login"
 
     def get(self, request):
         context = {
-            'form': PasswordChangeForm(request.user),
-            'title': 'Cambiar contraseña',
-            'list_url': reverse_lazy('profile'),
-            'action': 'change',
+            "form": PasswordChangeForm(request.user),
+            "title": "Cambiar contraseña",
+            "list_url": reverse_lazy("profile"),
+            "action": "change",
         }
         return render(request, self.template_name, context)
 
@@ -51,32 +51,32 @@ class PasswordChangeView(LoginRequiredMixin, View):
         form = PasswordChangeForm(request.user, request.POST)
         if form.is_valid():
             user = request.user
-            user.set_password(form.cleaned_data['new_password'])
+            user.set_password(form.cleaned_data["new_password"])
             user.save()
             login(request, user)
-            messages.success(request, 'Contraseña actualizada correctamente.')
-            return redirect('profile')
+            messages.success(request, "Contraseña actualizada correctamente.")
+            return redirect("profile")
         context = {
-            'form': form,
-            'title': 'Cambiar contraseña',
-            'list_url': reverse_lazy('profile'),
-            'action': 'change',
+            "form": form,
+            "title": "Cambiar contraseña",
+            "list_url": reverse_lazy("profile"),
+            "action": "change",
         }
         return render(request, self.template_name, context)
 
 
 class ProfileManageView(LoginRequiredMixin, View):
-    template_name = 'profile/manage.html'
-    login_url = 'login'
-    EDITABLE_FIELDS = ('department', 'job_title', 'phone', 'address', 'city')
+    template_name = "profile/manage.html"
+    login_url = "login"
+    EDITABLE_FIELDS = ("department", "job_title", "phone", "address", "city")
 
     def get(self, request):
         context = {
-            'user': request.user,
-            'profile': request.user.profile,
-            'departments': Department.choices,
-            'title': 'Datos corporativos',
-            'list_url': reverse_lazy('profile'),
+            "user": request.user,
+            "profile": request.user.profile,
+            "departments": Department.choices,
+            "title": "Datos corporativos",
+            "list_url": reverse_lazy("profile"),
         }
         return render(request, self.template_name, context)
 
@@ -86,8 +86,8 @@ class ProfileManageView(LoginRequiredMixin, View):
             if field in request.POST:
                 setattr(profile, field, request.POST.get(field))
         profile.save()
-        messages.success(request, 'Perfil actualizado correctamente.')
-        return redirect('profile')
+        messages.success(request, "Perfil actualizado correctamente.")
+        return redirect("profile")
 
 
-__all__ = ['ProfileView', 'ProfileEditView', 'PasswordChangeView', 'ProfileManageView']
+__all__ = ["ProfileView", "ProfileEditView", "PasswordChangeView", "ProfileManageView"]

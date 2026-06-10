@@ -1,18 +1,29 @@
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 
-
 GROUP_PERMISSIONS = {
-    'Admin': [
-        'add_user', 'change_user', 'delete_user', 'view_user',
-        'add_group', 'change_group', 'delete_group', 'view_group',
-        'add_permission', 'change_permission', 'delete_permission', 'view_permission',
+    "Admin": [
+        "add_user",
+        "change_user",
+        "delete_user",
+        "view_user",
+        "add_group",
+        "change_group",
+        "delete_group",
+        "view_group",
+        "add_permission",
+        "change_permission",
+        "delete_permission",
+        "view_permission",
     ],
-    'Manager': [
-        'view_user', 'add_user', 'change_user',
-        'view_group', 'view_permission',
+    "Manager": [
+        "view_user",
+        "add_user",
+        "change_user",
+        "view_group",
+        "view_permission",
     ],
-    'User': ['view_user'],
+    "User": ["view_user"],
 }
 
 
@@ -24,7 +35,8 @@ def create_default_groups():
         group, created = Group.objects.get_or_create(name=group_name)
         if created:
             perms = Permission.objects.filter(
-                content_type=content_type, codename__in=codenames,
+                content_type=content_type,
+                codename__in=codenames,
             )
             group.permissions.set(perms)
 

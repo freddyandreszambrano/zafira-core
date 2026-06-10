@@ -1,0 +1,13 @@
+{% extends 'list.html' %}
+{% load static %}
+
+{% block columns %}
+    <th>Nombre</th>
+    <th>Client ID</th>
+    <th class="text-center">Estado</th>
+    <th class="text-center">Acciones</th>
+{% endblock %}
+
+{% block head_list %}
+    <script src="{% static 'external_provider/js/list.js' %}"></script>
+{% endblock %}

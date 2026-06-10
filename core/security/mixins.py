@@ -1,18 +1,21 @@
 from typing import Iterable, List, Optional, Union
 
-from crum import get_current_request
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.utils.decorators import method_decorator
+
+from crum import get_current_request
+
+from core.common.constants import MSG_PERMISSION_DENIED
 
 from .models import Group, Module
 
 
 def _login_redirect():
-    return getattr(settings, 'LOGIN_REDIRECT_URL', '/')
+    return getattr(settings, "LOGIN_REDIRECT_URL", "/")
 
 
 class PermissionMixin:
@@ -27,44 +30,66 @@ class PermissionMixin:
 
     def get_last_url(self):
         request = get_current_request()
-        if request and 'url_last' in request.session:
-            return request.session['url_last']
+        if request and "url_last" in request.session:
+            return request.session["url_last"]
         return _login_redirect()
 
+    def has_group_permits(self, request) -> bool:
+        if request.user.is_superuser:
+            return True
+        group_session = request.session.get("group")
+        if not group_session:
+            return False
+        group = Group.objects.filter(id=group_session.get("id")).first()
+        if not group:
+            return False
+        return all(
+            group.grouppermission_set.filter(permission__codename=codename).exists()
+            for codename in self.get_permits()
+        )
+
+    # GET delega en get(), que repite la verificación pero además puebla la sesión
+    # (module, url_last) y redirige con messages; el resto de métodos (POST AJAX)
+    # se bloquea aquí para que ningún post() de las views quede expuesto.
     @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        if request.method != "GET" and not self.has_group_permits(request):
+            return JsonResponse({"error": MSG_PERMISSION_DENIED}, status=403)
+        return super().dispatch(request, *args, **kwargs)
+
     def get(self, request, *args, **kwargs):
         if request.user.is_superuser:
-            request.session['url_last'] = request.path
-            request.session['module'] = {
-                'name': 'Superuser',
-                'icon': 'fas fa-user-shield',
-                'permissions': '*',
+            request.session["url_last"] = request.path
+            request.session["module"] = {
+                "name": "Superuser",
+                "icon": "fas fa-user-shield",
+                "permissions": "*",
             }
             return super().get(request, *args, **kwargs)
 
-        request.session['module'] = None
+        request.session["module"] = None
         try:
-            if 'group' not in request.session:
-                messages.error(request, 'No tiene un grupo seleccionado.')
+            if "group" not in request.session:
+                messages.error(request, "No tiene un grupo seleccionado.")
                 return HttpResponseRedirect(self.get_last_url())
 
-            group_id = request.session['group'].get('id')
+            group_id = request.session["group"].get("id")
             group = Group.objects.filter(id=group_id).first()
             if not group:
-                messages.error(request, 'El grupo seleccionado no existe.')
+                messages.error(request, "El grupo seleccionado no existe.")
                 return HttpResponseRedirect(self.get_last_url())
 
             for codename in self.get_permits():
                 if not group.grouppermission_set.filter(permission__codename=codename).exists():
-                    messages.error(request, 'No tiene permiso para ingresar a este módulo')
+                    messages.error(request, "No tiene permiso para ingresar a este módulo")
                     return HttpResponseRedirect(self.get_last_url())
 
             permits = self.get_permits()
             if permits:
                 gp = group.grouppermission_set.filter(permission__codename=permits[0]).first()
                 if gp:
-                    request.session['module'] = gp.to_json_session()
-            request.session['url_last'] = request.path
+                    request.session["module"] = gp.to_json_session()
+            request.session["url_last"] = request.path
 
             return super().get(request, *args, **kwargs)
         except Exception:
@@ -74,13 +99,13 @@ class PermissionMixin:
 class ModuleMixin:
     @method_decorator(login_required)
     def get(self, request, *args, **kwargs):
-        request.session['module'] = None
+        request.session["module"] = None
 
         if request.user.is_superuser:
-            request.session['module'] = {
-                'name': 'Superuser',
-                'icon': 'fas fa-user-shield',
-                'permissions': '*',
+            request.session["module"] = {
+                "name": "Superuser",
+                "icon": "fas fa-user-shield",
+                "permissions": "*",
             }
             return super().get(request, *args, **kwargs)
 
@@ -96,9 +121,9 @@ class ModuleMixin:
                 is_visible=True,
             )
             if modules.exists():
-                request.session['module'] = modules.first().to_json()
+                request.session["module"] = modules.first().to_json()
                 return super().get(request, *args, **kwargs)
-            messages.error(request, 'No tiene permiso para ingresar a este módulo')
+            messages.error(request, "No tiene permiso para ingresar a este módulo")
             return HttpResponseRedirect(_login_redirect())
         except Exception:
             return HttpResponseRedirect(_login_redirect())

@@ -12,8 +12,14 @@ from .user import (
 )
 
 __all__ = [
-    'UserDetailSerializer', 'UserListSerializer',
-    'UserCreateSerializer', 'UserUpdateSerializer',
-    'LoginSerializer', 'TokenSerializer', 'JWTTokenSerializer',
-    'PasswordChangeSerializer', 'PasswordResetSerializer', 'PasswordResetConfirmSerializer',
+    "UserDetailSerializer",
+    "UserListSerializer",
+    "UserCreateSerializer",
+    "UserUpdateSerializer",
+    "LoginSerializer",
+    "TokenSerializer",
+    "JWTTokenSerializer",
+    "PasswordChangeSerializer",
+    "PasswordResetSerializer",
+    "PasswordResetConfirmSerializer",
 ]

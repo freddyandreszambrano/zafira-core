@@ -3,7 +3,10 @@ from .password import PasswordChangeForm, ResetPasswordForm
 from .profile import EditUserForm, ProfileUpdateForm
 
 __all__ = [
-    'LoginForm', 'RegisterForm',
-    'PasswordChangeForm', 'ResetPasswordForm',
-    'ProfileUpdateForm', 'EditUserForm',
+    "LoginForm",
+    "RegisterForm",
+    "PasswordChangeForm",
+    "ResetPasswordForm",
+    "ProfileUpdateForm",
+    "EditUserForm",
 ]

@@ -79,6 +79,8 @@ config/
 
 Patrón: **4 views explícitas y autocontenidas** — `XxxListView`, `XxxCreateView`, `XxxUpdateView`, `XxxDeleteView`. NO se hereda de "CrudXxx" base. Cada view define su `post()` inline con `if/elif action == ...` para que se lea de arriba a abajo.
 
+La seguridad vive en `PermissionMixin.dispatch()`: exige login en **todos** los métodos y, para métodos distintos de GET (los `post()` AJAX), verifica el `permission_required` contra el grupo en sesión y responde `403 JSON` si falta. Los `post()` de las views NO repiten esa verificación — basta con declarar `permission_required` y heredar de `PermissionMixin`.
+
 Supongamos que agregas `Company` en `core/catalog/`.
 
 ### Paso 1 — Modelo
@@ -412,6 +414,7 @@ Luego: `make migrate && make insert-data`. El módulo aparecerá en nav y dashbo
 ### Permisos
 - **Toda view CRUD usa `PermissionMixin`** con `permission_required = 'view_xxx' / 'add_xxx' / 'change_xxx' / 'delete_xxx'`.
 - Validación: `PermissionMixin` verifica contra `group.grouppermission_set` (no Django `user.has_perm`).
+- `PermissionMixin.dispatch()` exige login en todos los métodos. GET sin permiso → redirect con `messages`; POST (y cualquier método no-GET) sin permiso → `403 JSON`. Un POST anónimo recibe redirect al login, nunca datos.
 - Superuser: bypass automático en `PermissionMixin`.
 - Vistas públicas (login/register): usar `PublicMixin` de `core.common.mixins`.
 
@@ -456,7 +459,7 @@ Documentación secundaria y contexto de proyecto viven en `docs/`; ver `docs/pro
 3. **Cada render** ejecuta `core.security.context_processors.modules` → carga los `Module` del grupo en sesión, agrupados por `ModuleType`, y los inyecta como `available_modules` en TODOS los templates.
 4. **`base.html`** itera `available_modules` para renderizar el dropdown del nav.
 5. **`dashboard/home.html`** renderiza tarjetas agrupadas por `ModuleType`.
-6. **Cada vista CRUD** decora `get()` con `@login_required` (vía PermissionMixin) y valida que el grupo activo tenga el `permission_required` declarado.
+6. **Cada vista CRUD** pasa por `PermissionMixin.dispatch()` (`@login_required` en todos los métodos): GET valida el `permission_required` del grupo activo y puebla `session['module']`; los métodos no-GET (POST AJAX) se rechazan con `403 JSON` si el grupo no tiene el permiso.
 
 ---
 
