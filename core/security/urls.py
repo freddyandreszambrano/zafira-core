@@ -37,7 +37,19 @@ urlpatterns = [
     path("group/delete/<int:pk>/", GroupDeleteView.as_view(), name="group_delete"),
     # External provider
     path("external_provider/", ExternalProviderListView.as_view(), name="external_provider_list"),
-    path("external_provider/create/", ExternalProviderCreateView.as_view(), name="external_provider_create", ),
-    path("external_provider/update/<int:pk>/", ExternalProviderUpdateView.as_view(), name="external_provider_update", ),
-    path("external_provider/delete/<int:pk>/", ExternalProviderDeleteView.as_view(), name="external_provider_delete"),
+    path(
+        "external_provider/create/",
+        ExternalProviderCreateView.as_view(),
+        name="external_provider_create",
+    ),
+    path(
+        "external_provider/update/<int:pk>/",
+        ExternalProviderUpdateView.as_view(),
+        name="external_provider_update",
+    ),
+    path(
+        "external_provider/delete/<int:pk>/",
+        ExternalProviderDeleteView.as_view(),
+        name="external_provider_delete",
+    ),
 ]
