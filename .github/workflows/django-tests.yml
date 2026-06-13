@@ -20,8 +20,8 @@ env:
   ALLOWED_HOSTS: "*"
 
 jobs:
-  migrations:
-    name: Migration check
+  test:
+    name: Django test suite
     runs-on: ubuntu-latest
 
     steps:
@@ -42,56 +42,11 @@ jobs:
       - name: Check migrations are up to date
         run: python manage.py makemigrations --check --dry-run
 
-  system-check:
-    name: Django system check
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-          cache: pip
-          cache-dependency-path: requirements/*.txt
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements/dev.txt
-
       - name: Run migrations
         run: python manage.py migrate
 
       - name: Run Django checks
         run: python manage.py check --deploy --fail-level WARNING || true
 
-  tests:
-    name: Tests (${{ matrix.app }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        app: [common, security, auth, profiles]
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-          cache: pip
-          cache-dependency-path: requirements/*.txt
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements/dev.txt
-
-      - name: Run migrations
-        run: python manage.py migrate
-
       - name: Run tests
-        run: python manage.py test core.${{ matrix.app }} --verbosity=2
+        run: python manage.py test core.common core.security core.auth core.profiles --verbosity=2
