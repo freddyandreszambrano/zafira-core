@@ -1,0 +1,115 @@
+/* ──────────────────────────────────────────────────────────────
+ * Botón de colapso + modo "rail" (sólo escritorio)
+ * ────────────────────────────────────────────────────────────── */
+.z-collapse-btn {
+    position: absolute;
+    top: 1.45rem;
+    right: -12px;
+    z-index: 30;
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background: var(--z-surface);
+    border: 1px solid var(--z-border);
+    color: var(--z-text-mute);
+    font-size: .6rem;
+    cursor: pointer;
+    box-shadow: 0 2px 6px -2px rgba(15, 23, 42, .25);
+    transition: background .15s ease, color .15s ease, border-color .15s ease;
+}
+.z-collapse-btn:hover {
+    background: var(--z-primary-soft);
+    border-color: color-mix(in srgb, var(--z-primary) 40%, var(--z-border));
+    color: var(--z-primary);
+}
+.z-collapse-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--z-focus);
+}
+.z-collapse-btn i { transition: transform .28s cubic-bezier(.4,0,.2,1); }
+html.sidebar-collapsed .z-collapse-btn i { transform: rotate(180deg); }
+
+@media (min-width: 1024px) {
+    html.sidebar-collapsed .z-sidebar { width: 76px; }
+
+    /* Ocultar todas las etiquetas de texto */
+    html.sidebar-collapsed .z-sidebar__logo .flex.flex-col,
+    html.sidebar-collapsed .z-sidebar__home span,
+    html.sidebar-collapsed .z-nav-link span,
+    html.sidebar-collapsed .z-group__header span,
+    html.sidebar-collapsed .z-group__chevron,
+    html.sidebar-collapsed .z-user-card > .flex-1,
+    html.sidebar-collapsed .z-user-card > i {
+        display: none;
+    }
+
+    /* Centrar logo e iconos */
+    html.sidebar-collapsed .z-sidebar__logo { padding-inline: 0; }
+    html.sidebar-collapsed .z-sidebar__logo a { justify-content: center; gap: 0; }
+    html.sidebar-collapsed .z-sidebar__home,
+    html.sidebar-collapsed .z-nav-link {
+        justify-content: center;
+        gap: 0;
+        padding-left: .5rem;
+        padding-right: .5rem;
+    }
+    html.sidebar-collapsed .z-nav-link:hover,
+    html.sidebar-collapsed .z-nav-link.is-active { padding-left: .5rem; }
+    html.sidebar-collapsed .z-nav-link.is-active::before { left: -.5rem; }
+
+    /* Grupos: siempre abiertos; cabecera se vuelve un divisor */
+    html.sidebar-collapsed .z-group { margin-top: .5rem; }
+    html.sidebar-collapsed .z-group__header {
+        justify-content: center;
+        padding: .25rem .5rem;
+        cursor: default;
+    }
+    html.sidebar-collapsed .z-group__items { max-height: none !important; opacity: 1 !important; }
+
+    /* Footer / tarjeta de usuario centrada */
+    html.sidebar-collapsed .z-sidebar__footer { padding: .6rem .5rem; }
+    html.sidebar-collapsed .z-sidebar__footer .z-dropdown { display: flex; justify-content: center; }
+    html.sidebar-collapsed .z-user-card { justify-content: center; gap: 0; padding: .5rem; }
+    /* El menú del usuario se abre como flyout a la derecha del rail */
+    html.sidebar-collapsed .z-sidebar__footer .z-dropdown__menu[data-placement="top-right"] {
+        left: calc(100% + 8px);
+        right: auto;
+        bottom: 0;
+        top: auto;
+        transform: translateX(-6px);
+    }
+    html.sidebar-collapsed .z-sidebar__footer .z-dropdown.is-open > .z-dropdown__menu {
+        transform: translateX(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .z-sidebar, .z-collapse-btn i, .z-scroll-fade { transition: none; }
+}
+
+@media (max-width: 1023px) {
+    .z-mobile-btn { display: inline-flex; }
+    .z-collapse-btn { display: none; }
+    .z-sidebar {
+        position: fixed;
+        z-index: 50;
+        transform: translateX(-100%);
+    }
+    .z-sidebar.is-open {
+        transform: translateX(0);
+        box-shadow: 0 0 0 100vw rgba(9, 1, 1, .4), 16px 0 48px -8px rgba(0, 0, 0, .35);
+    }
+    .z-shell::before {
+        content: '';
+        display: none;
+        position: fixed; inset: 0;
+        background: rgba(15, 23, 42, .5);
+        backdrop-filter: blur(2px);
+        z-index: 45;
+    }
+    .z-shell.is-overlay::before { display: block; }
+}
+

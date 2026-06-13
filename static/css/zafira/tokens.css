@@ -1,0 +1,69 @@
+:root {
+    color-scheme: light dark;
+    --z-bg:           #f6f8fb;
+    --z-bg-2:         #ffffff;
+    --z-bg-3:         #f8f4ff;
+    --z-surface:      #ffffff;
+    --z-surface-2:    #f8fafc;
+    --z-surface-3:    #f1f5f9;
+    --z-surface-hover:#fff4fb;
+    --z-border:       #e2e8f0;
+    --z-border-soft:  #eef2f7;
+    --z-text:         #0f172a;
+    --z-text-soft:    #475569;
+    --z-text-mute:    #64748b;
+    --z-primary:      #e617a6;
+    --z-primary-2:    #7c3aed;
+    --z-primary-soft: #ffe5f6;
+    --z-focus:        rgba(230, 23, 166, .22);
+    --z-badge-off-bg: #f1f5f9;
+    --z-badge-off-fg: #475569;
+    --z-dropdown-shadow: 0 12px 32px -8px rgba(15, 23, 42, .15);
+    --z-card-shadow: 0 1px 2px rgba(15, 23, 42, .05), 0 16px 32px -28px rgba(15, 23, 42, .38);
+    --z-card-shadow-hover: 0 18px 40px -28px rgba(15, 23, 42, .42);
+    accent-color: var(--z-primary);
+    scrollbar-color: #cbd5e1 #f8fafc;
+    scrollbar-width: thin;
+    --z-scroll-thumb:       #cdd5e1;
+    --z-scroll-thumb-hover: color-mix(in srgb, var(--z-primary) 45%, #cdd5e1);
+}
+html.dark {
+    color-scheme: dark;
+    --z-bg:           #0b1020;
+    --z-bg-2:         #101827;
+    --z-bg-3:         #171024;
+    --z-surface:      #111827;
+    --z-surface-2:    #172033;
+    --z-surface-3:    #202a3d;
+    --z-surface-hover:#1f293d;
+    --z-border:       #2b3548;
+    --z-border-soft:  #243047;
+    --z-text:         #f8fafc;
+    --z-text-soft:    #cbd5e1;
+    --z-text-mute:    #94a3b8;
+    --z-primary:      #ff6acb;
+    --z-primary-2:    #a78bfa;
+    --z-primary-soft: rgba(255, 106, 203, .14);
+    --z-focus:        rgba(255, 106, 203, .24);
+    --z-badge-off-bg: #263246;
+    --z-badge-off-fg: #cbd5e1;
+    --z-dropdown-shadow: 0 12px 32px -8px rgba(0, 0, 0, .6);
+    --z-card-shadow: 0 1px 0 rgba(255, 255, 255, .03), 0 18px 44px -30px rgba(0, 0, 0, .88);
+    --z-card-shadow-hover: 0 24px 54px -30px rgba(0, 0, 0, .92);
+    scrollbar-color: #475569 #111827;
+    --z-scroll-thumb:       #39435a;
+    --z-scroll-thumb-hover: color-mix(in srgb, var(--z-primary) 50%, #39435a);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--z-bg);
+    color: var(--z-text);
+    min-height: 100vh;
+}
+
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: 3px solid var(--z-focus);
+    outline-offset: 2px;
+}
