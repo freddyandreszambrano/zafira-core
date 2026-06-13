@@ -54,7 +54,7 @@ jobs:
         run: isort --check-only core/ config/
 
       - name: Flake8
-        run: flake8 core/ config/ --max-line-length=100 --extend-ignore=E203,W503
+        run: flake8 core/ config/
 
   docker:
     name: Docker build
