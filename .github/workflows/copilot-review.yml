@@ -1,0 +1,27 @@
+name: Copilot PR Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  review:
+    name: Request Copilot review
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+
+    steps:
+      - name: Request GitHub Copilot as reviewer
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: |
+          if gh pr edit "$PR_URL" --add-reviewer copilot; then
+            echo "Copilot review requested."
+          else
+            echo "::warning::Could not request Copilot review. Confirm Copilot code review is enabled for this repository/account."
+          fi

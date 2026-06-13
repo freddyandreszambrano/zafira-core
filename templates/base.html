@@ -1283,7 +1283,49 @@
         html.dark .z-icon-btn--danger:hover { background: rgba(220, 38, 38, .18); color: #fca5a5; }
 
         .dataTables_empty { padding: 3rem 1.25rem !important; text-align: center !important; color: var(--z-text-mute) !important; font-size: .9rem !important; }
-        .dataTables_processing { background: color-mix(in srgb, var(--z-surface) 85%, transparent) !important; border: 0 !important; box-shadow: none !important; color: #FF3BBE !important; font-weight: 500 !important; }
+        .dataTables_processing {
+            position: absolute !important;
+            inset: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: var(--z-surface) !important;
+            border: 0 !important;
+            box-shadow: none !important;
+            transform: none !important;
+            z-index: 6 !important;
+        }
+        .overflow-x-auto.z-loading { position: relative; min-height: 20rem; }
+        .z-skel { display: flex; flex-direction: column; }
+        .z-skel__row {
+            display: grid;
+            grid-template-columns: repeat(var(--z-cols, 4), minmax(0, 1fr));
+            gap: 1.5rem;
+            align-items: center;
+            padding: 1.05rem 1.1rem;
+            border-bottom: 1px solid var(--z-border);
+        }
+        .z-skel__bar {
+            height: .85rem;
+            width: 70%;
+            border-radius: .55rem;
+            background: linear-gradient(90deg,
+                color-mix(in srgb, var(--z-text) 8%, var(--z-surface)) 25%,
+                color-mix(in srgb, var(--z-text) 16%, var(--z-surface)) 37%,
+                color-mix(in srgb, var(--z-text) 8%, var(--z-surface)) 63%);
+            background-size: 400% 100%;
+            animation: z-shimmer 1.4s ease-in-out infinite;
+        }
+        .z-skel__row .z-skel__bar:first-child { width: 85%; }
+        .z-skel__row .z-skel__bar:last-child { width: 42%; justify-self: center; }
+        @keyframes z-shimmer {
+            0%   { background-position: 100% 0; }
+            100% { background-position: -100% 0; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .z-skel__bar { animation: none; }
+        }
 
         .swal2-popup.z-swal {
             border: 1px solid var(--z-border);
@@ -1633,6 +1675,9 @@
                     defaultOrder: [],
                 }, options);
 
+                const skelRow = `<div class="z-skel__row">${'<span class="z-skel__bar"></span>'.repeat(columns.length)}</div>`;
+                const skeletonHTML = `<div class="z-skel" style="--z-cols:${columns.length}" aria-hidden="true">${skelRow.repeat(Math.min(opts.pageSize, 6))}</div>`;
+
                 const $tbl = $(selector);
                 $.fn.dataTable.ext.errMode = 'none';
                 const tbl = $tbl.DataTable({
@@ -1641,7 +1686,7 @@
                     pageLength: opts.pageSize,
                     order: opts.defaultOrder,
                     language: {
-                        processing: '<i class="fas fa-spinner fa-spin mr-2"></i>Cargando...',
+                        processing: skeletonHTML,
                         zeroRecords: 'Sin resultados',
                         emptyTable: '<i class="fas fa-inbox text-3xl mb-2 block opacity-40"></i><div>No hay registros para mostrar</div>',
                         info: 'Mostrando _START_ a _END_ de _TOTAL_',
@@ -1674,6 +1719,11 @@
                         },
                     },
                     columns: columns,
+                });
+
+                const $scroll = $tbl.closest('.overflow-x-auto');
+                tbl.on('processing.dt', function (e, settings, processing) {
+                    $scroll.toggleClass('z-loading', processing).attr('aria-busy', processing ? 'true' : 'false');
                 });
 
                 const $searchInput = $(`[data-table-search="${selector}"]`);

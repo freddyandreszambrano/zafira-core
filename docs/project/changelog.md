@@ -13,7 +13,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y 
 - Cursor IDE rules (`.cursor/rules/project.mdc`)
 - GitHub Actions CI (`.github/workflows/ci.yml`)
 - Docker stack (`deploy/docker/Dockerfile`, `deploy/docker/docker-compose.yml`, `.dockerignore`)
-- AI PR reviewer (`scripts/pr_review/`)
+- GitHub Copilot PR review workflow and repository instructions (`.github/copilot-instructions.md`)
 
 ### Changed
 - `CLAUDE.md` ahora es symlink a `AGENTS.md` (dedupe del manual de IA)
