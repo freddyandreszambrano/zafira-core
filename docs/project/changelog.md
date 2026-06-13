@@ -11,7 +11,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y 
 - Linters unificados en `pyproject.toml` (black, isort, ruff, pytest)
 - Pre-commit hooks (`.pre-commit-config.yaml`)
 - Cursor IDE rules (`.cursor/rules/project.mdc`)
-- GitHub Actions CI (`.github/workflows/ci.yml`)
+- GitHub Actions separados por responsabilidad (`code-quality`, `django-tests`, `docker-build`)
 - Docker stack (`deploy/docker/Dockerfile`, `deploy/docker/docker-compose.yml`, `.dockerignore`)
 - GitHub Copilot PR review workflow and repository instructions (`.github/copilot-instructions.md`)
 

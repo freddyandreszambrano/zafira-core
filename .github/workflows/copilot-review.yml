@@ -20,8 +20,14 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           PR_URL: ${{ github.event.pull_request.html_url }}
         run: |
-          if gh pr edit "$PR_URL" --add-reviewer copilot; then
-            echo "Copilot review requested."
-          else
-            echo "::warning::Could not request Copilot review. Confirm Copilot code review is enabled for this repository/account."
-          fi
+          for attempt in 1 2 3; do
+            if gh pr edit "$PR_URL" --add-reviewer @copilot; then
+              echo "Copilot review requested."
+              exit 0
+            fi
+
+            echo "Copilot review request failed on attempt ${attempt}; retrying..."
+            sleep 10
+          done
+
+          echo "::warning::Could not request Copilot review. Confirm Copilot code review is enabled for this repository/account."
