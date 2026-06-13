@@ -231,28 +231,42 @@ last_tag: ## Lista las últimas tags por entorno: make last_tag env=develop|main
 .PHONY: tag
 tag: last_tag ## Crea y pushea la siguiente tag por entorno: make tag env=develop|main
 	@echo "Creando nuevo tag para entorno: $(env)"
-	@last_tag=$$(git tag -l "$(env)-v*" --sort=-creatordate | head -n 1); \
-	if [ -z "$$last_tag" ]; then \
-		new_tag="$(env)-v0.0.1"; \
+	@remote_tag=$$(git ls-remote --tags origin "$(env)-v*" | sed -E "s#.*refs/tags/($(env)-v[0-9]+\.[0-9]+\.[0-9]+).*#\1#" | sort -V | tail -n 1); \
+	local_tag=$$(git tag -l "$(env)-v*" | sort -V | tail -n 1); \
+	if [ -n "$$local_tag" ] && [ "$$local_tag" != "$$remote_tag" ]; then \
+		new_tag="$$local_tag"; \
 	else \
-		version=$$(echo $$last_tag | sed -E "s/$(env)-v//"); \
-		major=$$(echo $$version | cut -d. -f1); \
-		minor=$$(echo $$version | cut -d. -f2); \
-		patch=$$(echo $$version | cut -d. -f3); \
-		if [ "$$patch" -lt 99 ]; then \
-			new_patch=$$(($$patch + 1)); \
-		else \
-			new_patch=0; \
-			if [ "$$minor" -lt 99 ]; then \
-				new_minor=$$(($$minor + 1)); \
-			else \
-				new_minor=0; \
-				major=$$(($$major + 1)); \
-			fi; \
-			minor=$${new_minor:-$$minor}; \
+		last_tag="$$remote_tag"; \
+		if [ -z "$$last_tag" ]; then \
+			last_tag="$$local_tag"; \
 		fi; \
-		new_tag="$(env)-v$$major.$$minor.$$new_patch"; \
+		if [ -z "$$last_tag" ]; then \
+			new_tag="$(env)-v0.0.1"; \
+		else \
+			version=$$(echo $$last_tag | sed -E "s/$(env)-v//"); \
+			major=$$(echo $$version | cut -d. -f1); \
+			minor=$$(echo $$version | cut -d. -f2); \
+			patch=$$(echo $$version | cut -d. -f3); \
+			if [ "$$patch" -lt 99 ]; then \
+				new_patch=$$(($$patch + 1)); \
+			else \
+				new_patch=0; \
+				if [ "$$minor" -lt 99 ]; then \
+					new_minor=$$(($$minor + 1)); \
+				else \
+					new_minor=0; \
+					major=$$(($$major + 1)); \
+				fi; \
+				minor=$${new_minor:-$$minor}; \
+			fi; \
+			new_tag="$(env)-v$$major.$$minor.$$new_patch"; \
+		fi; \
 	fi; \
 	echo "Nuevo tag: $$new_tag"; \
-	git tag -a $$new_tag -m "version $$new_tag"; \
+	read -p "Presiona Enter para confirmar o Ctrl+C para cancelar..."; \
+	if git rev-parse "$$new_tag" >/dev/null 2>&1; then \
+		echo "La tag $$new_tag ya existe localmente. Se intentará pushearla."; \
+	else \
+		git tag -a $$new_tag -m "version $$new_tag"; \
+	fi; \
 	git push origin $$new_tag
