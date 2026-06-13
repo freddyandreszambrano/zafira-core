@@ -263,7 +263,8 @@ tag: last_tag ## Crea y pushea la siguiente tag por entorno: make tag env=develo
 		fi; \
 	fi; \
 	echo "Nuevo tag: $$new_tag"; \
-	read -p "Presiona Enter para confirmar o Ctrl+C para cancelar..."; \
+	printf "Presiona Enter para confirmar o Ctrl+C para cancelar..."; \
+	read _confirm; \
 	if git rev-parse "$$new_tag" >/dev/null 2>&1; then \
 		echo "La tag $$new_tag ya existe localmente. Se intentará pushearla."; \
 	else \
