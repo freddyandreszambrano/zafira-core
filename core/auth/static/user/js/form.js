@@ -1,56 +1,60 @@
-let fv;
-
-function uniqueRemote(field) {
-    return {
-        url: pathname,
-        data: () => ({
-            [field]: fv.form.querySelector(`[name="${field}"]`).value,
-            pattern: field,
-            action: 'validate_data',
-        }),
-        message: 'Ya se encuentra registrado',
-        method: 'POST',
-        headers: { 'X-CSRFToken': csrftoken },
-    };
-}
-
 document.addEventListener('DOMContentLoaded', function () {
-    fv = FormValidation.formValidation(document.getElementById('frmForm'), {
-        locale: 'es_ES',
-        localization: FormValidation.locales.es_ES,
-        plugins: {
-            trigger: new FormValidation.plugins.Trigger(),
-            submitButton: new FormValidation.plugins.SubmitButton(),
-            bootstrap: new FormValidation.plugins.Bootstrap(),
-            icon: new FormValidation.plugins.Icon({
-                valid: 'fa fa-check',
-                invalid: 'fa fa-times',
-                validating: 'fa fa-refresh',
-            }),
-        },
-        fields: {
-            username: {
-                validators: {
-                    notEmpty: { message: 'Ingrese un usuario' },
-                    stringLength: { min: 3 },
-                    remote: uniqueRemote('username'),
-                },
+    new JustValidate('#frmForm', {
+        errorFieldCssClass: 'is-invalid',
+        errorLabelCssClass: 'invalid-feedback',
+        focusInvalidField: true,
+    })
+        .addField('[name="username"]', [
+            { rule: 'required', errorMessage: 'Ingrese un usuario' },
+            { rule: 'minLength', value: 3, errorMessage: 'El usuario debe tener al menos 3 caracteres' },
+            {
+                validator: (value) => () =>
+                    value
+                        ? fetch(pathname, {
+                              method: 'POST',
+                              headers: { 'X-CSRFToken': csrftoken },
+                              body: new URLSearchParams({ username: value, pattern: 'username', action: 'validate_data' }),
+                          })
+                              .then((r) => r.json())
+                              .then((d) => Boolean(d.valid))
+                        : Promise.resolve(true),
+                errorMessage: 'Ya se encuentra registrado',
             },
-            email: {
-                validators: {
-                    notEmpty: { message: 'Ingrese un correo' },
-                    emailAddress: { message: 'Ingrese un correo válido' },
-                    remote: uniqueRemote('email'),
-                },
+        ])
+        .addField('[name="email"]', [
+            { rule: 'required', errorMessage: 'Ingrese un correo' },
+            { rule: 'email', errorMessage: 'Ingrese un correo válido' },
+            {
+                validator: (value) => () =>
+                    value
+                        ? fetch(pathname, {
+                              method: 'POST',
+                              headers: { 'X-CSRFToken': csrftoken },
+                              body: new URLSearchParams({ email: value, pattern: 'email', action: 'validate_data' }),
+                          })
+                              .then((r) => r.json())
+                              .then((d) => Boolean(d.valid))
+                        : Promise.resolve(true),
+                errorMessage: 'Ya se encuentra registrado',
             },
-            dni: {
-                validators: {
-                    notEmpty: { message: 'Ingrese la cédula' },
-                    remote: uniqueRemote('dni'),
-                },
+        ])
+        .addField('[name="dni"]', [
+            { rule: 'required', errorMessage: 'Ingrese la cédula' },
+            {
+                validator: (value) => () =>
+                    value
+                        ? fetch(pathname, {
+                              method: 'POST',
+                              headers: { 'X-CSRFToken': csrftoken },
+                              body: new URLSearchParams({ dni: value, pattern: 'dni', action: 'validate_data' }),
+                          })
+                              .then((r) => r.json())
+                              .then((d) => Boolean(d.valid))
+                        : Promise.resolve(true),
+                errorMessage: 'Ya se encuentra registrado',
             },
-        },
-    }).on('core.form.valid', function () {
-        submit_formdata_with_ajax_form(fv);
-    });
+        ])
+        .onSuccess(function (event) {
+            submit_formdata_with_ajax_form(event.target);
+        });
 });

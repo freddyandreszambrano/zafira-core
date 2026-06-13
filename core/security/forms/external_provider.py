@@ -29,6 +29,9 @@ class ExternalProviderForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["client_secret"].required = False
 
-    def clean_client_secret(self):
-        value = (self.cleaned_data.get("client_secret") or "").strip()
-        return value or secrets.token_urlsafe(32)
+    def clean(self):
+        cleaned_data = super().clean()
+        client_secret = (cleaned_data.get("client_secret") or "").strip()
+        if not client_secret:
+            cleaned_data["client_secret"] = secrets.token_urlsafe(32)
+        return cleaned_data

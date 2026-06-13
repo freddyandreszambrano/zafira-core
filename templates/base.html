@@ -56,7 +56,6 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{% static 'lib/datatables-1.13.7/css/jquery.dataTables.min.css' %}">
-    <link rel="stylesheet" href="{% static 'lib/formvalidation-1.9.0/css/formValidation.min.css' %}">
     <link rel="stylesheet" href="{% static 'lib/sweetalert2-11.26.24/css/sweetalert2.min.css' %}">
 
     <style>
@@ -204,25 +203,15 @@
             box-shadow: 0 0 0 3px var(--z-focus);
         }
         .z-field[aria-invalid="true"],
-        .z-field.is-invalid,
-        .fv-plugins-bootstrap .is-invalid {
+        .z-field.is-invalid {
             border-color: #ef4444 !important;
         }
-        .fv-plugins-message-container,
         .invalid-feedback {
             margin-top: .35rem;
             color: #dc2626;
             font-size: .78rem;
             line-height: 1.35;
         }
-        .fv-plugins-icon {
-            color: var(--z-text-mute);
-            right: .75rem;
-            top: 2.35rem;
-        }
-        .fv-plugins-icon.fa-check { color: #10b981; }
-        .fv-plugins-icon.fa-times { color: #ef4444; }
-        .fv-plugins-icon.fa-refresh { color: var(--z-primary); }
         .z-form-card {
             background: var(--z-surface);
             border: 1px solid var(--z-border);
@@ -1508,9 +1497,8 @@
 
     <script src="{% static 'lib/jquery-3.7.1/jquery.min.js' %}"></script>
     <script src="{% static 'lib/datatables-1.13.7/js/jquery.dataTables.min.js' %}"></script>
-    <script src="{% static 'lib/formvalidation-1.9.0/js/FormValidation.full.min.js' %}"></script>
-    <script src="{% static 'lib/formvalidation-1.9.0/js/locales/es_ES.min.js' %}"></script>
     <script src="{% static 'lib/sweetalert2-11.26.24/js/sweetalert2.all.min.js' %}"></script>
+    <script src="{% static 'lib/just-validate-4.3.0/just-validate.production.min.js' %}"></script>
 
     <script>
         const csrftoken = '{{ csrf_token }}';
@@ -1577,8 +1565,8 @@
             }
         }
 
-        async function submit_formdata_with_ajax_form(fv) {
-            const form = fv.form;
+        async function submit_formdata_with_ajax_form(target) {
+            const form = target.tagName === 'FORM' ? target : target.form;
             const submitButton = form.querySelector('[type="submit"]');
             zafira_set_button_loading(submitButton, true);
             const formData = new FormData(form);
