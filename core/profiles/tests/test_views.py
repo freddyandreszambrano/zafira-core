@@ -5,11 +5,6 @@ from core.auth.models import User
 from core.profiles.models import MobileProfile
 
 
-class UserProfileViewSetTests(TestCase):
-    def test_placeholder(self):
-        self.assertTrue(True)
-
-
 class MobileProfileViewTests(TestCase):
     def setUp(self):
         self.admin = User.objects.create_superuser(

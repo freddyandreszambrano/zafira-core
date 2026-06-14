@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Mi Perfil - ZAFIRA{% endblock %}
 {% block topbar_crumb %}Cuenta{% endblock %}
@@ -23,7 +24,7 @@
             </a>
         </div>
 
-        <div class="z-card" style="overflow:hidden">
+        <div class="z-card z-profile-card">
             <div class="z-profile-hero">
                 <span class="z-avatar z-profile-hero__avatar">
                     {{ user.first_name|default:user.username|slice:":1"|upper }}{{ user.last_name|slice:":1"|upper }}
@@ -31,7 +32,7 @@
                 <div class="z-profile-hero__info">
                     <h2 class="z-profile-hero__name">{{ user.get_full_name|default:user.username }}</h2>
                     <p class="z-profile-hero__email">{{ user.email }}</p>
-                    <div class="z-chip-list" style="margin-top:.6rem">
+                    <div class="z-chip-list z-profile-chip-list">
                         {% if user.is_superuser %}
                             <span class="z-badge z-badge--on"><span class="z-badge__dot"></span>Administrador</span>
                         {% elif user.is_staff %}
@@ -72,7 +73,7 @@
                             <dd>{{ user.last_password_change_at|date:"d/m/Y"|default:"Sin registro" }}</dd>
                         </div>
                     </dl>
-                    <div style="margin-top:1rem">
+                    <div class="z-profile-security-action">
                         <a href="{% url 'password_change' %}" class="z-btn-ghost">
                             <i class="fas fa-key"></i>
                             <span>Cambiar contraseña</span>
@@ -87,44 +88,5 @@
 {% endblock %}
 
 {% block extra_css %}
-<style>
-    .z-profile-hero {
-        display: flex;
-        align-items: center;
-        gap: 1.25rem;
-        padding: 1.75rem 1.75rem 1.5rem;
-        border-bottom: 1px solid var(--z-border);
-        background: linear-gradient(135deg, var(--z-primary-soft) 0%, color-mix(in srgb, var(--z-primary-2) 8%, transparent) 100%);
-    }
-    .z-profile-hero__avatar { width: 3.5rem; height: 3.5rem; font-size: .95rem; flex-shrink: 0; }
-    .z-profile-hero__name { font-size: 1.25rem; font-weight: 800; color: var(--z-text); }
-    .z-profile-hero__email { font-size: .85rem; color: var(--z-text-soft); margin-top: .2rem; }
-    .z-profile-body {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 0;
-    }
-    .z-profile-section {
-        padding: 1.5rem 1.75rem;
-    }
-    .z-profile-section + .z-profile-section {
-        border-left: 1px solid var(--z-border);
-    }
-    .z-profile-section__title {
-        display: flex;
-        align-items: center;
-        gap: .5rem;
-        font-size: .72rem;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: .08em;
-        color: var(--z-primary);
-        margin-bottom: 1rem;
-    }
-    @media (max-width: 640px) {
-        .z-profile-body { grid-template-columns: 1fr; }
-        .z-profile-section + .z-profile-section { border-left: 0; border-top: 1px solid var(--z-border); }
-        .z-profile-hero { flex-direction: column; text-align: center; }
-    }
-</style>
+    <link rel="stylesheet" href="{% static 'profile/css/view.css' %}">
 {% endblock %}

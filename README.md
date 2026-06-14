@@ -86,12 +86,6 @@ POST   /api/auth/users/reset_password_confirm/  → Confirmar reset
 
 ### Perfiles
 ```
-GET    /api/profiles/me/                        → Mi perfil
-PUT    /api/profiles/me_update/                 → Actualizar mi perfil
-GET    /api/profiles/                           → Listar todos los perfiles
-GET    /api/profiles/{id}/                      → Obtener perfil
-PUT    /api/profiles/{id}/                      → Actualizar perfil
-DELETE /api/profiles/{id}/                      → Eliminar perfil
 ```
 
 ---
