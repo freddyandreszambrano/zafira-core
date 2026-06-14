@@ -7,9 +7,9 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView, DeleteView, TemplateView, UpdateView
 
 from core.auth.forms import RegisterForm
-from core.user.forms import EditUserForm
 from core.auth.models import User
 from core.security.mixins import PermissionMixin
+from core.user.forms import EditUserForm
 
 
 class UserListView(PermissionMixin, TemplateView):

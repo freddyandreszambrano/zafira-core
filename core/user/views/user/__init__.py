@@ -1,4 +1,4 @@
-from .profile import ProfileEditView, ProfileManageView, ProfileView, PasswordChangeView
+from .profile import PasswordChangeView, ProfileEditView, ProfileManageView, ProfileView
 from .users import UserCreateView, UserDeleteView, UserListView, UserUpdateView
 
 __all__ = [

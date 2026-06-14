@@ -2,7 +2,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from core.auth.models import User
-
 from core.utils.enums import UserTypeChoices
 
 from .models import MobileProfile, UserProfile
