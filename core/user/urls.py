@@ -1,33 +1,17 @@
 from django.urls import path, include
 
-from .views import (
-    IndexRedirectView,
-    LoginView,
-    LogoutView,
-    RegisterView,
-)
-from core.user.views import (
-    DashboardView,
-    PasswordChangeView,
-    ProfileEditView,
-    ProfileManageView,
-    ProfileView,
-    UserCreateView,
-    UserDeleteView,
-    UserListView,
-    UserUpdateView,
-)
+from views import DashboardView, UserListView, UserCreateView, UserUpdateView, UserDeleteView, ProfileView, \
+    ProfileEditView, ProfileManageView, PasswordChangeView
 
 urlpatterns = [
-    path("", IndexRedirectView.as_view(), name="index"),
-    path("login/", LoginView.as_view(), name="login"),
-    path("register/", RegisterView.as_view(), name="register"),
-    path("logout/", LogoutView.as_view(), name="logout"),
+    # Dashboard
     path("dashboard/", DashboardView.as_view(), name="dashboard"),
+    # User
     path("user/", UserListView.as_view(), name="user_list"),
     path("user/create/", UserCreateView.as_view(), name="user_create"),
     path("user/update/<int:pk>/", UserUpdateView.as_view(), name="user_update"),
     path("user/delete/<int:pk>/", UserDeleteView.as_view(), name="user_delete"),
+    # Profile
     path("profile/", ProfileView.as_view(), name="profile"),
     path("profile/edit/", ProfileEditView.as_view(), name="profile_edit"),
     path("profile/manage/", ProfileManageView.as_view(), name="profile_manage"),

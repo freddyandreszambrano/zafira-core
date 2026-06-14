@@ -2,8 +2,8 @@ from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from .models import UserProfile
-from .serializers import (
+from core.profiles.models import UserProfile
+from core.profiles.serializers import (
     UserProfileListSerializer,
     UserProfileSerializer,
     UserProfileUpdateSerializer,

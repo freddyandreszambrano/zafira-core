@@ -48,6 +48,8 @@ typing-extensions==4.15.0
     # via beautifulsoup4
 urllib3==2.7.0
     # via requests
+ua-parser==1.0.2
+    # via -r requirements/base.in
 
 psycopg2-binary==2.9.9
 

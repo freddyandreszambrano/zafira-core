@@ -6,7 +6,8 @@ from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import TemplateView, UpdateView
 
-from core.auth.forms import PasswordChangeForm, ProfileUpdateForm
+from core.auth.forms import PasswordChangeForm
+from core.user.forms import ProfileUpdateForm
 from core.common.choices import Department
 
 

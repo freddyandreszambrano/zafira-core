@@ -1,4 +1,8 @@
 from .auth import *
-from .dashboard import *
-from .profile import *
-from .users import *
+
+__all__ = [
+    "IndexRedirectView",
+    "LoginView",
+    "RegisterView",
+    "LogoutView",
+]

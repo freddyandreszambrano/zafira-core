@@ -16,6 +16,7 @@ from datetime import timedelta
 from pathlib import Path
 
 from dotenv import load_dotenv
+from pytz import timezone
 
 from config import db
 
@@ -60,6 +61,7 @@ INSTALLED_APPS = [
     "core.auth.apps.AuthConfig",
     "core.profiles.apps.ProfilesConfig",
     "core.scraper.apps.ScraperConfig",
+    "core.user.apps.UserConfig",
 ]
 
 MIDDLEWARE = [
@@ -151,6 +153,10 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
+
+TIME_ZONE = 'America/Guayaquil'
+
+ECUADOR_TZ = timezone(TIME_ZONE)
 
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"

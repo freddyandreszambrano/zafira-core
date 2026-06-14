@@ -192,8 +192,79 @@ freeze: ## Vuelca dependencias instaladas (debug) a requirements/_freeze.txt
 secret-key: ## Genera un SECRET_KEY de Django
 	@$(PYTHON) -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
 
+start_project:
+	if [ "$(environment)" == "local" ]; then \
+		make run_command; \
+	else \
+		printf "Please, run the command in the local environment\n"; \
+	fi
+
+
+run_command:
+	#make delete_migrations
+	if [ "$(is_psql)" == "1" ]; then \
+		make kill_session; \
+		make delete_create_database; \
+		make delete_create_schema; \
+	fi
+	make update_database
+	if [ "$(is_initial)" == "1" ]; then \
+		make insert-data; \
+	fi
+	if [ "$(is_reindex)" == "1" ]; then \
+		make reindex_database; \
+	fi
+	if [ "$(is_backup)" == "1" ]; then \
+		make load_backup file="data"; \
+	fi
 
 # 🐳 Docker
+
+load_backup: # file="user"
+	if [ "$(is_docker_monolith)" == "1" ]; then \
+		docker exec -it $(project_name)-monolith python manage.py loaddata backup/$(file).json; \
+	else \
+		python manage.py loaddata backup/$(file).json; \
+	fi
+
+
+reindex_database:
+	if [ "$(db_remote)" == "1" ]; then \
+		psql -h $(db_host) -U $(db_user) -d $(db_name) -c "delete from $(db_schema).auth_permission; ALTER SEQUENCE $(db_schema).auth_permission_id_seq RESTART WITH 1; delete from $(db_schema).django_content_type; ALTER SEQUENCE $(db_schema).django_content_type_id_seq RESTART WITH 1;"; \
+	elif [ "$(is_psql)" == "1" ]; then \
+		docker exec $(postgres) psql -U $(db_user) -d $(db_name) -c "delete from $(db_schema).auth_permission; ALTER SEQUENCE $(db_schema).auth_permission_id_seq RESTART WITH 1; delete from $(db_schema).django_content_type; ALTER SEQUENCE $(db_schema).django_content_type_id_seq RESTART WITH 1;"; \
+	else \
+		sqlite3 db.sqlite3 "delete from auth_permission; delete from sqlite_sequence where name='auth_permission'; delete from django_content_type; delete from sqlite_sequence where name='django_content_type';"; \
+	fi
+
+
+delete_create_schema:
+	if [ "$(is_docker_postgres)" == "1" ]; then \
+  		docker exec -it $(postgres) psql -U $(db_user) -d $(db_name) -c "DROP SCHEMA IF EXISTS $(db_schema) CASCADE; CREATE SCHEMA $(db_schema);"; \
+  	elif [ "$(db_remote)" == "1" ]; then \
+  	    psql -h $(db_host) -p $(db_port) -U $(db_user) -d $(db_name) -c "DROP SCHEMA IF EXISTS $(db_schema) CASCADE; CREATE SCHEMA $(db_schema);"; \
+  	else \
+  	    psql -U $(db_user) -d $(db_name) -c "DROP SCHEMA IF EXISTS $(db_schema) CASCADE; CREATE SCHEMA $(db_schema);"; \
+  	fi
+
+delete_create_database:
+	if [ "$(is_docker_postgres)" == "1" ]; then \
+  		docker exec -it $(postgres) psql -U $(db_user) -d postgres -c "DROP DATABASE IF EXISTS $(db_name);" -c "CREATE DATABASE $(db_name);"; \
+  	elif [ "$(db_remote)" == "1" ]; then \
+  	    psql -h $(db_host) -p $(db_port) -U $(db_user) -d postgres -c "DROP DATABASE IF EXISTS $(db_name);" -c "CREATE DATABASE $(db_name)"; \
+  	else \
+  	    psql -U $(db_user) -d postgres -c "DROP DATABASE IF EXISTS $(db_name);" -c "CREATE DATABASE $(db_name)"; \
+  	fi
+
+kill_session:
+	if [ "$(is_docker_postgres)" == "1" ]; then \
+		docker exec $(postgres) psql -U $(db_user) -d $(db_name) -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE  pid <> pg_backend_pid() AND datname = '$(db_name)';"; \
+	elif [ "$(db_remote)" == "1" ]; then \
+		psql -h $(db_host) -p $(db_port) -U $(db_user) -d $(db_name) -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE  pid <> pg_backend_pid() AND datname = '$(db_name)';"; \
+	else \
+		psql -U $(db_user) -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE  pid <> pg_backend_pid() AND datname = '$(db_name)';"; \
+	fi
+
 .PHONY: docker-build
 docker-build: ## Construye la imagen Docker
 	$(COMPOSE) build
