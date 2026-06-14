@@ -46,7 +46,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='userprofile',
             name='employee_id',
-            field=models.TextField(blank=True, unique=True, verbose_name='ID de empleado'),
+            field=models.TextField(blank=True, null=True, unique=True, verbose_name='ID de empleado'),
         ),
         migrations.AlterField(
             model_name='userprofile',

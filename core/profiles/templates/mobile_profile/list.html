@@ -1,0 +1,16 @@
+{% extends 'list.html' %}
+{% load static %}
+
+{% block columns %}
+    <th>Usuario</th>
+    <th>Correo</th>
+    <th>Tipo</th>
+    <th>Genero</th>
+    <th>Talla</th>
+    <th>Pais</th>
+    <th class="text-center">Acciones</th>
+{% endblock %}
+
+{% block head_list %}
+    <script src="{% static 'mobile_profile/js/list.js' %}"></script>
+{% endblock %}

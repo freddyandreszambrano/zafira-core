@@ -70,6 +70,16 @@ MODULES = [
         "order": 1,
     },
     {
+        "type": "Usuarios",
+        "name": "Perfiles mobile",
+        "url": "/mobile-profile/",
+        "icon": "fas fa-mobile-screen-button",
+        "description": "Consulta de perfiles mobile registrados desde la app",
+        "permits_app": "profiles",
+        "permits_model": "mobileprofile",
+        "order": 2,
+    },
+    {
         "type": "Cuenta",
         "name": "Mi perfil",
         "url": "/profile/",

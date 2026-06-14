@@ -31,7 +31,12 @@ class UserProfile(models.Model):
         related_name="subordinates",
         verbose_name="Gerente/Supervisor",
     )
-    employee_id = models.TextField(blank=True, unique=True, verbose_name="ID de empleado")
+    employee_id = models.TextField(
+        null=True,
+        blank=True,
+        unique=True,
+        verbose_name="ID de empleado",
+    )
 
     hire_date = models.DateField(null=True, blank=True, verbose_name="Fecha de contratacion")
     bio = models.TextField(blank=True, verbose_name="Biografia")
