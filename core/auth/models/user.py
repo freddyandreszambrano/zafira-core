@@ -106,6 +106,17 @@ class User(AbstractBaseUser, PermissionsMixin):
             "date_joined": self.date_joined.strftime("%Y-%m-%d %H:%M"),
         }
 
+    def to_json_api(self):
+        return {
+            "id": self.id,
+            "username": self.username,
+            "email": self.email,
+            "dni": self.dni,
+            "full_name": self.get_full_name(),
+            "user_type": self.user_type,
+            "token": self.get_or_create_token().replace("Token ", ""),
+        }
+
     @staticmethod
     def generate_token():
         return str(uuid.uuid4())
