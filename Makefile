@@ -290,6 +290,20 @@ docker-shell: ## Abre bash dentro del servicio web
 docker-clean: ## ⚠️ Baja stack Docker y borra volúmenes
 	$(COMPOSE) down -v
 
+# 🌿 Celery (local)
+.PHONY: celery
+celery: ## Inicia el worker de Celery + beat embebido (requiere Redis: make redis-local)
+	$(PYTHON) -m celery -A core worker -B --concurrency=1 --loglevel=info
+
+.PHONY: flower
+flower: ## Inicia el panel Flower de Celery en http://localhost:5555
+	$(PYTHON) -m celery -A core flower --port=5555
+
+.PHONY: redis-local
+redis-local: ## Levanta un Redis local en Docker como broker de Celery
+	docker run --rm -p 6379:6379 --name zafira-redis redis:7-alpine
+
+
 .PHONY: last_tag
 last_tag: ## Lista las últimas tags por entorno: make last_tag env=develop|main
 	@if [ "$(env)" != "develop" ] && [ "$(env)" != "main" ]; then \

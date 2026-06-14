@@ -59,6 +59,8 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "crum",
     "widget_tweaks",
+    "django_celery_beat",
+    "anymail",
     # Local apps
     "core.common.apps.CommonConfig",
     "core.security.apps.SecurityConfig",
@@ -174,6 +176,20 @@ STORAGES = {
     },
 }
 
+# Celery
+# https://docs.celeryq.dev/en/stable/django/first-steps-with-django.html
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/0")
+CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", CELERY_BROKER_URL)
+CELERY_ACCEPT_CONTENT = ["application/json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_TASK_ALWAYS_EAGER = os.getenv("CELERY_TASK_ALWAYS_EAGER", "False").lower() == "true"
+CELERY_BROKER_HEARTBEAT = 0
+CELERY_WORKER_HIJACK_ROOT_LOGGER = False
+CELERY_TASK_SEND_SENT_EVENT = True
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -243,14 +259,15 @@ CORS_ALLOWED_ORIGINS = os.getenv(
 
 CORS_ALLOW_CREDENTIALS = True
 
-# Email Configuration
-EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend")
-EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")
-EMAIL_PORT = int(os.getenv("EMAIL_PORT", 587))
-EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True").lower() == "true"
-EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
-EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
-DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "noreply@zafira.com")
+# Email (Resend vía django-anymail)
+# Django sigue usando su sistema nativo de correo (send_mail / EmailMultiAlternatives);
+# el backend real es Resend.
+EMAIL_BACKEND = "anymail.backends.resend.EmailBackend"
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
+
+ANYMAIL = {
+    "RESEND_API_KEY": os.getenv("RESEND_API_KEY", ""),
+}
 
 # Password Reset Token Expiry (in seconds)
 PASSWORD_RESET_TIMEOUT = int(os.getenv("PASSWORD_RESET_TIMEOUT", 24)) * 3600

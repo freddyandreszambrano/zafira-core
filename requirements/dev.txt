@@ -1,31 +1,93 @@
+amqp==5.3.1
+    # via
+    #   -r requirements/base.txt
+    #   kombu
+annotated-types==0.7.0
+    # via
+    #   -r requirements/base.txt
+    #   pydantic
+anyio==4.13.0
+    # via
+    #   -r requirements/base.txt
+    #   httpx
 asgiref==3.11.1
     # via
     #   -r requirements/base.txt
     #   django
+attrs==26.1.0
+    # via
+    #   -r requirements/base.txt
+    #   standardwebhooks
+    #   svix
 beautifulsoup4==4.15.0
     # via -r requirements/base.txt
+billiard==4.2.4
+    # via
+    #   -r requirements/base.txt
+    #   celery
 black==23.12.1
     # via -r requirements/dev.in
+celery==5.3.6
+    # via
+    #   -r requirements/base.txt
+    #   django-celery-beat
+    #   flower
 certifi==2026.5.20
     # via
     #   -r requirements/base.txt
+    #   httpcore
+    #   httpx
     #   requests
 charset-normalizer==3.4.7
     # via
     #   -r requirements/base.txt
     #   requests
 click==8.4.1
-    # via black
+    # via
+    #   -r requirements/base.txt
+    #   black
+    #   celery
+    #   click-didyoumean
+    #   click-plugins
+    #   click-repl
+click-didyoumean==0.3.1
+    # via
+    #   -r requirements/base.txt
+    #   celery
+click-plugins==1.1.1.2
+    # via
+    #   -r requirements/base.txt
+    #   celery
+click-repl==0.3.0
+    # via
+    #   -r requirements/base.txt
+    #   celery
+cron-descriptor==1.4.5
+    # via
+    #   -r requirements/base.txt
+    #   django-celery-beat
+deprecated==1.3.1
+    # via
+    #   -r requirements/base.txt
+    #   standardwebhooks
+    #   svix
 django==5.2.14
     # via
     #   -r requirements/base.txt
+    #   django-anymail
+    #   django-celery-beat
     #   django-cors-headers
     #   django-crum
     #   django-debug-toolbar
     #   django-extensions
+    #   django-timezone-field
     #   django-widget-tweaks
     #   djangorestframework
     #   djangorestframework-simplejwt
+django-anymail==15.0
+    # via -r requirements/base.txt
+django-celery-beat==2.9.0
+    # via -r requirements/base.txt
 django-cors-headers==4.0.0
     # via -r requirements/base.txt
 django-crum==0.7.9
@@ -36,6 +98,10 @@ django-environ==0.11.2
     # via -r requirements/base.txt
 django-extensions==3.2.3
     # via -r requirements/dev.in
+django-timezone-field==7.2.2
+    # via
+    #   -r requirements/base.txt
+    #   django-celery-beat
 django-widget-tweaks==1.5.1
     # via -r requirements/base.txt
 djangorestframework==3.14.0
@@ -46,21 +112,49 @@ djangorestframework-simplejwt==5.3.0
     # via -r requirements/base.txt
 flake8==6.1.0
     # via -r requirements/dev.in
+flower==2.0.1
+    # via -r requirements/base.txt
+h11==0.16.0
+    # via
+    #   -r requirements/base.txt
+    #   httpcore
+httpcore==1.0.9
+    # via
+    #   -r requirements/base.txt
+    #   httpx
+httpx==0.28.1
+    # via
+    #   -r requirements/base.txt
+    #   standardwebhooks
+    #   svix
+humanize==4.15.0
+    # via
+    #   -r requirements/base.txt
+    #   flower
 idna==3.18
     # via
     #   -r requirements/base.txt
+    #   anyio
+    #   django-anymail
+    #   httpx
     #   requests
 iniconfig==2.3.0
     # via pytest
 isort==5.13.2
     # via -r requirements/dev.in
+kombu==5.6.2
+    # via
+    #   -r requirements/base.txt
+    #   celery
 mccabe==0.7.0
     # via flake8
 mypy-extensions==1.1.0
     # via black
 packaging==26.2
     # via
+    #   -r requirements/base.txt
     #   black
+    #   kombu
     #   pytest
 pathspec==1.1.1
     # via black
@@ -70,8 +164,24 @@ platformdirs==4.10.0
     # via black
 pluggy==1.6.0
     # via pytest
+prometheus-client==0.25.0
+    # via
+    #   -r requirements/base.txt
+    #   flower
+prompt-toolkit==3.0.52
+    # via
+    #   -r requirements/base.txt
+    #   click-repl
 pycodestyle==2.11.1
     # via flake8
+pydantic==2.13.4
+    # via
+    #   -r requirements/base.txt
+    #   svix
+pydantic-core==2.46.4
+    # via
+    #   -r requirements/base.txt
+    #   pydantic
 pyflakes==3.1.0
     # via flake8
 pyjwt==2.13.0
@@ -84,14 +194,33 @@ pytest==7.4.3
     #   pytest-django
 pytest-django==4.7.0
     # via -r requirements/dev.in
+python-crontab==3.3.0
+    # via
+    #   -r requirements/base.txt
+    #   django-celery-beat
+python-dateutil==2.9.0.post0
+    # via
+    #   -r requirements/base.txt
+    #   celery
+    #   standardwebhooks
+    #   svix
 python-dotenv==1.0.0
     # via -r requirements/base.txt
 pytz==2026.2
     # via
     #   -r requirements/base.txt
     #   djangorestframework
-requests==2.34.2
+    #   flower
+redis==5.0.1
     # via -r requirements/base.txt
+requests==2.34.2
+    # via
+    #   -r requirements/base.txt
+    #   django-anymail
+six==1.17.0
+    # via
+    #   -r requirements/base.txt
+    #   python-dateutil
 soupsieve==2.8.4
     # via
     #   -r requirements/base.txt
@@ -101,11 +230,64 @@ sqlparse==0.5.5
     #   -r requirements/base.txt
     #   django
     #   django-debug-toolbar
+standardwebhooks==1.0.1
+    # via
+    #   -r requirements/base.txt
+    #   svix
+svix==1.95.2
+    # via -r requirements/base.txt
+tornado==6.5.7
+    # via
+    #   -r requirements/base.txt
+    #   flower
+types-deprecated==1.3.1.20260520
+    # via
+    #   -r requirements/base.txt
+    #   standardwebhooks
+types-python-dateutil==2.9.0.20260518
+    # via
+    #   -r requirements/base.txt
+    #   standardwebhooks
 typing-extensions==4.15.0
     # via
     #   -r requirements/base.txt
+    #   anyio
     #   beautifulsoup4
+    #   pydantic
+    #   pydantic-core
+    #   typing-inspection
+typing-inspection==0.4.2
+    # via
+    #   -r requirements/base.txt
+    #   pydantic
+tzdata==2026.2
+    # via
+    #   -r requirements/base.txt
+    #   celery
+    #   django-celery-beat
+    #   kombu
+ua-parser==1.0.2
+    # via -r requirements/base.txt
+ua-parser-builtins==202606
+    # via
+    #   -r requirements/base.txt
+    #   ua-parser
 urllib3==2.7.0
     # via
     #   -r requirements/base.txt
+    #   django-anymail
     #   requests
+vine==5.1.0
+    # via
+    #   -r requirements/base.txt
+    #   amqp
+    #   celery
+    #   kombu
+wcwidth==0.8.1
+    # via
+    #   -r requirements/base.txt
+    #   prompt-toolkit
+wrapt==2.2.1
+    # via
+    #   -r requirements/base.txt
+    #   deprecated
