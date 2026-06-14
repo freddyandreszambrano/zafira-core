@@ -50,6 +50,16 @@ class User(AbstractBaseUser, PermissionsMixin):
         default=False, verbose_name="Cambio de contrasena requerido"
     )
     email_reset_token = models.TextField(null=True, blank=True)
+    email_reset_expires_at = models.DateTimeField(null=True, blank=True)
+    password_reset_pending = models.BooleanField(
+        default=False, verbose_name="Restablecimiento de contrasena pendiente"
+    )
+    password_reset_count = models.PositiveIntegerField(
+        default=0, verbose_name="Veces que restablecio la contrasena"
+    )
+    last_password_reset_at = models.DateTimeField(
+        null=True, blank=True, verbose_name="Ultimo restablecimiento de contrasena"
+    )
     token_notification = models.TextField(null=True, blank=True)
     security_groups = models.ManyToManyField(
         "security.Group",

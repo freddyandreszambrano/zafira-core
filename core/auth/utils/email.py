@@ -15,6 +15,19 @@ def send_password_reset_email(email, user_name, reset_link):
     send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email], fail_silently=False)
 
 
+def send_password_reset_code_email(email, user_name, code):
+    subject = "Codigo para restablecer tu contrasena - ZAFIRA"
+    message = (
+        f"Hola {user_name},\n\n"
+        f"Tu codigo para restablecer la contrasena es: {code}\n\n"
+        f"Ingresalo en la app para crear una nueva contrasena. "
+        f"El codigo expira en 15 minutos.\n\n"
+        f"Si no realizaste esta solicitud, puedes ignorar este mensaje.\n\n"
+        f"Saludos,\nEl equipo de ZAFIRA"
+    )
+    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email], fail_silently=False)
+
+
 def send_welcome_email(email, user_name, temporary_password=None):
     subject = "Bienvenido a ZAFIRA"
     password_line = f"Contraseña temporal: {temporary_password}\n" if temporary_password else ""
