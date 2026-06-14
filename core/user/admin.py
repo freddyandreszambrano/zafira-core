@@ -67,7 +67,14 @@ class UserAdmin(BaseUserAdmin):
         "date_joined",
         "last_login",
     )
-    list_filter = ("user_type", "is_active", "is_staff", "is_superuser", "date_joined", "last_login")
+    list_filter = (
+        "user_type",
+        "is_active",
+        "is_staff",
+        "is_superuser",
+        "date_joined",
+        "last_login",
+    )
     search_fields = ("username", "email", "dni", "first_name", "last_name")
     ordering = ("-date_joined",)
     readonly_fields = ("date_joined", "last_login", "last_password_change_at")

@@ -43,7 +43,10 @@ class PasswordResetRequestApiView(APIView):
         email = serializer.validated_data["email"]
         # Respuesta genérica: no revelamos si el correo existe o no.
         generic = {
-            "message": "Si el correo está registrado, te enviamos un código para restablecer tu contraseña."
+            "message": (
+                "Si el correo está registrado, te enviamos un código para "
+                "restablecer tu contraseña."
+            )
         }
 
         user = User.objects.filter(email__iexact=email).first()

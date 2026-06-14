@@ -1,6 +1,6 @@
 from django.urls import path, include
 
-from .views import (IndexRedirectView, LoginView, LogoutView, RegisterView)
+from .views import IndexRedirectView, LoginView, LogoutView, RegisterView
 
 urlpatterns = [
     path("", IndexRedirectView.as_view(), name="index"),
@@ -9,6 +9,5 @@ urlpatterns = [
     path("register/", RegisterView.as_view(), name="register"),
     path("logout/", LogoutView.as_view(), name="logout"),
     # api_v1
-    path('api_v1/', include('core.auth.api.v1.urls')),
-
+    path("api_v1/", include("core.auth.api.v1.urls")),
 ]

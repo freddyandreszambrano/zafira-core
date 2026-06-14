@@ -14,8 +14,12 @@ class UserCreateSerializerInput(serializers.Serializer):
     first_name = serializers.CharField(required=False, allow_blank=True, default="")
     last_name = serializers.CharField(required=False, allow_blank=True, default="")
 
-    gender = serializers.ChoiceField(choices=GenderChoices.choices, required=False, allow_blank=True,
-                                     default=GenderChoices.UNDISCLOSED, )
+    gender = serializers.ChoiceField(
+        choices=GenderChoices.choices,
+        required=False,
+        allow_blank=True,
+        default=GenderChoices.UNDISCLOSED,
+    )
     date_of_birth = serializers.DateField(required=False, allow_null=True)
     preferred_size = serializers.CharField(required=False, allow_blank=True, default="")
     style_preferences = serializers.JSONField(required=False, default=dict)

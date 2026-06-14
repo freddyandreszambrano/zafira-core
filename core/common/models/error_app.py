@@ -28,15 +28,15 @@ class ErrorApp(models.Model):
 
     def to_json(self):
         item = model_to_dict(self)
-        item['date_joined'] = self.date_joined.astimezone(ECUADOR_TZ).strftime('%Y-%m-%d %H:%M:%S')
+        item["date_joined"] = self.date_joined.astimezone(ECUADOR_TZ).strftime("%Y-%m-%d %H:%M:%S")
         return item
 
     class Meta:
-        verbose_name = 'Error de aplicación'
-        verbose_name_plural = 'Errores de aplicaciones'
+        verbose_name = "Error de aplicación"
+        verbose_name_plural = "Errores de aplicaciones"
         default_permissions = ()
         permissions = (
-            ('view_errorapp', 'Can view Error de aplicación'),
-            ('delete_errorapp', 'Can delete Error de aplicación'),
+            ("view_errorapp", "Can view Error de aplicación"),
+            ("delete_errorapp", "Can delete Error de aplicación"),
         )
-        ordering = ['-id']
+        ordering = ["-id"]

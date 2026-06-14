@@ -160,7 +160,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-TIME_ZONE = 'America/Guayaquil'
+TIME_ZONE = "America/Guayaquil"
 
 ECUADOR_TZ = timezone(TIME_ZONE)
 

@@ -38,9 +38,7 @@ class MobileProfileListView(PermissionMixin, TemplateView):
                         Q.OR,
                     )
                 queryset = (
-                    MobileProfile.objects.select_related("user")
-                    .filter(query)
-                    .order_by("-id")
+                    MobileProfile.objects.select_related("user").filter(query).order_by("-id")
                 )
                 paginator = Paginator(queryset, page_size)
                 paginated = paginator.get_page(page)

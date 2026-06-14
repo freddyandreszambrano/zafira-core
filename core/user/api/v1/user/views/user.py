@@ -23,7 +23,7 @@ class UserCreateApiView(APIView):
 
         try:
             with transaction.atomic():
-                user = serializer.save()
+                serializer.save()
         except Exception as e:
             return save_error_api(request, e)
 

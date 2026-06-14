@@ -24,7 +24,9 @@ class CustomAuthTokenApiView(ObtainAuthToken):
                 if app_source in AuthApiZafira.app_sources:
                     AuthApiZafira(self.request).login(username)
                 else:
-                    return Response({"message": "Invalid app source"}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response(
+                        {"message": "Invalid app source"}, status=status.HTTP_400_BAD_REQUEST
+                    )
         except Exception as e:
             return save_error_api(self.request, e)
 
