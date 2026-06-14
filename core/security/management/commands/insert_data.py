@@ -9,6 +9,7 @@ from rest_framework.authtoken.models import Token
 
 from core.auth.models import User
 from core.security.models import Group, GroupModule, GroupPermission, Module, ModuleType
+from core.utils.enums import UserTypeChoices
 
 MODULE_TYPES = [
     {"name": "Seguridad", "icon": "fas fa-shield-alt", "order": 1},
@@ -67,6 +68,16 @@ MODULES = [
         "permits_app": "users",
         "permits_model": "user",
         "order": 1,
+    },
+    {
+        "type": "Usuarios",
+        "name": "Perfiles mobile",
+        "url": "/mobile-profile/",
+        "icon": "fas fa-mobile-screen-button",
+        "description": "Consulta de perfiles mobile registrados desde la app",
+        "permits_app": "profiles",
+        "permits_model": "mobileprofile",
+        "order": 2,
     },
     {
         "type": "Cuenta",
@@ -168,9 +179,13 @@ class Command(BaseCommand):
                 "is_active": True,
                 "is_superuser": True,
                 "is_staff": True,
+                "user_type": UserTypeChoices.ADMIN,
                 "dni": "".join(random.choices(string.digits, k=10)),
             },
         )
+        if user.user_type != UserTypeChoices.ADMIN:
+            user.user_type = UserTypeChoices.ADMIN
+            user.save(update_fields=["user_type"])
         if created:
             user.set_password("admin")
             user.save()

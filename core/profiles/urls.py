@@ -1,8 +1,12 @@
-from rest_framework.routers import SimpleRouter
+from django.urls import path
 
-from .views import UserProfileViewSet
+from core.profiles.views import MobileProfileDetailView, MobileProfileListView
 
-router = SimpleRouter()
-router.register(r"profiles", UserProfileViewSet, basename="profile")
-
-urlpatterns = list(router.urls)
+urlpatterns = [
+    path("mobile-profile/", MobileProfileListView.as_view(), name="mobile_profile_list"),
+    path(
+        "mobile-profile/detail/<int:pk>/",
+        MobileProfileDetailView.as_view(),
+        name="mobile_profile_detail",
+    ),
+]

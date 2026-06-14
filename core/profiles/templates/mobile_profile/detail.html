@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - ZAFIRA{% endblock %}
+
+{% block content %}
+<div class="z-page">
+    <div class="z-page-shell">
+        <div class="z-page-header">
+            <div>
+                <div class="z-page-eyebrow">
+                    <i class="fas fa-mobile-screen-button"></i>
+                    <span>Solo lectura</span>
+                </div>
+                <h1 class="z-page-title">{{ profile.user.get_full_name|default:profile.user.username }}</h1>
+                <p class="z-page-subtitle">Informacion del perfil mobile asociado a esta cuenta.</p>
+            </div>
+            <a href="{{ list_url }}" class="z-btn-ghost">
+                <i class="fas fa-arrow-left"></i>
+                <span>Volver</span>
+            </a>
+        </div>
+
+        <div class="z-table-card">
+            <div class="z-table-toolbar">
+                <div>
+                    <strong class="text-zafira-obsidian">{{ profile.user.username }}</strong>
+                    <p class="text-sm text-zafira-slate">{{ profile.user.email }}</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
+                <section>
+                    <h2 class="text-sm font-semibold text-zafira-obsidian mb-3">Cuenta</h2>
+                    <dl class="grid gap-3">
+                        <div>
+                            <dt class="text-xs uppercase text-zafira-slate">Cedula</dt>
+                            <dd class="text-sm text-zafira-obsidian">{{ profile.user.dni }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs uppercase text-zafira-slate">Tipo</dt>
+                            <dd class="text-sm text-zafira-obsidian">{{ profile.user.get_user_type_display }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs uppercase text-zafira-slate">Estado</dt>
+                            <dd class="text-sm text-zafira-obsidian">{{ profile.user.is_active|yesno:"Activo,Inactivo" }}</dd>
+                        </div>
+                    </dl>
+                </section>
+
+                <section>
+                    <h2 class="text-sm font-semibold text-zafira-obsidian mb-3">Mobile</h2>
+                    <dl class="grid gap-3">
+                        <div>
+                            <dt class="text-xs uppercase text-zafira-slate">Genero</dt>
+                            <dd class="text-sm text-zafira-obsidian">{{ profile.get_gender_display }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs uppercase text-zafira-slate">Fecha de nacimiento</dt>
+                            <dd class="text-sm text-zafira-obsidian">{{ profile.date_of_birth|default:"-" }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs uppercase text-zafira-slate">Talla preferida</dt>
+                            <dd class="text-sm text-zafira-obsidian">{{ profile.preferred_size|default:"-" }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs uppercase text-zafira-slate">Idioma / Pais</dt>
+                            <dd class="text-sm text-zafira-obsidian">{{ profile.language|default:"-" }} / {{ profile.country|default:"-" }}</dd>
+                        </div>
+                    </dl>
+                </section>
+            </div>
+
+            <div class="p-6 border-t border-zafira-border">
+                <h2 class="text-sm font-semibold text-zafira-obsidian mb-3">Preferencias de estilo</h2>
+                <pre class="overflow-x-auto rounded-lg bg-zafira-slate-soft/40 p-4 text-xs text-zafira-slate-deep">{{ style_preferences }}</pre>
+            </div>
+
+            <div class="p-6 border-t border-zafira-border">
+                <h2 class="text-sm font-semibold text-zafira-obsidian mb-3">Push token</h2>
+                <p class="break-all text-sm text-zafira-slate">{{ profile.push_token|default:"-" }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

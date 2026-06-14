@@ -4,6 +4,8 @@ from django.utils import timezone
 
 from rest_framework.authtoken.models import Token
 
+from core.utils.enums import UserTypeChoices
+
 UPDATABLE_FIELDS = ("first_name", "last_name", "email", "username")
 
 
@@ -23,6 +25,7 @@ class CustomUserManager(UserManager):
     def create_superuser(self, username, email=None, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
+        extra_fields.setdefault("user_type", UserTypeChoices.ADMIN)
 
         if extra_fields.get("is_staff") is not True:
             raise ValueError("Un superusuario debe tener is_staff=True.")

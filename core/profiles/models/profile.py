@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.db import models
 
-from core.common.choices import Department
+from core.utils.enums import DepartmentChoices, GenderChoices
 
 
 class UserProfile(models.Model):
@@ -12,23 +12,17 @@ class UserProfile(models.Model):
         verbose_name="Usuario",
     )
 
-    phone = models.CharField(max_length=20, blank=True, verbose_name="Número telefónico")
-    address = models.CharField(max_length=255, blank=True, verbose_name="Dirección")
-    city = models.CharField(max_length=100, blank=True, verbose_name="Ciudad")
-    country = models.CharField(
-        max_length=100,
-        blank=True,
-        default="Ecuador",
-        verbose_name="País",
-    )
+    phone = models.TextField(blank=True, verbose_name="Numero telefonico")
+    address = models.TextField(blank=True, verbose_name="Direccion")
+    city = models.TextField(blank=True, verbose_name="Ciudad")
+    country = models.TextField(blank=True, default="Ecuador", verbose_name="Pais")
 
-    department = models.CharField(
-        max_length=50,
-        choices=Department.choices,
-        default=Department.OTHER,
+    department = models.TextField(
+        choices=DepartmentChoices.choices,
+        default=DepartmentChoices.OTHER,
         verbose_name="Departamento",
     )
-    job_title = models.CharField(max_length=100, blank=True, verbose_name="Cargo")
+    job_title = models.TextField(blank=True, verbose_name="Cargo")
     manager = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -37,21 +31,19 @@ class UserProfile(models.Model):
         related_name="subordinates",
         verbose_name="Gerente/Supervisor",
     )
-    employee_id = models.CharField(
-        max_length=50,
+    employee_id = models.TextField(
+        null=True,
         blank=True,
         unique=True,
         verbose_name="ID de empleado",
     )
-    hire_date = models.DateField(null=True, blank=True, verbose_name="Fecha de contratación")
 
-    bio = models.TextField(blank=True, verbose_name="Biografía")
-    social_media = models.TextField(default=dict, blank=True, verbose_name="Redes sociales")
-
+    hire_date = models.DateField(null=True, blank=True, verbose_name="Fecha de contratacion")
+    bio = models.TextField(blank=True, verbose_name="Biografia")
+    social_media = models.JSONField(default=dict, blank=True, verbose_name="Redes sociales")
     is_verified = models.BooleanField(default=False, verbose_name="Verificado")
-
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de creación")
-    updated_at = models.DateTimeField(auto_now=True, verbose_name="Fecha de actualización")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de creacion")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Fecha de actualizacion")
 
     class Meta:
         verbose_name = "Perfil de Usuario"
@@ -71,3 +63,39 @@ class UserProfile(models.Model):
 
     def get_display_name(self):
         return self.user.get_full_name() or self.user.username
+
+
+class MobileProfile(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="mobile_profile",
+        verbose_name="Usuario",
+    )
+    gender = models.TextField(
+        choices=GenderChoices.choices,
+        default=GenderChoices.UNDISCLOSED,
+        blank=True,
+        verbose_name="Genero",
+    )
+    date_of_birth = models.DateField(null=True, blank=True, verbose_name="Fecha de nacimiento")
+    preferred_size = models.TextField(blank=True, verbose_name="Talla preferida")
+    style_preferences = models.JSONField(default=dict, blank=True, verbose_name="Preferencias")
+    language = models.TextField(default="es", blank=True, verbose_name="Idioma")
+    country = models.TextField(blank=True, default="Ecuador", verbose_name="Pais")
+    push_token = models.TextField(blank=True, verbose_name="Token push")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de creacion")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Fecha de actualizacion")
+
+    class Meta:
+        verbose_name = "Perfil mobile"
+        verbose_name_plural = "Perfiles mobile"
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["user"]),
+            models.Index(fields=["country"]),
+            models.Index(fields=["language"]),
+        ]
+
+    def __str__(self):
+        return f"Perfil mobile de {self.user.get_full_name() or self.user.username}"

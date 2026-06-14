@@ -1,3 +1,14 @@
+x-django-env: &django-env
+  PSQL: 1
+  DB_NAME: ${POSTGRES_DB:-zafira}
+  DB_USER: ${POSTGRES_USER:-zafira}
+  DB_PASSWORD: ${POSTGRES_PASSWORD:-zafira}
+  DB_HOST: db
+  DB_PORT: 5432
+  DB_SCHEMA: public
+  CELERY_BROKER_URL: redis://redis:6379/0
+  CELERY_RESULT_BACKEND: redis://redis:6379/0
+
 services:
   db:
     image: postgres:16-alpine
@@ -16,23 +27,33 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:7-alpine
+    container_name: zafira_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   web:
     build:
       context: ../..
       dockerfile: deploy/docker/Dockerfile
+    image: zafira-core:local
     container_name: zafira_web
     env_file:
       - ../../.env
     environment:
-      PSQL: 1
-      DB_NAME: ${POSTGRES_DB:-zafira}
-      DB_USER: ${POSTGRES_USER:-zafira}
-      DB_PASSWORD: ${POSTGRES_PASSWORD:-zafira}
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_SCHEMA: public
+      <<: *django-env
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     ports:
       - "8000:8000"
@@ -44,7 +65,40 @@ services:
       - staticfiles:/app/staticfiles
       - media:/app/media
 
+  celery:
+    image: zafira-core:local
+    container_name: zafira_celery
+    env_file:
+      - ../../.env
+    environment:
+      <<: *django-env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      web:
+        condition: service_started
+    command: celery -A core worker -B --concurrency=1 --loglevel=info
+    volumes:
+      - media:/app/media
+
+  flower:
+    image: zafira-core:local
+    container_name: zafira_flower
+    env_file:
+      - ../../.env
+    environment:
+      <<: *django-env
+    depends_on:
+      - redis
+      - celery
+    command: celery -A core flower --port=5555
+    ports:
+      - "5555:5555"
+
 volumes:
   pgdata:
+  redisdata:
   staticfiles:
   media:

@@ -16,3 +16,15 @@ Pillow==10.1.0
 # ── Scraper ──────────────────────────────────────────────────────────────────
 requests>=2.31.0
 beautifulsoup4>=4.12.0
+
+# ── Logging / Analytics ──────────────────────────────────────────────────────
+ua-parser>=1.0.0
+
+# ── Tareas asíncronas (Celery) ───────────────────────────────────────────────
+celery==5.3.6
+redis==5.0.1
+django-celery-beat>=2.8.0
+flower==2.0.1
+
+# ── Correo (Resend vía Anymail) ──────────────────────────────────────────────
+django-anymail[resend]

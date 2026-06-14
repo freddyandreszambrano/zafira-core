@@ -1,9 +1,9 @@
 from django.test import SimpleTestCase
 
-from core.common.choices import Department, TextChoicesCustom
+from core.utils.enums import BaseTextChoices, DepartmentChoices
 
 
-class DemoChoices(TextChoicesCustom):
+class DemoChoices(BaseTextChoices):
     ALPHA = "a", "Alpha"
     BETA = "b", "Beta"
 
@@ -30,9 +30,9 @@ class TextChoicesCustomTests(SimpleTestCase):
 
 class DepartmentTests(SimpleTestCase):
     def test_choices_present(self):
-        values = {value for value, _ in Department.choices}
-        self.assertIn("HR", values)
-        self.assertIn("OTHER", values)
+        values = {value for value, _ in DepartmentChoices.choices}
+        self.assertIn("rrhh", values)
+        self.assertIn("otro", values)
 
     def test_default_label_in_spanish(self):
-        self.assertEqual(Department.get_label("HR"), "Recursos Humanos")
+        self.assertEqual(DepartmentChoices.get_label("rrhh"), "RECURSOS HUMANOS")

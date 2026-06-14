@@ -49,9 +49,10 @@ core/
 │   ├── static/user/js/  # list.js + form.js del User CRUD
 │   └── serializers/   # API REST (DRF) si se necesita
 │
-└── profiles/          # UserProfile (datos extendidos del usuario)
-    ├── models/        # UserProfile (usa Department de common.choices)
-    └── views.py       # UserProfileViewSet (DRF API REST)
+└── profiles/          # Perfiles extendidos de usuario
+    ├── models/        # UserProfile y MobileProfile
+    ├── views/         # vistas web de solo lectura / consulta
+    └── web_urls.py    # rutas web de perfiles
 
 templates/             # SOLO bases compartidos entre apps
 ├── base.html          # Layout: nav con módulos dinámicos, CDNs, helpers JS
