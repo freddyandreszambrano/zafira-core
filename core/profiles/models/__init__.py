@@ -1,3 +1,3 @@
-from .profile import UserProfile
+from .profile import MobileProfile, UserProfile
 
-__all__ = ["UserProfile"]
+__all__ = ["MobileProfile", "UserProfile"]

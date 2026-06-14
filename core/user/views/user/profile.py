@@ -8,7 +8,7 @@ from django.views.generic import TemplateView, UpdateView
 
 from core.auth.forms import PasswordChangeForm
 from core.user.forms import ProfileUpdateForm
-from core.common.choices import Department
+from core.utils.enums import DepartmentChoices
 
 
 class ProfileView(LoginRequiredMixin, TemplateView):
@@ -75,7 +75,7 @@ class ProfileManageView(LoginRequiredMixin, View):
         context = {
             "user": request.user,
             "profile": request.user.profile,
-            "departments": Department.choices,
+            "departments": DepartmentChoices.choices,
             "title": "Datos corporativos",
             "list_url": reverse_lazy("profile"),
         }

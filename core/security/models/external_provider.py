@@ -4,11 +4,9 @@ from django.db import models
 
 
 class ExternalProvider(models.Model):
-    name = models.CharField(max_length=100, unique=True, verbose_name="Nombre")
-    client_id = models.CharField(
-        max_length=100, unique=True, default=uuid.uuid4, verbose_name="Client ID"
-    )
-    client_secret = models.CharField(max_length=255, verbose_name="Client Secret")
+    name = models.TextField(unique=True, verbose_name="Nombre")
+    client_id = models.TextField(unique=True, default=uuid.uuid4, verbose_name="Client ID")
+    client_secret = models.TextField(verbose_name="Client Secret")
     is_active = models.BooleanField(default=True, verbose_name="Activo")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Creado")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Actualizado")

@@ -5,8 +5,8 @@ from .module import Module
 
 
 class Group(models.Model):
-    name = models.CharField(max_length=100, unique=True, verbose_name="Nombre")
-    description = models.TextField(blank=True, verbose_name="Descripción")
+    name = models.TextField(unique=True, verbose_name="Nombre")
+    description = models.TextField(blank=True, verbose_name="Descripcion")
     is_active = models.BooleanField(default=True, verbose_name="Activo")
     modules = models.ManyToManyField(
         Module,
@@ -43,12 +43,12 @@ class GroupModule(models.Model):
     module = models.ForeignKey(Module, on_delete=models.CASCADE, related_name="module_groups")
 
     class Meta:
-        verbose_name = "Grupo - Módulo"
-        verbose_name_plural = "Grupos - Módulos"
+        verbose_name = "Grupo - Modulo"
+        verbose_name_plural = "Grupos - Modulos"
         unique_together = ("group", "module")
 
     def __str__(self):
-        return f"{self.group.name} → {self.module.name}"
+        return f"{self.group.name} -> {self.module.name}"
 
 
 class GroupPermission(models.Model):
@@ -62,7 +62,7 @@ class GroupPermission(models.Model):
         unique_together = ("group", "module", "permission")
 
     def __str__(self):
-        return f"{self.group.name} → {self.permission.codename}"
+        return f"{self.group.name} -> {self.permission.codename}"
 
     def to_json_session(self):
         return {

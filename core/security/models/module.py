@@ -3,15 +3,15 @@ from django.db import models
 
 
 class ModuleType(models.Model):
-    name = models.CharField(max_length=100, unique=True, verbose_name="Nombre")
-    icon = models.CharField(max_length=100, blank=True, verbose_name="Icono")
-    description = models.CharField(max_length=255, blank=True, verbose_name="Descripción")
+    name = models.TextField(unique=True, verbose_name="Nombre")
+    icon = models.TextField(blank=True, verbose_name="Icono")
+    description = models.TextField(blank=True, verbose_name="Descripcion")
     is_active = models.BooleanField(default=True, verbose_name="Activo")
     order = models.PositiveIntegerField(default=0, verbose_name="Orden")
 
     class Meta:
-        verbose_name = "Tipo de módulo"
-        verbose_name_plural = "Tipos de módulos"
+        verbose_name = "Tipo de modulo"
+        verbose_name_plural = "Tipos de modulos"
         ordering = ["order", "name"]
 
     def __str__(self):
@@ -34,15 +34,15 @@ class Module(models.Model):
         null=True,
         blank=True,
         related_name="modules",
-        verbose_name="Tipo de módulo",
+        verbose_name="Tipo de modulo",
     )
-    name = models.CharField(max_length=100, verbose_name="Nombre")
-    url = models.CharField(max_length=255, unique=True, verbose_name="URL")
-    icon = models.CharField(max_length=100, blank=True, verbose_name="Icono")
-    description = models.TextField(blank=True, verbose_name="Descripción")
+    name = models.TextField(verbose_name="Nombre")
+    url = models.TextField(unique=True, verbose_name="URL")
+    icon = models.TextField(blank=True, verbose_name="Icono")
+    description = models.TextField(blank=True, verbose_name="Descripcion")
     is_active = models.BooleanField(default=True, verbose_name="Activo")
-    is_visible = models.BooleanField(default=True, verbose_name="Visible en menú")
-    is_vertical = models.BooleanField(default=False, verbose_name="Menú vertical")
+    is_visible = models.BooleanField(default=True, verbose_name="Visible en menu")
+    is_vertical = models.BooleanField(default=False, verbose_name="Menu vertical")
     order = models.PositiveIntegerField(default=0, verbose_name="Orden")
     permits = models.ManyToManyField(
         Permission,
@@ -52,8 +52,8 @@ class Module(models.Model):
     )
 
     class Meta:
-        verbose_name = "Módulo"
-        verbose_name_plural = "Módulos"
+        verbose_name = "Modulo"
+        verbose_name_plural = "Modulos"
         ordering = ["module_type__order", "order", "name"]
         indexes = [
             models.Index(fields=["url"]),

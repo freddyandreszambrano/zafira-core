@@ -10,9 +10,9 @@ class UserAdmin(BaseUserAdmin):
     fieldsets = (
         (None, {"fields": ("username", "password")}),
         (
-            _("Información Personal"),
+            _("Informacion Personal"),
             {
-                "fields": ("first_name", "last_name", "email", "dni", "image"),
+                "fields": ("first_name", "last_name", "email", "dni", "image", "user_type"),
             },
         ),
         (
@@ -48,6 +48,7 @@ class UserAdmin(BaseUserAdmin):
                     "dni",
                     "first_name",
                     "last_name",
+                    "user_type",
                     "password1",
                     "password2",
                 ),
@@ -59,13 +60,14 @@ class UserAdmin(BaseUserAdmin):
         "username",
         "email",
         "dni",
+        "user_type",
         "get_full_name",
         "is_active",
         "is_staff",
         "date_joined",
         "last_login",
     )
-    list_filter = ("is_active", "is_staff", "is_superuser", "date_joined", "last_login")
+    list_filter = ("user_type", "is_active", "is_staff", "is_superuser", "date_joined", "last_login")
     search_fields = ("username", "email", "dni", "first_name", "last_name")
     ordering = ("-date_joined",)
     readonly_fields = ("date_joined", "last_login", "last_password_change_at")
@@ -86,7 +88,7 @@ class UserAdmin(BaseUserAdmin):
         count = queryset.update(is_active=False)
         self.message_user(request, f"{count} usuario(s) desactivado(s).")
 
-    @admin.action(description="Marcar para cambio de contraseña")
+    @admin.action(description="Marcar para cambio de contrasena")
     def reset_password_flag(self, request, queryset):
         count = queryset.update(force_password_change=True)
-        self.message_user(request, f"{count} usuario(s) marcado(s) para cambio de contraseña.")
+        self.message_user(request, f"{count} usuario(s) marcado(s) para cambio de contrasena.")

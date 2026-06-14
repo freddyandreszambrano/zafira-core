@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from core.auth.models import User
 
-from .models import UserProfile
+from .models import MobileProfile, UserProfile
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -37,6 +37,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 class UserWithProfileSerializer(serializers.ModelSerializer):
     profile = UserProfileSerializer()
+    mobile_profile = serializers.SerializerMethodField()
     image = serializers.SerializerMethodField()
     full_name = serializers.SerializerMethodField()
 
@@ -50,10 +51,12 @@ class UserWithProfileSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "full_name",
+            "user_type",
             "image",
             "is_active",
             "date_joined",
             "profile",
+            "mobile_profile",
         ]
         read_only_fields = ["id", "date_joined"]
 
@@ -62,6 +65,31 @@ class UserWithProfileSerializer(serializers.ModelSerializer):
 
     def get_full_name(self, obj):
         return obj.get_full_name()
+
+    def get_mobile_profile(self, obj):
+        if not hasattr(obj, "mobile_profile"):
+            return None
+        return MobileProfileSerializer(obj.mobile_profile).data
+
+
+class MobileProfileSerializer(serializers.ModelSerializer):
+    gender_display = serializers.CharField(source="get_gender_display", read_only=True)
+
+    class Meta:
+        model = MobileProfile
+        fields = [
+            "gender",
+            "gender_display",
+            "date_of_birth",
+            "preferred_size",
+            "style_preferences",
+            "language",
+            "country",
+            "push_token",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ["created_at", "updated_at"]
 
 
 class UserProfileUpdateSerializer(serializers.ModelSerializer):

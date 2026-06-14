@@ -19,7 +19,16 @@ class ProfileUpdateForm(forms.ModelForm):
 class EditUserForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ["username", "email", "dni", "first_name", "last_name", "is_active", "is_staff"]
+        fields = [
+            "username",
+            "email",
+            "dni",
+            "first_name",
+            "last_name",
+            "user_type",
+            "is_active",
+            "is_staff",
+        ]
         widgets = {
             "username": text_input(),
             "email": email_input(),
