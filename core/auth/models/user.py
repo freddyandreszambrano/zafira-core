@@ -1,12 +1,14 @@
 import uuid
 from secrets import compare_digest
 
-from crum import get_current_request
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.core.validators import EmailValidator
 from django.db import models
 from django.utils import timezone
+
 from rest_framework.authtoken.models import Token
+
+from crum import get_current_request
 
 from core.utils.enums import UserTypeChoices
 

@@ -1,4 +1,3 @@
-from core.auth.models import User
-from core.auth.models import CustomUserManager
+from core.auth.models import CustomUserManager, User
 
 __all__ = ["User", "CustomUserManager"]
