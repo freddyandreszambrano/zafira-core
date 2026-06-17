@@ -259,26 +259,28 @@ CORS_ALLOWED_ORIGINS = os.getenv(
 
 CORS_ALLOW_CREDENTIALS = True
 
-# Email (Resend vía django-anymail)
-# Django sigue usando su sistema nativo de correo (send_mail / EmailMultiAlternatives);
-# el backend real es Resend.
-# Email SMTP Gmail
-EMAIL_BACKEND = os.getenv(
-    "EMAIL_BACKEND",
-    "django.core.mail.backends.smtp.EmailBackend",
-)
+# Email — proveedor: gmail (default) | resend
+EMAIL_PROVIDER = os.getenv("EMAIL_PROVIDER", "gmail").strip().lower()
 
+if EMAIL_PROVIDER == "resend":
+    EMAIL_BACKEND = "anymail.backends.resend.EmailBackend"
+else:
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+
+# Gmail SMTP
 EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")
 EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
 EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True").lower() == "true"
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
-DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER)
 
-# Mantener Anymail instalado no afecta si se usa SMTP
+# Resend
 ANYMAIL = {
     "RESEND_API_KEY": os.getenv("RESEND_API_KEY", ""),
 }
+
+# Gmail: cae a EMAIL_HOST_USER · Resend: dominio verificado
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL") or EMAIL_HOST_USER
 
 # Password Reset Token Expiry (in seconds)
 PASSWORD_RESET_TIMEOUT = int(os.getenv("PASSWORD_RESET_TIMEOUT", 24)) * 3600
