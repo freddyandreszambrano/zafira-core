@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.db import transaction
 
 from rest_framework import status
@@ -26,9 +27,27 @@ class CustomAuthTokenApiView(ObtainAuthToken):
                     AuthApiZafira(self.request).login(username)
                 else:
                     return Response(
-                        {"message": "Invalid app source"}, status=status.HTTP_400_BAD_REQUEST
+                        {"message": "Invalid app source"},
+                        status=status.HTTP_400_BAD_REQUEST,
                     )
+
         except Exception as e:
             return save_error_api(self.request, e)
 
-        return super().post(self.request, *args, **kwargs)
+        response = super().post(self.request, *args, **kwargs)
+
+        User = get_user_model()
+        user = User.objects.filter(username=username).first()
+
+        if user is not None:
+            response.data["user"] = {
+                "id": user.id,
+                "username": user.username,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "email": user.email,
+                "dni": getattr(user, "dni", ""),
+                "image": user.image.url if getattr(user, "image", None) else "",
+            }
+
+        return response
