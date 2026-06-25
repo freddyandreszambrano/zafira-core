@@ -1,9 +1,11 @@
+import concurrent.futures
 import sys
 from typing import Dict, List, Optional
 from urllib.parse import urljoin
 
 import requests
 from bs4 import BeautifulSoup
+from playwright.sync_api import sync_playwright
 
 from core.scraper import parsers
 from core.scraper.base import BaseAdapter
@@ -16,12 +18,58 @@ class ModarmAdapter(BaseAdapter):
     TIMEOUT = 10
     USER_AGENT = "Mozilla/5.0 (ZAFIRA-CORE-Scraper/1.0; +http://localhost)"
 
+    def __init__(self):
+        self._playwright = None
+        self._browser = None
+        # Playwright (sync API) no puede correr dentro del hilo principal de
+        # Django si este ya tiene un event loop activo. Se ejecuta siempre
+        # en un hilo dedicado para evitar el error "cannot be called from
+        # an async context".
+        self._executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+
+    def _get_browser(self):
+        """Lanza Chromium headless una sola vez y lo reutiliza para todas
+        las verificaciones de stock durante este scrape."""
+        if self._browser is None:
+            self._playwright = sync_playwright().start()
+            self._browser = self._playwright.chromium.launch(headless=True)
+        return self._browser
+
+    def _close_browser(self):
+        if self._browser:
+            self._browser.close()
+            self._browser = None
+        if self._playwright:
+            self._playwright.stop()
+            self._playwright = None
+
+    def close(self):
+        """Cierra el navegador headless. Debe llamarse al terminar el scrape."""
+        try:
+            self._executor.submit(self._close_browser).result()
+        finally:
+            self._executor.shutdown(wait=True)
+
     CATEGORIES = [
-        {"name": "Mujeres", "path": "/es_RW/MUJERES/MODA-MUJER/"},
-        {"name": "Hombres", "path": "/es_RW/HOMBRES/MODA-HOMBRE/"},
-        {"name": "Infantil", "path": "/es_RW/INFANTIL/MODA-INFANTIL/"},
-        {"name": "Calzado", "path": "/es_RW/CALZADO/CALZADO-GENERAL/"},
-        {"name": "Accesorios", "path": "/es_RW/ACCESORIOS/ACCESORIOS-GENERAL/"},
+        {"name": "Mujer - Vestidos", "path": "/FALDAS-Y-VESTIDOS/c/10105230299"},
+        {"name": "Mujer - Blusas", "path": "/BLUSAS/c/10105230099"},
+        {"name": "Mujer - Pantalones", "path": "/JEANS-Y-PANTALONES/c/10105230399"},
+        {"name": "Mujer - Chaquetas", "path": "/BLAZERS-Y-CONJUNTOS/c/10105229999"},
+        {"name": "Hombre - Camisas", "path": "/CAMISAS/c/10202815899"},
+        {"name": "Hombre - Camisetas", "path": "/CAMISETAS-Y-POLOS/c/10202815999"},
+        {"name": "Hombre - Pantalones", "path": "/JEANS-Y-PANTALONES/c/10202816299"},
+        {"name": "Hombre - Shorts", "path": "/SHORTS-Y-BERMUDAS/c/10202816399"},
+        {"name": "Hombre - Chaquetas", "path": "/CHAQUETAS-Y-ABRIGOS/c/10202816099"},
+    ]
+
+    COLOR_KEYWORDS = [
+        "Verde Oliva", "Azul Marino", "Azul Indigo", "Gris Jaspe",
+        "Rosa Palo", "Vino Tinto", "Blanco Roto",
+        "Negro", "Blanco", "Azul", "Rojo", "Verde", "Amarillo",
+        "Rosado", "Rosa", "Gris", "Cafe", "Café", "Beige", "Camel",
+        "Morado", "Lila", "Naranja", "Celeste", "Turquesa", "Dorado",
+        "Plateado", "Vino", "Mostaza", "Oliva", "Crudo", "Marfil",
+        "Coral", "Fucsia", "Khaki", "Caqui", "Lavanda",
     ]
 
     def get_categories(self) -> List[Dict]:
@@ -125,7 +173,8 @@ class ModarmAdapter(BaseAdapter):
             result["category"] = self._extract_category(soup)
             result["price"] = self._extract_price(soup)
             result["price_old"] = self._extract_price_old(soup)
-            result["sizes"] = self._extract_sizes(soup)
+            size_options = self._extract_size_options(soup)
+            result["sizes"] = self._check_sizes_availability(size_options)
             result["colors"] = self._extract_colors(soup)
             result["description"] = self._extract_description(soup)
             result["image_urls"] = self._extract_images(soup)
@@ -283,75 +332,161 @@ class ModarmAdapter(BaseAdapter):
 
         return None
 
-    def _extract_sizes(self, soup) -> List[str]:
+    def _extract_size_options(self, soup) -> List[Dict]:
         """
-        Extrae tallas disponibles.
+        Extrae las tallas que la prenda maneja, junto con la URL propia
+        de cada talla (necesaria para verificar su stock real).
 
-        Busca: <select> con name='size', <div> con clase 'size-options', etc.
+        Busca: <select> con name='size', <div> con clase 'size-options',
+        o el selector de variantes <select id="priority1">.
         """
-        sizes = []
+        options = []
 
         if soup is None:
-            return sizes
+            return options
 
         size_select = soup.find("select", {"name": "size"})
         if size_select:
-            options = size_select.find_all("option")
-            for opt in options:
-                size = opt.get_text(strip=True)
-                if size and size.lower() != "select":
-                    sizes.append(size)
-            return sizes
+            for opt in size_select.find_all("option"):
+                label = opt.get_text(strip=True)
+                if label and label.lower() != "select":
+                    options.append({"label": label, "url": None})
+            return options
 
         size_options = soup.find("div", class_="size-options")
         if size_options:
-            buttons = size_options.find_all(["button", "span"])
-            for btn in buttons:
-                size = btn.get_text(strip=True)
-                if size:
-                    sizes.append(size)
-            return sizes
+            for btn in size_options.find_all(["button", "span"]):
+                label = btn.get_text(strip=True)
+                if label:
+                    options.append({"label": label, "url": None})
+            return options
 
         variant_select = soup.find("select", id="priority1")
         if variant_select:
             for opt in variant_select.find_all("option"):
-                size = opt.get_text(strip=True)
-                if size:
-                    sizes.append(size)
-            return sizes
+                label = opt.get_text(strip=True)
+                href = opt.get("value")
+                if label:
+                    options.append({"label": label, "url": href})
+            return options
 
-        return sizes
+        return options
+
+    def _check_sizes_availability(self, size_options: List[Dict]) -> List[str]:
+        """
+        Verifica con un navegador real (Chromium headless) qué tallas
+        tienen stock real, ya que el sitio resuelve esto con JavaScript
+        y no aparece en el HTML estático.
+
+        Se ejecuta en el hilo dedicado de Playwright (ver __init__).
+        """
+        if not size_options:
+            return []
+
+        try:
+            return self._executor.submit(
+                self._check_sizes_availability_sync, size_options
+            ).result()
+        except Exception as e:
+            print(f"No se pudo verificar stock de tallas: {e}", file=sys.stderr)
+            return [option["label"] for option in size_options]
+
+    def _check_sizes_availability_sync(self, size_options: List[Dict]) -> List[str]:
+        available = []
+
+        browser = self._get_browser()
+        page = browser.new_page(user_agent=self.USER_AGENT)
+        # Bloquear imagenes/fuentes/multimedia: no se necesitan para leer el
+        # estado del boton, y evitan que la pagina se quede "ocupada" cargando
+        # recursos pesados que ralentizan cada verificacion.
+        page.route(
+            "**/*",
+            lambda route: route.abort()
+            if route.request.resource_type in ("image", "font", "media")
+            else route.continue_(),
+        )
+
+        try:
+            for option in size_options:
+                label = option["label"]
+                href = option.get("url")
+
+                if not href:
+                    available.append(label)
+                    continue
+
+                full_url = urljoin(self.BASE_URL, href)
+                try:
+                    page.goto(full_url, wait_until="domcontentloaded", timeout=15000)
+                    try:
+                        page.wait_for_selector("#addToCartButton", timeout=8000)
+                    except Exception:
+                        pass
+                    page.wait_for_timeout(500)
+                    button = page.query_selector("#addToCartButton")
+                    is_disabled = (
+                        button.get_attribute("disabled") is not None
+                        if button
+                        else True
+                    )
+                    if not is_disabled:
+                        available.append(label)
+                except Exception as e:
+                    print(f"Error verificando stock de talla {label}: {e}", file=sys.stderr)
+        finally:
+            page.close()
+
+        return available
 
     def _extract_colors(self, soup) -> List[str]:
         """
         Extrae colores disponibles.
 
-        Busca: <select> con name='color', <div> con clase 'color-options', etc.
+        Busca el bloque <div class="variant-name">Color</div> seguido de
+        <ul class="variant-list"> con cada color como <a class="swatchVariant">.
+        El title de cada swatch es el nombre completo del producto de esa
+        variante, así que se extrae la palabra de color conocida dentro de él.
         """
         colors = []
 
         if soup is None:
             return colors
 
-        color_select = soup.find("select", {"name": "color"})
-        if color_select:
-            options = color_select.find_all("option")
-            for opt in options:
-                color = opt.get_text(strip=True)
-                if color and color.lower() != "select":
-                    colors.append(color)
-            return colors
+        for name_div in soup.find_all("div", class_="variant-name"):
+            if name_div.get_text(strip=True).lower() != "color":
+                continue
 
-        color_options = soup.find("div", class_="color-options")
-        if color_options:
-            buttons = color_options.find_all(["button", "span"])
-            for btn in buttons:
-                color = btn.get_text(strip=True)
-                if color:
-                    colors.append(color)
-            return colors
+            container = name_div.parent
+            if not container:
+                continue
+
+            variant_list = container.find("ul", class_="variant-list")
+            if not variant_list:
+                continue
+
+            for item in variant_list.find_all("a", class_="swatchVariant"):
+                img = item.find("img")
+                label = None
+                if img:
+                    label = img.get("title") or img.get("alt")
+                if not label:
+                    label = item.get_text(strip=True)
+                if not label:
+                    continue
+
+                color_name = self._match_color_keyword(label)
+                colors.append(color_name or label)
+
+            break
 
         return colors
+
+    def _match_color_keyword(self, label: str) -> Optional[str]:
+        label_lower = label.lower()
+        for keyword in self.COLOR_KEYWORDS:
+            if keyword.lower() in label_lower:
+                return keyword
+        return None
 
     def _extract_images(self, soup) -> List[str]:
         images = []

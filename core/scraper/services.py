@@ -1,7 +1,11 @@
 from urllib.parse import urlparse
 
+from django.utils.dateparse import parse_datetime
+from django.utils.timezone import now
+
 from core.scraper import parsers
 from core.scraper.adapters import ADAPTER_MAP
+from core.scraper.models import Product
 
 MAX_PRODUCTS_LIMIT = 50
 
@@ -37,17 +41,21 @@ def scan_url(store, source_url, max_products=10):
     except ValueError as e:
         return _error_response(store, source_url, str(e))
 
-    if "/p/" in source_url:
-        product = adapter.parse_product(source_url)
-        products = [product] if product else []
-        return _success_response(store, source_url, "product", products, [])
+    try:
+        if "/p/" in source_url:
+            product = adapter.parse_product(source_url)
+            products = [product] if product else []
+            _persist_products(store, products)
+            return _success_response(store, source_url, "product", products, [])
 
-    category = {
-        "name": "URL personalizada",
-        "path": urlparse(source_url).path,
-        "url": source_url,
-    }
-    return _scan_category(adapter, store, source_url, category, max_products)
+        category = {
+            "name": "URL personalizada",
+            "path": urlparse(source_url).path,
+            "url": source_url,
+        }
+        return _scan_category(adapter, store, source_url, category, max_products)
+    finally:
+        _close_adapter(adapter)
 
 
 def scan_store(store, max_products=None):
@@ -56,17 +64,20 @@ def scan_store(store, max_products=None):
     errors = []
     categories = adapter.get_categories()
 
-    for category in categories:
-        category_result = _scan_category(
-            adapter, store, category["url"], category, max_products, as_partial=True
-        )
-        for product in category_result["products"]:
-            product_key = product.get("id") or product.get("url")
-            if product_key:
-                products[product_key] = product
-        errors.extend(category_result["errors"])
-        if max_products and len(products) >= max_products:
-            break
+    try:
+        for category in categories:
+            category_result = _scan_category(
+                adapter, store, category["url"], category, max_products, as_partial=True
+            )
+            for product in category_result["products"]:
+                product_key = product.get("id") or product.get("url")
+                if product_key:
+                    products[product_key] = product
+            errors.extend(category_result["errors"])
+            if max_products and len(products) >= max_products:
+                break
+    finally:
+        _close_adapter(adapter)
 
     product_list = list(products.values())
     return {
@@ -83,6 +94,15 @@ def scan_store(store, max_products=None):
         "products": product_list,
         "errors": errors,
     }
+
+
+def _close_adapter(adapter):
+    close = getattr(adapter, "close", None)
+    if callable(close):
+        try:
+            close()
+        except Exception:
+            pass
 
 
 def _get_adapter(store):
@@ -114,9 +134,63 @@ def _scan_category(adapter, store, source_url, category, max_products, as_partia
             errors.append(f"{product_link.get('id', 'unknown')}: {e}")
 
     product_list = list(products.values())
+    _persist_products(store, product_list)
+
     if as_partial:
         return {"products": product_list, "errors": errors}
     return _success_response(store, source_url, "category", product_list, errors)
+
+
+def _derive_gender(category):
+    category_lower = (category or "").lower()
+    if "hombre" in category_lower:
+        return "man"
+    if "mujer" in category_lower:
+        return "woman"
+    return ""
+
+
+def _derive_base_name(name, colors):
+    name = (name or "").strip()
+    color = colors[0] if colors else None
+    if not name or not color:
+        return name
+
+    if name.lower().endswith(color.lower()):
+        return name[: -len(color)].strip()
+    return name
+
+
+def _persist_products(store, products):
+    for product in products:
+        product_id = product.get("id")
+        if not product_id:
+            continue
+
+        extracted_at = parse_datetime(product.get("extracted_at") or "") or now()
+        name = product.get("name") or ""
+        colors = product.get("colors") or []
+
+        Product.objects.update_or_create(
+            id_external=product_id,
+            defaults={
+                "store": store,
+                "name": name,
+                "base_name": _derive_base_name(name, colors),
+                "category": product.get("category") or "",
+                "gender": _derive_gender(product.get("category")),
+                "url": product.get("url") or "",
+                "price": product.get("price") or 0,
+                "price_old": product.get("price_old"),
+                "currency": product.get("currency") or "USD",
+                "sizes": product.get("sizes") or [],
+                "colors": colors,
+                "description": product.get("description") or "",
+                "image_urls": product.get("image_urls") or [],
+                "availability": product.get("availability") or "unknown",
+                "extracted_at": extracted_at,
+            },
+        )
 
 
 def _success_response(store, source_url, mode, products, errors):
