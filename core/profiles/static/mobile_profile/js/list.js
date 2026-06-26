@@ -1,13 +1,16 @@
 let tblMobileProfile;
 
 const mobileProfile = {
-    userCell(fullName, username) {
+    userCell(fullName, username, imageUrl) {
         const text = (fullName || username || '?').trim();
         const initials = Zafira.escape(text.split(/\s+/).map(p => p[0]).slice(0, 2).join('').toUpperCase());
         const safeText = Zafira.escape(text);
         const safeUser = Zafira.escape(username);
+        const avatar = imageUrl
+            ? `<img src="${Zafira.escape(imageUrl)}" class="w-9 h-9 rounded-full object-cover shadow-zafira" alt="${safeText}">`
+            : `<span class="inline-flex items-center justify-center w-9 h-9 rounded-full gradient-primary text-white text-xs font-bold shadow-zafira">${initials}</span>`;
         return `<div class="flex items-center gap-3">
-            <span class="inline-flex items-center justify-center w-9 h-9 rounded-full gradient-primary text-white text-xs font-bold shadow-zafira">${initials}</span>
+            ${avatar}
             <div class="flex flex-col leading-tight">
                 <span class="font-medium text-zafira-obsidian">${safeText}</span>
                 <span class="text-xs text-zafira-slate">@${safeUser}</span>
@@ -27,7 +30,7 @@ const mobileProfile = {
         tblMobileProfile = Zafira.dataTable('#data', [
             {
                 data: 'username',
-                render: (username, type, row) => mobileProfile.userCell(row.full_name, username),
+                render: (username, type, row) => mobileProfile.userCell(row.full_name, username, row.image),
             },
             {
                 data: 'email',
@@ -44,10 +47,6 @@ const mobileProfile = {
             },
             {
                 data: 'preferred_size',
-                render: data => Zafira.escape(data || '-'),
-            },
-            {
-                data: 'country',
                 render: data => Zafira.escape(data || '-'),
             },
             {
