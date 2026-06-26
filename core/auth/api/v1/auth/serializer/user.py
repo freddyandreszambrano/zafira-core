@@ -20,6 +20,7 @@ class MobileProfileUpdateSerializer(serializers.Serializer):
     country = serializers.CharField(required=False, allow_blank=True)
     preferred_size = serializers.CharField(required=False, allow_blank=True)
     style_preferences = serializers.JSONField(required=False)
+    language = serializers.CharField(required=False, allow_blank=True)
 
     def update(self, instance, validated_data):
         user = instance
@@ -41,6 +42,10 @@ class MobileProfileUpdateSerializer(serializers.Serializer):
         mobile_profile.preferred_size = validated_data.get(
             "preferred_size",
             mobile_profile.preferred_size,
+        )
+        mobile_profile.language = validated_data.get(
+            "language",
+            mobile_profile.language,
         )
 
         if "style_preferences" in validated_data:
