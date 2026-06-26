@@ -97,43 +97,76 @@ class ModarmAdapter(BaseAdapter):
         url = category["url"]
 
         try:
-            headers = {"User-Agent": self.USER_AGENT}
-            response = requests.get(url, headers=headers, timeout=self.TIMEOUT)
-            response.raise_for_status()
-
-            soup = BeautifulSoup(response.content, "html.parser")
-
-            product_links = soup.find_all("a", href=True)
-            seen = set()
-
-            for link in product_links:
-                href = link.get("href", "")
-                if "/p/" not in href:
-                    continue
-
-                product_id = self._extract_product_id(href)
-                if product_id in seen:
-                    continue
-                product_name = self._extract_name(link)
-
-                if not product_id or not product_name:
-                    continue
-                seen.add(product_id)
-
-                product_url = urljoin(self.BASE_URL, href)
-
-                products.append(
-                    {
-                        "id": product_id,
-                        "name": product_name,
-                        "url": product_url,
-                    }
-                )
-
-        except requests.RequestException as e:
+            html = self._executor.submit(self._fetch_category_html, url).result()
+        except Exception as e:
             print(f"Error scraping category {category['name']}: {e}", file=sys.stderr)
+            return products
+
+        soup = BeautifulSoup(html, "html.parser")
+
+        product_links = soup.find_all("a", href=True)
+        seen = set()
+
+        for link in product_links:
+            href = link.get("href", "")
+            if "/p/" not in href:
+                continue
+
+            product_id = self._extract_product_id(href)
+            if product_id in seen:
+                continue
+            product_name = self._extract_name(link)
+
+            if not product_id or not product_name:
+                continue
+            seen.add(product_id)
+
+            product_url = urljoin(self.BASE_URL, href)
+
+            products.append(
+                {
+                    "id": product_id,
+                    "name": product_name,
+                    "url": product_url,
+                }
+            )
 
         return products
+
+    def _fetch_category_html(self, url: str) -> str:
+        """
+        Carga la página de categoría con un navegador real y hace scroll
+        hasta que deje de aparecer contenido nuevo (scroll infinito), ya
+        que el listado completo no está disponible en el HTML estático.
+        """
+        browser = self._get_browser()
+        page = browser.new_page(user_agent=self.USER_AGENT)
+        page.route(
+            "**/*",
+            lambda route: route.abort()
+            if route.request.resource_type in ("image", "font", "media")
+            else route.continue_(),
+        )
+        try:
+            page.goto(url, wait_until="domcontentloaded", timeout=20000)
+            previous_count = -1
+            stable_rounds = 0
+            for _ in range(40):
+                current_count = page.eval_on_selector_all(
+                    "a[href*='/p/']", "elements => elements.length"
+                )
+                if current_count == previous_count:
+                    stable_rounds += 1
+                    if stable_rounds >= 2:
+                        break
+                else:
+                    stable_rounds = 0
+                previous_count = current_count
+                page.mouse.wheel(0, 2500)
+                page.wait_for_timeout(600)
+            return page.content()
+        finally:
+            page.close()
 
     def parse_product(self, url: str) -> Dict:
         """
