@@ -21,7 +21,7 @@ class ProductListApiView(APIView):
         if category:
             queryset = queryset.filter(category__icontains=category)
 
-        serializer = ProductSerializer(queryset, many=True)
+        serializer = ProductSerializer(queryset, many=True, context={"request": request})
         return Response(serializer.data)
 
 
@@ -37,5 +37,5 @@ class ProductDetailApiView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        serializer = ProductSerializer(product)
+        serializer = ProductSerializer(product, context={"request": request})
         return Response(serializer.data)

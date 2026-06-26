@@ -1,10 +1,11 @@
 from rest_framework import serializers
 
-from core.scraper.models import Product
+from core.scraper.models import Favorite, Product
 
 
 class ProductSerializer(serializers.ModelSerializer):
     color_options = serializers.SerializerMethodField()
+    is_favorite = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
@@ -26,7 +27,15 @@ class ProductSerializer(serializers.ModelSerializer):
             "store",
             "extracted_at",
             "color_options",
+            "is_favorite",
         ]
+
+    def get_is_favorite(self, obj):
+        request = self.context.get("request")
+        user = getattr(request, "user", None)
+        if not user or not user.is_authenticated:
+            return False
+        return Favorite.objects.filter(user=user, product=obj).exists()
 
     def get_color_options(self, obj):
         if not obj.base_name:
