@@ -14,21 +14,19 @@ class CustomAuthTokenApiView(ObtainAuthToken):
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
+        auth = AuthApiZafira(self.request)
         try:
             with transaction.atomic():
                 serializer = AuthTokenSerializerInput(data=self.request.data)
                 serializer.is_valid(raise_exception=True)
 
-                username = serializer.validated_data["username"]
-                app_source = self.request.headers.get("app-source")
-
-                if app_source in AuthApiZafira.app_sources:
-                    AuthApiZafira(self.request).login(username)
-                else:
+                if not auth.is_valid_source():
                     return Response(
-                        {"message": "Invalid app source"}, status=status.HTTP_400_BAD_REQUEST
+                        {"message": "Invalid app source"},
+                        status=status.HTTP_400_BAD_REQUEST,
                     )
+                auth.login(serializer.validated_data["username"])
         except Exception as e:
             return save_error_api(self.request, e)
 
-        return super().post(self.request, *args, **kwargs)
+        return auth.build_response(super().post(self.request, *args, **kwargs))
