@@ -1,17 +1,14 @@
 import uuid
 from secrets import compare_digest
 
+from crum import get_current_request
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.core.validators import EmailValidator
 from django.db import models
 from django.utils import timezone
-
 from rest_framework.authtoken.models import Token
 
-from crum import get_current_request
-
 from core.utils.enums import UserTypeChoices
-
 from .managers import CustomUserManager
 
 
@@ -120,13 +117,16 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def to_json_api(self):
         return {
-            "id": self.id,
-            "username": self.username,
-            "email": self.email,
-            "dni": self.dni,
             "full_name": self.get_full_name(),
             "user_type": self.user_type,
             "token": self.get_or_create_token().replace("Token ", ""),
+            "id": self.id,
+            "username": self.username,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "email": self.email,
+            "dni": self.dni,
+            "image": self.image.url if self.image else "",
         }
 
     @staticmethod

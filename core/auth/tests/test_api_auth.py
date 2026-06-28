@@ -25,7 +25,18 @@ class AuthTokenApiTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), {"token": Token.objects.get(user=self.user).key})
+        self.assertEqual(
+            response.json(),
+            {
+                "id": self.user.id,
+                "username": self.user.username,
+                "email": self.user.email,
+                "dni": self.user.dni,
+                "full_name": self.user.get_full_name(),
+                "user_type": self.user.user_type,
+                "token": Token.objects.get(user=self.user).key,
+            },
+        )
 
     def test_invalid_app_source_return_bad_request(self):
         response = self.client.post(
