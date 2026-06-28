@@ -43,7 +43,7 @@ services:
   web:
     build:
       context: ../..
-      dockerfile: deploy/docker/Dockerfile
+      dockerfile: deploy/service-zafira/Dockerfile
     image: zafira-core:local
     container_name: zafira_web
     env_file:
