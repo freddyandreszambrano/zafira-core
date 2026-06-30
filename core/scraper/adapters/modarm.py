@@ -5,7 +5,6 @@ from urllib.parse import urljoin
 
 import requests
 from bs4 import BeautifulSoup
-from playwright.sync_api import sync_playwright
 
 from core.scraper import parsers
 from core.scraper.base import BaseAdapter
@@ -31,6 +30,8 @@ class ModarmAdapter(BaseAdapter):
         """Lanza Chromium headless una sola vez y lo reutiliza para todas
         las verificaciones de stock durante este scrape."""
         if self._browser is None:
+            from playwright.sync_api import sync_playwright
+
             self._playwright = sync_playwright().start()
             self._browser = self._playwright.chromium.launch(headless=True)
         return self._browser

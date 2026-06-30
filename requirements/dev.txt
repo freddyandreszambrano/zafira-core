@@ -114,6 +114,10 @@ flake8==6.1.0
     # via -r requirements/dev.in
 flower==2.0.1
     # via -r requirements/base.txt
+greenlet==3.5.3
+    # via
+    #   -r requirements/base.txt
+    #   playwright
 h11==0.16.0
     # via
     #   -r requirements/base.txt
@@ -162,6 +166,9 @@ pillow==10.1.0
     # via -r requirements/base.txt
 platformdirs==4.10.0
     # via black
+playwright==1.60.0
+    # via -r requirements/base.txt
+    # via black
 pluggy==1.6.0
     # via pytest
 prometheus-client==0.25.0
@@ -182,6 +189,10 @@ pydantic-core==2.46.4
     # via
     #   -r requirements/base.txt
     #   pydantic
+pyee==13.0.1
+    # via
+    #   -r requirements/base.txt
+    #   playwright
 pyflakes==3.1.0
     # via flake8
 pyjwt==2.13.0

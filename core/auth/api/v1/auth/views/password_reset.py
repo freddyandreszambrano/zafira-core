@@ -69,7 +69,7 @@ class PasswordResetRequestApiView(APIView):
         # Modo prueba (sin Celery): envío directo.
         try:
             send_password_reset_code_email(user.email, user.get_full_name(), code)
-        except Exception as e:
+        except Exception:
             return Response(
                 {
                     "message": (
