@@ -30,7 +30,9 @@ class CustomAuthTokenApiView(ObtainAuthToken):
 
                 if auth.check_disabled_account(username, password):
                     return Response(
-                        {"message": "Tu cuenta ha sido desactivada. Contacta al soporte para más información."},
+                        {
+                            "message": "Tu cuenta ha sido desactivada. Contacta al soporte para más información."
+                        },
                         status=status.HTTP_403_FORBIDDEN,
                     )
 
