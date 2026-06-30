@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.db import transaction
 
 from rest_framework import status
@@ -16,38 +15,11 @@ from core.common.error import save_error_api
 from core.profiles.models import MobileProfile
 
 
-def _serialize_user(request, user):
-    mobile_profile = getattr(user, "mobile_profile", None)
-
-    image_url = ""
-    if getattr(user, "image", None):
-        image_url = request.build_absolute_uri(user.image.url)
-
-    try_on_photo_url = ""
-    if getattr(mobile_profile, "try_on_photo", None):
-        try_on_photo_url = request.build_absolute_uri(mobile_profile.try_on_photo.url)
-
-    return {
-        "id": user.id,
-        "username": user.username,
-        "first_name": user.first_name,
-        "last_name": user.last_name,
-        "email": user.email,
-        "dni": getattr(user, "dni", ""),
-        "image": image_url,
-        "gender": getattr(mobile_profile, "gender", ""),
-        "country": getattr(mobile_profile, "country", ""),
-        "preferred_size": getattr(mobile_profile, "preferred_size", ""),
-        "style_preferences": getattr(mobile_profile, "style_preferences", {}),
-        "language": getattr(mobile_profile, "language", "es"),
-        "try_on_photo": try_on_photo_url,
-    }
-
-
 class CustomAuthTokenApiView(ObtainAuthToken):
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
+        auth = AuthApiZafira(self.request)
         try:
             with transaction.atomic():
                 serializer = AuthTokenSerializerInput(data=self.request.data)
@@ -55,40 +27,23 @@ class CustomAuthTokenApiView(ObtainAuthToken):
 
                 username = serializer.validated_data["username"]
                 password = serializer.validated_data["password"]
-                app_source = self.request.headers.get("app-source")
 
-                User = get_user_model()
-                existing_user = User.objects.filter(username=username).first()
-                if (
-                    existing_user is not None
-                    and not existing_user.is_active
-                    and existing_user.check_password(password)
-                ):
+                if auth.check_disabled_account(username, password):
                     return Response(
                         {"message": "Tu cuenta ha sido desactivada. Contacta al soporte para más información."},
                         status=status.HTTP_403_FORBIDDEN,
                     )
 
-                if app_source in AuthApiZafira.app_sources:
-                    AuthApiZafira(self.request).login(username)
-                else:
+                if not auth.is_valid_source():
                     return Response(
                         {"message": "Invalid app source"},
                         status=status.HTTP_400_BAD_REQUEST,
                     )
-
+                auth.login(username)
         except Exception as e:
             return save_error_api(self.request, e)
 
-        response = super().post(self.request, *args, **kwargs)
-
-        User = get_user_model()
-        user = User.objects.filter(username=username).first()
-
-        if user is not None:
-            response.data["user"] = _serialize_user(self.request, user)
-
-        return response
+        return auth.build_response(super().post(self.request, *args, **kwargs))
 
 
 class CurrentUserApiView(APIView):
@@ -96,7 +51,7 @@ class CurrentUserApiView(APIView):
 
     def get(self, request, *args, **kwargs):
         return Response(
-            {"user": _serialize_user(request, request.user)},
+            {"user": request.user.to_json_api()},
             status=status.HTTP_200_OK,
         )
 
@@ -116,7 +71,7 @@ class MobileProfileUpdateApiView(APIView):
         return Response(
             {
                 "message": "Perfil actualizado correctamente",
-                "user": _serialize_user(request, user),
+                "user": user.to_json_api(),
             },
             status=status.HTTP_200_OK,
         )
@@ -141,7 +96,7 @@ class UserAvatarUpdateApiView(APIView):
         return Response(
             {
                 "message": "Foto de perfil actualizada correctamente",
-                "user": _serialize_user(request, user),
+                "user": user.to_json_api(),
             },
             status=status.HTTP_200_OK,
         )
@@ -157,7 +112,7 @@ class UserAvatarUpdateApiView(APIView):
         return Response(
             {
                 "message": "Foto de perfil eliminada correctamente",
-                "user": _serialize_user(request, user),
+                "user": user.to_json_api(),
             },
             status=status.HTTP_200_OK,
         )
@@ -182,7 +137,7 @@ class TryOnPhotoUpdateApiView(APIView):
         return Response(
             {
                 "message": "Foto guardada correctamente",
-                "user": _serialize_user(request, request.user),
+                "user": request.user.to_json_api(),
             },
             status=status.HTTP_200_OK,
         )
@@ -198,7 +153,7 @@ class TryOnPhotoUpdateApiView(APIView):
         return Response(
             {
                 "message": "Foto eliminada correctamente",
-                "user": _serialize_user(request, request.user),
+                "user": request.user.to_json_api(),
             },
             status=status.HTTP_200_OK,
         )
