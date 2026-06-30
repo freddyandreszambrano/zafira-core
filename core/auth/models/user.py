@@ -119,17 +119,35 @@ class User(AbstractBaseUser, PermissionsMixin):
         }
 
     def to_json_api(self):
+        request = get_current_request()
+        mobile_profile = getattr(self, "mobile_profile", None)
+
+        image_url = ""
+        if self.image:
+            image_url = request.build_absolute_uri(self.image.url) if request else self.image.url
+
+        try_on_photo_url = ""
+        if getattr(mobile_profile, "try_on_photo", None):
+            url = mobile_profile.try_on_photo.url
+            try_on_photo_url = request.build_absolute_uri(url) if request else url
+
         return {
-            "full_name": self.get_full_name(),
-            "user_type": self.user_type,
-            "token": self.get_or_create_token().replace("Token ", ""),
             "id": self.id,
             "username": self.username,
             "first_name": self.first_name,
             "last_name": self.last_name,
             "email": self.email,
             "dni": self.dni,
-            "image": self.image.url if self.image else "",
+            "full_name": self.get_full_name(),
+            "user_type": self.user_type,
+            "image": image_url,
+            "gender": getattr(mobile_profile, "gender", ""),
+            "country": getattr(mobile_profile, "country", ""),
+            "preferred_size": getattr(mobile_profile, "preferred_size", ""),
+            "style_preferences": getattr(mobile_profile, "style_preferences", {}),
+            "language": getattr(mobile_profile, "language", "es"),
+            "try_on_photo": try_on_photo_url,
+            "token": self.get_or_create_token().replace("Token ", ""),
         }
 
     @staticmethod

@@ -14,10 +14,31 @@
                 <h1 class="z-page-title">{{ profile.user.get_full_name|default:profile.user.username }}</h1>
                 <p class="z-page-subtitle">Informacion del perfil mobile asociado a esta cuenta.</p>
             </div>
-            <a href="{{ list_url }}" class="z-btn-ghost">
-                <i class="fas fa-arrow-left"></i>
-                <span>Volver</span>
-            </a>
+            <div class="flex items-center gap-3">
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="toggle_active">
+                    {% if profile.user.is_active %}
+                        <button type="submit" class="z-btn-ghost text-red-600">
+                            <i class="fas fa-user-slash"></i>
+                            <span>Desactivar cuenta</span>
+                        </button>
+                    {% else %}
+                        <button type="submit" class="z-btn-ghost text-emerald-600">
+                            <i class="fas fa-user-check"></i>
+                            <span>Activar cuenta</span>
+                        </button>
+                    {% endif %}
+                </form>
+                <a href="{% url 'mobile_profile_delete' profile.pk %}" class="z-btn-ghost text-red-600">
+                    <i class="fas fa-trash"></i>
+                    <span>Eliminar</span>
+                </a>
+                <a href="{{ list_url }}" class="z-btn-ghost">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Volver</span>
+                </a>
+            </div>
         </div>
 
         <div class="z-table-card">
@@ -44,6 +65,14 @@
                             <dt class="text-xs uppercase text-zafira-slate">Estado</dt>
                             <dd class="text-sm text-zafira-obsidian">{{ profile.user.is_active|yesno:"Activo,Inactivo" }}</dd>
                         </div>
+                        <div>
+                            <dt class="text-xs uppercase text-zafira-slate">Fecha de registro</dt>
+                            <dd class="text-sm text-zafira-obsidian">{{ profile.user.date_joined|date:"d/m/Y H:i" }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs uppercase text-zafira-slate">Ultimo acceso</dt>
+                            <dd class="text-sm text-zafira-obsidian">{{ profile.user.last_login|date:"d/m/Y H:i"|default:"Nunca ha ingresado" }}</dd>
+                        </div>
                     </dl>
                 </section>
 
@@ -55,29 +84,11 @@
                             <dd class="text-sm text-zafira-obsidian">{{ profile.get_gender_display }}</dd>
                         </div>
                         <div>
-                            <dt class="text-xs uppercase text-zafira-slate">Fecha de nacimiento</dt>
-                            <dd class="text-sm text-zafira-obsidian">{{ profile.date_of_birth|default:"-" }}</dd>
-                        </div>
-                        <div>
                             <dt class="text-xs uppercase text-zafira-slate">Talla preferida</dt>
                             <dd class="text-sm text-zafira-obsidian">{{ profile.preferred_size|default:"-" }}</dd>
                         </div>
-                        <div>
-                            <dt class="text-xs uppercase text-zafira-slate">Idioma / Pais</dt>
-                            <dd class="text-sm text-zafira-obsidian">{{ profile.language|default:"-" }} / {{ profile.country|default:"-" }}</dd>
-                        </div>
                     </dl>
                 </section>
-            </div>
-
-            <div class="p-6 border-t border-zafira-border">
-                <h2 class="text-sm font-semibold text-zafira-obsidian mb-3">Preferencias de estilo</h2>
-                <pre class="overflow-x-auto rounded-lg bg-zafira-slate-soft/40 p-4 text-xs text-zafira-slate-deep">{{ style_preferences }}</pre>
-            </div>
-
-            <div class="p-6 border-t border-zafira-border">
-                <h2 class="text-sm font-semibold text-zafira-obsidian mb-3">Push token</h2>
-                <p class="break-all text-sm text-zafira-slate">{{ profile.push_token|default:"-" }}</p>
             </div>
         </div>
     </div>

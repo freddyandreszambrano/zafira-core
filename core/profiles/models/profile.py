@@ -84,6 +84,12 @@ class MobileProfile(models.Model):
     language = models.TextField(default="es", blank=True, verbose_name="Idioma")
     country = models.TextField(blank=True, default="Ecuador", verbose_name="Pais")
     push_token = models.TextField(blank=True, verbose_name="Token push")
+    try_on_photo = models.ImageField(
+        upload_to="try_on/%Y/%m/%d/",
+        null=True,
+        blank=True,
+        verbose_name="Foto para prueba virtual",
+    )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de creacion")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Fecha de actualizacion")
 

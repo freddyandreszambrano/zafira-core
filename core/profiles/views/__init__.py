@@ -1,3 +1,3 @@
-from .mobile_profile import MobileProfileDetailView, MobileProfileListView
+from .mobile_profile import MobileProfileDeleteView, MobileProfileDetailView, MobileProfileListView
 
-__all__ = ["MobileProfileDetailView", "MobileProfileListView"]
+__all__ = ["MobileProfileDeleteView", "MobileProfileDetailView", "MobileProfileListView"]

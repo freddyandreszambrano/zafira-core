@@ -42,17 +42,17 @@ class PasswordResetRequestApiView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         email = serializer.validated_data["email"]
-        # Respuesta genérica: no revelamos si el correo existe o no.
-        generic = {
-            "message": (
-                "Si el correo está registrado, te enviamos un código para "
-                "restablecer tu contraseña."
-            )
-        }
 
         user = User.objects.filter(email__iexact=email).first()
+
         if user is None:
-            return Response(generic, status=status.HTTP_200_OK)
+            return Response(
+                {
+                    "message": "No encontramos una cuenta asociada a este correo electrónico. "
+                    "Verifica la dirección e inténtalo nuevamente."
+                },
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
         code = _generate_code()
         user.email_reset_token = make_password(code)
@@ -67,11 +67,25 @@ class PasswordResetRequestApiView(APIView):
         )
 
         # Modo prueba (sin Celery): envío directo.
-        send_password_reset_code_email(user.email, user.get_full_name(), code)
+        try:
+            send_password_reset_code_email(user.email, user.get_full_name(), code)
+        except Exception:
+            return Response(
+                {
+                    "message": (
+                        "No pudimos enviar el código en este momento. "
+                        "Verifica la configuración del correo e inténtalo nuevamente."
+                    )
+                },
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
         # Producción (Celery):
         # send_password_reset_email_task.delay(user.email, user.get_full_name(), code)
 
-        return Response(generic, status=status.HTTP_200_OK)
+        return Response(
+            {"message": "Hemos enviado un código de verificación a tu correo electrónico."},
+            status=status.HTTP_200_OK,
+        )
 
 
 class PasswordResetConfirmApiView(APIView):
