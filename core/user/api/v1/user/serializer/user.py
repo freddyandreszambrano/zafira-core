@@ -35,14 +35,10 @@ class UserCreateSerializerInput(serializers.Serializer):
         username = value.strip()
 
         if len(username) < 4:
-            raise serializers.ValidationError(
-                "El usuario debe tener al menos 4 caracteres."
-            )
+            raise serializers.ValidationError("El usuario debe tener al menos 4 caracteres.")
 
         if len(username) > 20:
-            raise serializers.ValidationError(
-                "El usuario no puede superar los 20 caracteres."
-            )
+            raise serializers.ValidationError("El usuario no puede superar los 20 caracteres.")
 
         if not re.match(r"^[a-zA-Z0-9_]+$", username):
             raise serializers.ValidationError(
@@ -50,9 +46,7 @@ class UserCreateSerializerInput(serializers.Serializer):
             )
 
         if User.objects.filter(username__iexact=username).exists():
-            raise serializers.ValidationError(
-                "El nombre de usuario ya se encuentra registrado."
-            )
+            raise serializers.ValidationError("El nombre de usuario ya se encuentra registrado.")
 
         return username
 
@@ -78,7 +72,8 @@ class UserCreateSerializerInput(serializers.Serializer):
 
         if not (cedula_ec or carne_extranjero or pasaporte):
             raise serializers.ValidationError(
-                "Ingrese una cédula ecuatoriana (10 dígitos), carné de extranjero (E + dígitos) o pasaporte válido (6-12 caracteres)."
+                "Ingrese una cédula ecuatoriana (10 dígitos), carné de extranjero "
+                "(E + dígitos) o pasaporte válido (6-12 caracteres)."
             )
 
         if User.objects.filter(dni__iexact=dni).exists():
@@ -106,9 +101,7 @@ class UserCreateSerializerInput(serializers.Serializer):
         password = value.strip()
 
         if len(password) < 8:
-            raise serializers.ValidationError(
-                "La contraseña debe tener al menos 8 caracteres."
-            )
+            raise serializers.ValidationError("La contraseña debe tener al menos 8 caracteres.")
 
         if password.lower() in common_passwords:
             raise serializers.ValidationError(
@@ -126,9 +119,7 @@ class UserCreateSerializerInput(serializers.Serializer):
             )
 
         if not re.search(r"\d", password):
-            raise serializers.ValidationError(
-                "La contraseña debe contener al menos un número."
-            )
+            raise serializers.ValidationError("La contraseña debe contener al menos un número.")
 
         if not re.search(r"[!@#$%^&*(),.?\":{}|<>_\-+=/\\[\];']", password):
             raise serializers.ValidationError(

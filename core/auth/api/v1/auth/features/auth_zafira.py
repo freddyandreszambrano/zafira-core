@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.utils import timezone
 
 from core.auth.models import User
@@ -11,6 +12,13 @@ class AuthApiZafira:
         self.request = request
         self.user = None
 
+    def is_valid_source(self):
+        return self.request.headers.get("app-source") in self.app_sources
+
+    def check_disabled_account(self, username, password):
+        user = get_user_model().objects.filter(username=username).first()
+        return user is not None and not user.is_active and user.check_password(password)
+
     def login(self, username):
         self.user = User.objects.filter(username=username).first()
         if self.user:
@@ -18,3 +26,8 @@ class AuthApiZafira:
             self.user.last_login = timezone.now()
             self.user.save(update_fields=["last_login"])
         return self.user
+
+    def build_response(self, response):
+        if self.user is not None:
+            response.data = self.user.to_json_api()
+        return response

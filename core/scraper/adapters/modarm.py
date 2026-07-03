@@ -5,7 +5,6 @@ from urllib.parse import urljoin
 
 import requests
 from bs4 import BeautifulSoup
-from playwright.sync_api import sync_playwright
 
 from core.scraper import parsers
 from core.scraper.base import BaseAdapter
@@ -31,6 +30,8 @@ class ModarmAdapter(BaseAdapter):
         """Lanza Chromium headless una sola vez y lo reutiliza para todas
         las verificaciones de stock durante este scrape."""
         if self._browser is None:
+            from playwright.sync_api import sync_playwright
+
             self._playwright = sync_playwright().start()
             self._browser = self._playwright.chromium.launch(headless=True)
         return self._browser
@@ -63,13 +64,43 @@ class ModarmAdapter(BaseAdapter):
     ]
 
     COLOR_KEYWORDS = [
-        "Verde Oliva", "Azul Marino", "Azul Indigo", "Gris Jaspe",
-        "Rosa Palo", "Vino Tinto", "Blanco Roto",
-        "Negro", "Blanco", "Azul", "Rojo", "Verde", "Amarillo",
-        "Rosado", "Rosa", "Gris", "Cafe", "Café", "Beige", "Camel",
-        "Morado", "Lila", "Naranja", "Celeste", "Turquesa", "Dorado",
-        "Plateado", "Vino", "Mostaza", "Oliva", "Crudo", "Marfil",
-        "Coral", "Fucsia", "Khaki", "Caqui", "Lavanda",
+        "Verde Oliva",
+        "Azul Marino",
+        "Azul Indigo",
+        "Gris Jaspe",
+        "Rosa Palo",
+        "Vino Tinto",
+        "Blanco Roto",
+        "Negro",
+        "Blanco",
+        "Azul",
+        "Rojo",
+        "Verde",
+        "Amarillo",
+        "Rosado",
+        "Rosa",
+        "Gris",
+        "Cafe",
+        "Café",
+        "Beige",
+        "Camel",
+        "Morado",
+        "Lila",
+        "Naranja",
+        "Celeste",
+        "Turquesa",
+        "Dorado",
+        "Plateado",
+        "Vino",
+        "Mostaza",
+        "Oliva",
+        "Crudo",
+        "Marfil",
+        "Coral",
+        "Fucsia",
+        "Khaki",
+        "Caqui",
+        "Lavanda",
     ]
 
     def get_categories(self) -> List[Dict]:
@@ -417,9 +448,7 @@ class ModarmAdapter(BaseAdapter):
             return []
 
         try:
-            return self._executor.submit(
-                self._check_sizes_availability_sync, size_options
-            ).result()
+            return self._executor.submit(self._check_sizes_availability_sync, size_options).result()
         except Exception as e:
             print(f"No se pudo verificar stock de tallas: {e}", file=sys.stderr)
             return [option["label"] for option in size_options]
@@ -457,11 +486,7 @@ class ModarmAdapter(BaseAdapter):
                         pass
                     page.wait_for_timeout(500)
                     button = page.query_selector("#addToCartButton")
-                    is_disabled = (
-                        button.get_attribute("disabled") is not None
-                        if button
-                        else True
-                    )
+                    is_disabled = button.get_attribute("disabled") is not None if button else True
                     if not is_disabled:
                         available.append(label)
                 except Exception as e:

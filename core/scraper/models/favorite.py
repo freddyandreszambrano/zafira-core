@@ -24,7 +24,9 @@ class Favorite(models.Model):
         verbose_name_plural = "Favoritos"
         ordering = ["-created_at"]
         constraints = [
-            models.UniqueConstraint(fields=["user", "product"], name="unique_user_product_favorite"),
+            models.UniqueConstraint(
+                fields=["user", "product"], name="unique_user_product_favorite"
+            ),
         ]
 
     def __str__(self):

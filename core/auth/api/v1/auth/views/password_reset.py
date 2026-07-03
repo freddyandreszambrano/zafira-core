@@ -48,9 +48,8 @@ class PasswordResetRequestApiView(APIView):
         if user is None:
             return Response(
                 {
-                    "message":
-                        "No encontramos una cuenta asociada a este correo electrónico. "
-                        "Verifica la dirección e inténtalo nuevamente."
+                    "message": "No encontramos una cuenta asociada a este correo electrónico. "
+                    "Verifica la dirección e inténtalo nuevamente."
                 },
                 status=status.HTTP_404_NOT_FOUND,
             )
@@ -70,7 +69,7 @@ class PasswordResetRequestApiView(APIView):
         # Modo prueba (sin Celery): envío directo.
         try:
             send_password_reset_code_email(user.email, user.get_full_name(), code)
-        except Exception as e:
+        except Exception:
             return Response(
                 {
                     "message": (
@@ -84,10 +83,7 @@ class PasswordResetRequestApiView(APIView):
         # send_password_reset_email_task.delay(user.email, user.get_full_name(), code)
 
         return Response(
-            {
-                "message":
-                    "Hemos enviado un código de verificación a tu correo electrónico."
-            },
+            {"message": "Hemos enviado un código de verificación a tu correo electrónico."},
             status=status.HTTP_200_OK,
         )
 
