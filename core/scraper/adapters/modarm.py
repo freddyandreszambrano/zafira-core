@@ -533,7 +533,8 @@ class ModarmAdapter(BaseAdapter):
                     continue
 
                 color_name = self._match_color_keyword(label)
-                colors.append(color_name or label)
+                if color_name:
+                    colors.append(color_name)
 
             break
 
@@ -646,4 +647,5 @@ class ModarmAdapter(BaseAdapter):
         if any(item in lowered for item in blocked):
             return False
 
-        return "/medias/" in path and any(size in path for size in ("-1200-", "-515-", "-96-"))
+        size_markers = ("-1200-", "-515-", "-96-", "x1200-", "x900-")
+        return "/medias/" in path and any(size in path for size in size_markers)

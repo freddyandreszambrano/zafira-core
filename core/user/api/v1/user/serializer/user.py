@@ -63,14 +63,23 @@ class UserCreateSerializerInput(serializers.Serializer):
     def validate_dni(self, value):
         dni = value.strip()
 
-        if not dni.isdigit():
-            raise serializers.ValidationError("La cédula solo debe contener números.")
+        # Cédula ecuatoriana: exactamente 10 dígitos
+        cedula_ec = re.match(r"^\d{10}$", dni)
+        # Carné de extranjero residente: E + 6-9 dígitos
+        carne_extranjero = re.match(r"^[Ee]\d{6,9}$", dni)
+        # Pasaporte extranjero: 6-12 caracteres alfanuméricos
+        pasaporte = re.match(r"^[a-zA-Z0-9]{6,12}$", dni)
 
-        if len(dni) != 10:
-            raise serializers.ValidationError("La cédula debe tener exactamente 10 dígitos.")
+        if not (cedula_ec or carne_extranjero or pasaporte):
+            raise serializers.ValidationError(
+                "Ingrese una cédula ecuatoriana (10 dígitos), carné de extranjero "
+                "(E + dígitos) o pasaporte válido (6-12 caracteres)."
+            )
 
         if User.objects.filter(dni__iexact=dni).exists():
-            raise serializers.ValidationError("La cédula ingresada ya se encuentra registrada.")
+            raise serializers.ValidationError(
+                "El documento de identidad ingresado ya se encuentra registrado."
+            )
 
         return dni
 
