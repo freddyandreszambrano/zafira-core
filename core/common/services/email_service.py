@@ -1,15 +1,3 @@
-"""Servicio de correo desacoplado.
-
-Usa el sistema nativo de Django (``EmailMultiAlternatives``), por lo que el backend
-real lo define ``settings.EMAIL_BACKEND`` (Resend vía django-anymail en este proyecto).
-
-Pensado para moverse luego a una task de Celery sin tocar la lógica: basta envolver
-``send_email`` / ``send_templated_email`` en una ``@shared_task``.
-
-Variables de entorno requeridas (ver .env.example):
-    RESEND_API_KEY      API key de Resend → settings.ANYMAIL["RESEND_API_KEY"].
-    DEFAULT_FROM_EMAIL  Remitente por defecto, ej. "ZAFIRA <no-reply@dominio.com>".
-"""
 from __future__ import annotations
 
 from django.conf import settings

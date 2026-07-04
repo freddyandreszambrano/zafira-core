@@ -1,0 +1,37 @@
+{% extends 'list.html' %}
+{% load static %}
+
+{% block list_actions_extra %}
+    <a href="{% url 'scraper_scan' %}" class="z-btn-ghost">
+        <i class="fas fa-spider"></i>
+        <span>Scanner</span>
+    </a>
+    <a href="{{ source_list_url }}" class="z-btn-ghost">
+        <i class="fas fa-link"></i>
+        <span>Fuentes</span>
+    </a>
+{% endblock %}
+
+{% block list_toolbar_extra %}
+    <label class="z-form-label" for="id_run_max_products" style="margin:0">Max.</label>
+    <input id="id_run_max_products" type="number" min="1" max="50" value="50"
+           class="z-field px-3 py-2" style="width:84px">
+    <button type="button" class="z-btn-primary" data-run-sources {% if not source_count %}disabled{% endif %}>
+        <i class="fas fa-play"></i>
+        <span>Ejecutar fuentes</span>
+    </button>
+{% endblock %}
+
+{% block columns %}
+    <th>Imagen</th>
+    <th>Producto</th>
+    <th>Categoría</th>
+    <th>Tienda</th>
+    <th>Precio</th>
+    <th>Estado</th>
+    <th class="text-center">Acciones</th>
+{% endblock %}
+
+{% block head_list %}
+    <script src="{% static 'product/js/list.js' %}"></script>
+{% endblock %}

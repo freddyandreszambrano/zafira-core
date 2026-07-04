@@ -409,6 +409,8 @@ Luego: `make migrate && make insert-data`. El módulo aparecerá en nav y dashbo
 - **Sin docstrings obvios**: NUNCA `"""Get user groups."""` en `get_groups()`. Solo escribe comentario si el WHY es no obvio.
 - **Sin templates pass-through vacíos**: si solo dice `{% extends 'form.html' %}`, no lo crees — apunta `template_name` directo al base.
 - **Imports al top del archivo** (no dentro de métodos).
+- **Campos de texto en modelos**: no usar `models.CharField` ni campos derivados de `CharField`
+  como `models.URLField`; usar `models.TextField` y validadores/form fields cuando haga falta.
 - **Choices**: usar `TextChoicesCustom` de `core.common.choices` para enums, no listas de tuplas.
 - **CSS form inputs**: usar `FORM_INPUT_CLASS` y los factories de `core.common.forms.widgets`, no duplicar la clase.
 

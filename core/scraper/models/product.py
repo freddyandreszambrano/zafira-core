@@ -6,7 +6,7 @@ class Product(models.Model):
     name = models.TextField(verbose_name="Nombre")
     category = models.TextField(db_index=True, verbose_name="Categoria original")
     gender = models.TextField(db_index=True, blank=True, verbose_name="Genero")
-    url = models.URLField(max_length=500, verbose_name="URL")
+    url = models.TextField(verbose_name="URL")
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Precio")
     price_old = models.DecimalField(
         max_digits=10, decimal_places=2, null=True, blank=True, verbose_name="Precio anterior"
@@ -39,3 +39,23 @@ class Product(models.Model):
 
     def __repr__(self):
         return f"<Product: {self.name} ({self.id_external})>"
+
+    def to_json(self):
+        return {
+            "id": self.id,
+            "id_external": self.id_external,
+            "store": self.store,
+            "name": self.name,
+            "base_name": self.base_name,
+            "category": self.category,
+            "gender": self.gender,
+            "url": self.url,
+            "price": str(self.price),
+            "price_old": str(self.price_old) if self.price_old is not None else None,
+            "currency": self.currency,
+            "sizes": self.sizes,
+            "colors": self.colors,
+            "availability": self.availability,
+            "image_urls": self.image_urls,
+            "extracted_at": self.extracted_at.isoformat() if self.extracted_at else "",
+        }

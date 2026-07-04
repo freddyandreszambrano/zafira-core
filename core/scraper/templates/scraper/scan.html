@@ -18,10 +18,16 @@
                 <h1 class="z-page-title">{{ title }}</h1>
                 <p class="z-page-subtitle">Extracción temporal de prendas desde tienda web.</p>
             </div>
-            <button type="button" class="z-btn-ghost" data-copy-json disabled>
-                <i class="fas fa-copy"></i>
-                <span>Copiar JSON</span>
-            </button>
+            <div class="flex items-center gap-2 flex-wrap">
+                <button type="button" class="z-btn-ghost" data-copy-json disabled>
+                    <i class="fas fa-copy"></i>
+                    <span>Copiar JSON</span>
+                </button>
+                <a href="{% url 'scraper_product_list' %}" class="z-btn-primary">
+                    <i class="fas fa-shirt"></i>
+                    <span>Productos</span>
+                </a>
+            </div>
         </div>
 
         <section class="z-card" style="padding:1.25rem 1.5rem; margin-bottom:1rem">
@@ -34,6 +40,16 @@
                     <select id="id_store" name="store" class="z-field px-4 py-2.5">
                         {% for store in stores %}
                             <option value="{{ store }}" {% if store == default_store %}selected{% endif %}>{{ store }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="z-form-group">
+                    <label class="z-form-label" for="id_source">Fuente guardada</label>
+                    <select id="id_source" name="source_id" class="z-field px-4 py-2.5" data-source-select>
+                        <option value="">URL manual</option>
+                        {% for source in sources %}
+                            <option value="{{ source.id }}" data-url="{{ source.url }}">{{ source.name }}</option>
                         {% endfor %}
                     </select>
                 </div>

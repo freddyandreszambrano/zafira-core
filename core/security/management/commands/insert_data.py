@@ -111,6 +111,26 @@ MODULES = [
         "permits_model": None,
         "order": 1,
     },
+    {
+        "type": "Herramientas",
+        "name": "Productos scrapeados",
+        "url": "/scraper/product/",
+        "icon": "fas fa-shirt",
+        "description": "Consulta y eliminacion de productos extraidos",
+        "permits_app": "scraper",
+        "permits_model": "product",
+        "order": 2,
+    },
+    {
+        "type": "Herramientas",
+        "name": "Fuentes del scraper",
+        "url": "/scraper/source/",
+        "icon": "fas fa-link",
+        "description": "URLs guardadas para ejecutar el scraper",
+        "permits_app": "scraper",
+        "permits_model": "scrapersource",
+        "order": 3,
+    },
 ]
 
 

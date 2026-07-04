@@ -10,10 +10,31 @@ const scraperScan = {
         this.jsonOutput = document.querySelector('[data-json-output]');
         this.jsonSize = document.querySelector('[data-json-size]');
         this.copyButton = document.querySelector('[data-copy-json]');
+        this.sourceSelect = document.querySelector('[data-source-select]');
+        this.urlInput = document.getElementById('id_url');
 
         if (!this.form) return;
         this.form.addEventListener('submit', event => this.submit(event));
         this.copyButton.addEventListener('click', () => this.copyJson());
+        if (this.sourceSelect) {
+            this.sourceSelect.addEventListener('change', () => this.syncSourceUrl());
+        }
+    },
+
+    syncSourceUrl() {
+        const selected = this.sourceSelect.options[this.sourceSelect.selectedIndex];
+        const savedUrl = selected ? selected.dataset.url : '';
+        if (!this.urlInput) return;
+
+        if (savedUrl) {
+            this.urlInput.value = savedUrl;
+            this.urlInput.required = false;
+            this.urlInput.readOnly = true;
+            return;
+        }
+        this.urlInput.value = '';
+        this.urlInput.required = true;
+        this.urlInput.readOnly = false;
     },
 
     submit(event) {

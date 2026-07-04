@@ -1,0 +1,20 @@
+{% extends 'list.html' %}
+{% load static %}
+
+{% block list_actions_extra %}
+    <a href="{% url 'scraper_product_list' %}" class="z-btn-ghost">
+        <i class="fas fa-shirt"></i>
+        <span>Productos</span>
+    </a>
+{% endblock %}
+
+{% block columns %}
+    <th>Nombre</th>
+    <th>URL</th>
+    <th>Creada</th>
+    <th class="text-center">Acciones</th>
+{% endblock %}
+
+{% block head_list %}
+    <script src="{% static 'scraper_source/js/list.js' %}"></script>
+{% endblock %}

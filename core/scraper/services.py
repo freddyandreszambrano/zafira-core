@@ -5,7 +5,7 @@ from django.utils.timezone import now
 
 from core.scraper import parsers
 from core.scraper.adapters import ADAPTER_MAP
-from core.scraper.models import Product
+from core.scraper.models import Product, ScraperSource
 
 MAX_PRODUCTS_LIMIT = 50
 
@@ -98,6 +98,47 @@ def scan_store(store, max_products=None):
     }
 
 
+def scan_saved_sources(max_products=10):
+    sources = ScraperSource.objects.all().order_by("name")
+    products = {}
+    errors = []
+    results = []
+
+    for source in sources:
+        store = infer_store_from_url(source.url)
+        result = scan_url(store, source.url, max_products=max_products)
+        results.append(
+            {
+                "source": source.to_json(),
+                "success": result["success"],
+                "total_products": result["metadata"]["total_products"],
+                "errors": result.get("errors", []),
+            }
+        )
+        for product in result.get("products", []):
+            product_key = product.get("id") or product.get("url")
+            if product_key:
+                products[product_key] = product
+        errors.extend(result.get("errors", []))
+
+    product_list = list(products.values())
+    return {
+        "success": True,
+        "metadata": {
+            "store": None,
+            "source_url": None,
+            "mode": "saved_sources",
+            "scraped_at": parsers.now_iso(),
+            "total_sources": sources.count(),
+            "total_products": len(product_list),
+            "total_errors": len(errors),
+        },
+        "products": product_list,
+        "errors": errors,
+        "results": results,
+    }
+
+
 def _close_adapter(adapter):
     close = getattr(adapter, "close", None)
     if callable(close):
@@ -112,6 +153,13 @@ def _get_adapter(store):
         available = ", ".join(ADAPTER_MAP.keys())
         raise ValueError(f"Adaptador '{store}' no encontrado. Disponibles: {available}")
     return ADAPTER_MAP[store]()
+
+
+def infer_store_from_url(source_url):
+    hostname = urlparse(source_url).hostname or ""
+    if "etafashion" in hostname:
+        return "etafashion"
+    return "modarm"
 
 
 def _spread_sample(items, max_count):

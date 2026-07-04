@@ -5,7 +5,8 @@ from django.http import HttpResponse
 from django.views.generic import TemplateView
 
 from core.scraper.adapters import ADAPTER_MAP
-from core.scraper.services import scan_url
+from core.scraper.models import ScraperSource
+from core.scraper.services import infer_store_from_url, scan_url
 
 
 class ScraperScanView(LoginRequiredMixin, TemplateView):
@@ -19,9 +20,16 @@ class ScraperScanView(LoginRequiredMixin, TemplateView):
             return HttpResponse(json.dumps(data), content_type="application/json")
 
         try:
+            source_url = request.POST.get("url", "")
+            store = request.POST.get("store", "modarm")
+            source_id = request.POST.get("source_id")
+            if source_id:
+                source = ScraperSource.objects.get(pk=source_id)
+                source_url = source.url
+                store = infer_store_from_url(source_url)
             data = scan_url(
-                store=request.POST.get("store", "modarm"),
-                source_url=request.POST.get("url", ""),
+                store=store,
+                source_url=source_url,
                 max_products=request.POST.get("max_products", 10),
             )
         except Exception as e:
@@ -32,6 +40,7 @@ class ScraperScanView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context["title"] = "Scraper"
         context["stores"] = ADAPTER_MAP.keys()
+        context["sources"] = ScraperSource.objects.all().order_by("name")
         context["default_store"] = "modarm"
         context["default_max_products"] = 10
         return context
