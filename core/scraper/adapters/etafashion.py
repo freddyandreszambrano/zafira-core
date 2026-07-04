@@ -2,15 +2,8 @@ from core.scraper.adapters.modarm import ModarmAdapter
 
 
 class EtafashionAdapter(ModarmAdapter):
-    """Adapter para Etafashion (etafashion.com).
-
-    Etafashion corre sobre la misma plantilla VTEX que Modarm (mismas
-    clases CSS para precio, tallas, colores, stock y descripcion), por lo
-    que reutiliza toda la logica de parseo de ModarmAdapter y solo cambia
-    el dominio y el listado de categorias.
-    """
-
     BASE_URL = "https://www.etafashion.com"
+    SUPPORTED_DOMAINS = ("etafashion.com",)
 
     CATEGORIES = [
         {"name": "Mujer - Vestidos", "path": "/MUJERES/MODA-MUJER/FALDAS-Y-VESTIDOS/c/10105230799"},

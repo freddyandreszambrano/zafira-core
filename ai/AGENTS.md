@@ -416,7 +416,9 @@ Luego: `make migrate && make insert-data`. El módulo aparecerá en nav y dashbo
 
 ### API REST (DRF)
 - **Representación en el modelo**: el payload JSON de un endpoint API se arma con un método `to_json_api()` en el modelo, NO con dicts inline en la vista. `User.to_json_api()` es la representación canónica (incluye `token`); `/api/v1/auth/token/` responde plano con `user.to_json_api()`.
-- **Lógica adicional en `features/` (service classes)**: la orquestación (validar `app-source`, login, `get_or_create` de `MobileProfile`, construir la respuesta) vive en clases service dentro de `core/<app>/api/v1/<area>/features/` (ej. `AuthApiZafira` con `is_valid_source()` / `login()` / `build_response()`). La vista API queda delgada y solo delega.
+- **Serializers solo para input**: los serializers DRF se nombran `*SerializerInput` y se usan para validar entrada. No usarlos como output.
+- **Outputs para respuestas**: los payloads de respuesta viven en `core/<app>/api/v1/<area>/outputs/` con clases `*Output` (`ProductOutput`, `RecommendOutput`, etc.). Un output puede envolver `model.to_json_api()` o componer varias representaciones.
+- **Lógica adicional en `features/` (service classes)**: la orquestación (validar `app-source`, login, `get_or_create` de `MobileProfile`, filtros, lookups, updates, llamadas externas) vive en clases service dentro de `core/<app>/api/v1/<area>/features/` (ej. `AuthApiZafira`, `ProductCatalogApi`, `RecommendApi`). La vista API queda delgada y solo coordina input → feature → output → `Response`.
 
 ### Permisos
 - **Toda view CRUD usa `PermissionMixin`** con `permission_required = 'view_xxx' / 'add_xxx' / 'change_xxx' / 'delete_xxx'`.

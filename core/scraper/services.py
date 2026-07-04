@@ -33,8 +33,12 @@ def scan_url(store, source_url, max_products=10):
     if not source_url:
         return _error_response(store, source_url, "Ingrese una URL para escanear.")
 
-    if store == "modarm" and not _is_modarm_url(source_url):
-        return _error_response(store, source_url, "La URL debe pertenecer a modarm.com.")
+    if not adapter.supports_url(source_url):
+        return _error_response(
+            store,
+            source_url,
+            f"La URL debe pertenecer a {_supported_domains_label(adapter)}.",
+        )
 
     try:
         max_products = normalize_max_products(max_products)
@@ -56,6 +60,18 @@ def scan_url(store, source_url, max_products=10):
         return _scan_category(adapter, store, source_url, category, max_products)
     finally:
         _close_adapter(adapter)
+
+
+def scan_auto_url(source_url, max_products=10):
+    source_url = (source_url or "").strip()
+    if not source_url:
+        return _error_response("", source_url, "Ingrese una URL para escanear.")
+
+    try:
+        store = infer_store_from_url(source_url)
+    except ValueError as e:
+        return _error_response("", source_url, str(e))
+    return scan_url(store, source_url, max_products=max_products)
 
 
 def scan_store(store, max_products=None):
@@ -105,8 +121,7 @@ def scan_saved_sources(max_products=10):
     results = []
 
     for source in sources:
-        store = infer_store_from_url(source.url)
-        result = scan_url(store, source.url, max_products=max_products)
+        result = scan_auto_url(source.url, max_products=max_products)
         results.append(
             {
                 "source": source.to_json(),
@@ -155,11 +170,23 @@ def _get_adapter(store):
     return ADAPTER_MAP[store]()
 
 
+def _supported_domains_label(adapter):
+    domains = getattr(adapter, "SUPPORTED_DOMAINS", ())
+    if len(domains) == 1:
+        return domains[0]
+    return ", ".join(domains) or "un dominio soportado"
+
+
 def infer_store_from_url(source_url):
-    hostname = urlparse(source_url).hostname or ""
-    if "etafashion" in hostname:
-        return "etafashion"
-    return "modarm"
+    source_url = (source_url or "").strip()
+    for store, adapter_cls in ADAPTER_MAP.items():
+        if adapter_cls.supports_url(source_url):
+            return store
+    supported = []
+    for adapter_cls in ADAPTER_MAP.values():
+        supported.extend(getattr(adapter_cls, "SUPPORTED_DOMAINS", ()))
+    domains = ", ".join(sorted(set(supported)))
+    raise ValueError(f"No hay adaptador para esta URL. Dominios soportados: {domains}")
 
 
 def _spread_sample(items, max_count):
@@ -285,8 +312,3 @@ def _error_response(store, source_url, message):
         "products": [],
         "errors": [message],
     }
-
-
-def _is_modarm_url(url):
-    hostname = urlparse(url).hostname or ""
-    return hostname == "modarm.com" or hostname.endswith(".modarm.com")

@@ -68,12 +68,35 @@ class UserProfileAdmin(admin.ModelAdmin):
 
 @admin.register(MobileProfile)
 class MobileProfileAdmin(admin.ModelAdmin):
-    list_display = ("get_username", "gender", "preferred_size", "language", "country", "created_at")
-    list_filter = ("gender", "language", "country", "created_at")
+    list_display = (
+        "get_username",
+        "gender",
+        "preferred_size",
+        "onboarding_completed",
+        "onboarding_force_show",
+        "language",
+        "country",
+        "created_at",
+    )
+    list_filter = (
+        "gender",
+        "onboarding_completed",
+        "onboarding_force_show",
+        "language",
+        "country",
+        "created_at",
+    )
     search_fields = ("user__username", "user__email", "user__dni", "preferred_size")
     readonly_fields = ("created_at", "updated_at")
     ordering = ("-created_at",)
 
+    actions = ["reopen_onboarding"]
+
     @admin.display(description="Usuario")
     def get_username(self, obj):
         return obj.user.username
+
+    @admin.action(description="Reabrir onboarding (forzar pantalla)")
+    def reopen_onboarding(self, request, queryset):
+        count = queryset.update(onboarding_force_show=True)
+        self.message_user(request, f"{count} perfil(es): se forzara mostrar el onboarding.")

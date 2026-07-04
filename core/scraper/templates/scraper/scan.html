@@ -36,15 +36,6 @@
                 <input type="hidden" name="action" value="scan">
 
                 <div class="z-form-group">
-                    <label class="z-form-label" for="id_store">Tienda</label>
-                    <select id="id_store" name="store" class="z-field px-4 py-2.5">
-                        {% for store in stores %}
-                            <option value="{{ store }}" {% if store == default_store %}selected{% endif %}>{{ store }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="z-form-group">
                     <label class="z-form-label" for="id_source">Fuente guardada</label>
                     <select id="id_source" name="source_id" class="z-field px-4 py-2.5" data-source-select>
                         <option value="">URL manual</option>
@@ -56,7 +47,7 @@
 
                 <div class="z-form-group" style="flex:1">
                     <label class="z-form-label" for="id_url">URL de categoría o producto</label>
-                    <input id="id_url" type="url" name="url" required
+                    <input id="id_url" type="url" name="url"
                            placeholder="https://www.modarm.com/..."
                            class="z-field px-4 py-2.5">
                 </div>

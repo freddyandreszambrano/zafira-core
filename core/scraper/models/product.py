@@ -59,3 +59,57 @@ class Product(models.Model):
             "image_urls": self.image_urls,
             "extracted_at": self.extracted_at.isoformat() if self.extracted_at else "",
         }
+
+    def to_json_api(self, request=None):
+        return {
+            "id": self.id,
+            "id_external": self.id_external,
+            "name": self.name,
+            "category": self.category,
+            "gender": self.gender,
+            "url": self.url,
+            "price": str(self.price),
+            "price_old": str(self.price_old) if self.price_old is not None else None,
+            "currency": self.currency,
+            "sizes": self.sizes,
+            "colors": self.colors,
+            "description": self.description,
+            "image_urls": self.image_urls,
+            "availability": self.availability,
+            "store": self.store,
+            "extracted_at": self.extracted_at.isoformat() if self.extracted_at else "",
+            "color_options": self.get_color_options_api(),
+            "is_favorite": self.is_favorite_for_request(request),
+        }
+
+    def get_color_options_api(self):
+        if not self.base_name:
+            return []
+
+        siblings = (
+            Product.objects.filter(
+                base_name=self.base_name,
+                category=self.category,
+                gender=self.gender,
+            )
+            .exclude(pk=self.pk)
+            .order_by("name")
+        )
+
+        return [
+            {
+                "id": sibling.id,
+                "color": sibling.colors[0] if sibling.colors else None,
+                "image_url": sibling.image_urls[0] if sibling.image_urls else None,
+            }
+            for sibling in siblings
+        ]
+
+    def is_favorite_for_request(self, request=None):
+        user = getattr(request, "user", None)
+        if not user or not user.is_authenticated:
+            return False
+
+        from .favorite import Favorite
+
+        return Favorite.objects.filter(user=user, product=self).exists()

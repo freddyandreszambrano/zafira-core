@@ -131,6 +131,11 @@ class User(AbstractBaseUser, PermissionsMixin):
             url = mobile_profile.try_on_photo.url
             try_on_photo_url = request.build_absolute_uri(url) if request else url
 
+        if mobile_profile is not None:
+            onboarding = mobile_profile.onboarding_status()
+        else:
+            onboarding = {"completed": False, "pending_steps": ["gender", "preferred_size"]}
+
         return {
             "id": self.id,
             "username": self.username,
@@ -147,6 +152,7 @@ class User(AbstractBaseUser, PermissionsMixin):
             "style_preferences": getattr(mobile_profile, "style_preferences", {}),
             "language": getattr(mobile_profile, "language", "es"),
             "try_on_photo": try_on_photo_url,
+            "onboarding": onboarding,
             "token": self.get_or_create_token().replace("Token ", ""),
         }
 

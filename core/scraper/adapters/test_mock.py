@@ -6,6 +6,8 @@ from core.scraper.base import BaseAdapter
 class TestMockAdapter(BaseAdapter):
     """Mock adapter for testing the scraper command."""
 
+    SUPPORTED_DOMAINS = ("example.com",)
+
     def get_categories(self) -> List[Dict]:
         return [
             {"name": "Mock Category", "path": "/test/", "url": "https://example.com/test/"},

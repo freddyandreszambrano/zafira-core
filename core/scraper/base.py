@@ -1,9 +1,21 @@
 from abc import ABC, abstractmethod
 from typing import Dict, List
+from urllib.parse import urlparse
 
 
 class BaseAdapter(ABC):
     """Interfaz base para adaptadores de diferentes tiendas de moda."""
+
+    SUPPORTED_DOMAINS = ()
+
+    @classmethod
+    def supports_url(cls, url):
+        hostname = urlparse(url).hostname or ""
+        hostname = hostname.lower()
+        return any(
+            hostname == domain or hostname.endswith(f".{domain}")
+            for domain in cls.SUPPORTED_DOMAINS
+        )
 
     @abstractmethod
     def get_categories(self) -> List[Dict]:

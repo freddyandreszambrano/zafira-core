@@ -14,6 +14,7 @@ class ModarmAdapter(BaseAdapter):
     """Adapter para Moda RM (modarm.com)."""
 
     BASE_URL = "https://www.modarm.com"
+    SUPPORTED_DOMAINS = ("modarm.com",)
     TIMEOUT = 10
     USER_AGENT = "Mozilla/5.0 (ZAFIRA-CORE-Scraper/1.0; +http://localhost)"
 

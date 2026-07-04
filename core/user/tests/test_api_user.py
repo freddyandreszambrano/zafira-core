@@ -5,7 +5,7 @@ from rest_framework.test import APIClient
 
 from core.auth.models import User
 from core.profiles.models import MobileProfile
-from core.utils.enums import UserTypeChoices
+from core.utils.enums import GenderChoices, UserTypeChoices
 
 
 class UserCreateApiTests(TestCase):
@@ -27,7 +27,7 @@ class UserCreateApiTests(TestCase):
             "push_token": "push-token-123",
         }
 
-    def test_create_mobile_user_returns_token(self):
+    def test_create_mobile_user(self):
         response = self.client.post(
             self.url,
             self.payload,
@@ -36,16 +36,28 @@ class UserCreateApiTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 201)
-        body = response.json()
-        self.assertEqual(body["username"], "mobile")
-        self.assertEqual(body["user_type"], UserTypeChoices.MOBILE)
-        self.assertTrue(body["token"])
 
         user = User.objects.get(username="mobile")
         self.assertEqual(user.user_type, UserTypeChoices.MOBILE)
+        self.assertEqual(user.email, "mobile@zafira.local")
+
         profile = MobileProfile.objects.get(user=user)
-        self.assertEqual(profile.preferred_size, "M")
         self.assertEqual(profile.push_token, "push-token-123")
+        self.assertEqual(profile.style_preferences, {"colors": ["negro", "azul"]})
+
+    def test_registration_ignores_gender_and_size(self):
+        response = self.client.post(
+            self.url,
+            self.payload,
+            format="json",
+            HTTP_APP_SOURCE="zafira-app",
+        )
+
+        self.assertEqual(response.status_code, 201)
+
+        profile = MobileProfile.objects.get(user__username="mobile")
+        self.assertEqual(profile.gender, GenderChoices.UNDISCLOSED)
+        self.assertEqual(profile.preferred_size, "")
 
     def test_create_rejects_invalid_app_source(self):
         response = self.client.post(

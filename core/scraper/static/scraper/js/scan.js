@@ -18,6 +18,7 @@ const scraperScan = {
         this.copyButton.addEventListener('click', () => this.copyJson());
         if (this.sourceSelect) {
             this.sourceSelect.addEventListener('change', () => this.syncSourceUrl());
+            this.syncSourceUrl();
         }
     },
 
@@ -29,16 +30,25 @@ const scraperScan = {
         if (savedUrl) {
             this.urlInput.value = savedUrl;
             this.urlInput.required = false;
+            this.urlInput.disabled = true;
             this.urlInput.readOnly = true;
+            this.urlInput.setCustomValidity('');
             return;
         }
-        this.urlInput.value = '';
+        this.urlInput.disabled = false;
         this.urlInput.required = true;
         this.urlInput.readOnly = false;
+        this.urlInput.setCustomValidity('');
     },
 
     submit(event) {
         event.preventDefault();
+        this.syncSourceUrl();
+        if (!this.sourceSelect.value && !this.urlInput.value.trim()) {
+            this.urlInput.setCustomValidity('Ingresa una URL o elige una fuente guardada.');
+        } else {
+            this.urlInput.setCustomValidity('');
+        }
         if (!this.form.reportValidity()) return;
 
         this.setLoading(true);

@@ -6,13 +6,13 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from core.auth.api.v1.auth.features.auth_zafira import AuthApiZafira
+from core.auth.api.v1.auth.features import AuthApiZafira, MobileProfileApi
+from core.auth.api.v1.auth.outputs import UserOutput
 from core.auth.api.v1.auth.serializer.user import (
     AuthTokenSerializerInput,
     MobileProfileUpdateSerializer,
 )
 from core.common.error import save_error_api
-from core.profiles.models import MobileProfile
 
 
 class CustomAuthTokenApiView(ObtainAuthToken):
@@ -56,7 +56,7 @@ class CurrentUserApiView(APIView):
 
     def get(self, request, *args, **kwargs):
         return Response(
-            {"user": request.user.to_json_api()},
+            UserOutput(request.user).data,
             status=status.HTTP_200_OK,
         )
 
@@ -71,13 +71,10 @@ class MobileProfileUpdateApiView(APIView):
             partial=True,
         )
         serializer.is_valid(raise_exception=True)
-        user = serializer.save()
+        user = MobileProfileApi(request.user).update_profile(serializer.validated_data)
 
         return Response(
-            {
-                "message": "Perfil actualizado correctamente",
-                "user": user.to_json_api(),
-            },
+            UserOutput(user, "Perfil actualizado correctamente").data,
             status=status.HTTP_200_OK,
         )
 
@@ -94,31 +91,18 @@ class UserAvatarUpdateApiView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        user = request.user
-        user.image = image
-        user.save(update_fields=["image"])
+        user = MobileProfileApi(request.user).update_avatar(image)
 
         return Response(
-            {
-                "message": "Foto de perfil actualizada correctamente",
-                "user": user.to_json_api(),
-            },
+            UserOutput(user, "Foto de perfil actualizada correctamente").data,
             status=status.HTTP_200_OK,
         )
 
     def delete(self, request, *args, **kwargs):
-        user = request.user
-
-        if user.image:
-            user.image.delete(save=False)
-            user.image = None
-            user.save(update_fields=["image"])
+        user = MobileProfileApi(request.user).delete_avatar()
 
         return Response(
-            {
-                "message": "Foto de perfil eliminada correctamente",
-                "user": user.to_json_api(),
-            },
+            UserOutput(user, "Foto de perfil eliminada correctamente").data,
             status=status.HTTP_200_OK,
         )
 
@@ -135,30 +119,17 @@ class TryOnPhotoUpdateApiView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        mobile_profile, _ = MobileProfile.objects.get_or_create(user=request.user)
-        mobile_profile.try_on_photo = image
-        mobile_profile.save(update_fields=["try_on_photo"])
+        user = MobileProfileApi(request.user).update_try_on_photo(image)
 
         return Response(
-            {
-                "message": "Foto guardada correctamente",
-                "user": request.user.to_json_api(),
-            },
+            UserOutput(user, "Foto guardada correctamente").data,
             status=status.HTTP_200_OK,
         )
 
     def delete(self, request, *args, **kwargs):
-        mobile_profile = getattr(request.user, "mobile_profile", None)
-
-        if mobile_profile and mobile_profile.try_on_photo:
-            mobile_profile.try_on_photo.delete(save=False)
-            mobile_profile.try_on_photo = None
-            mobile_profile.save(update_fields=["try_on_photo"])
+        user = MobileProfileApi(request.user).delete_try_on_photo()
 
         return Response(
-            {
-                "message": "Foto eliminada correctamente",
-                "user": request.user.to_json_api(),
-            },
+            UserOutput(user, "Foto eliminada correctamente").data,
             status=status.HTTP_200_OK,
         )

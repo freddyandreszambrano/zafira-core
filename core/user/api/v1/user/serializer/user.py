@@ -7,7 +7,7 @@ from rest_framework import serializers
 
 from core.auth.models import User
 from core.profiles.models import MobileProfile
-from core.utils.enums import GenderChoices, UserTypeChoices
+from core.utils.enums import UserTypeChoices
 
 
 class UserCreateSerializerInput(serializers.Serializer):
@@ -18,14 +18,7 @@ class UserCreateSerializerInput(serializers.Serializer):
     first_name = serializers.CharField(required=False, allow_blank=True, default="")
     last_name = serializers.CharField(required=False, allow_blank=True, default="")
 
-    gender = serializers.ChoiceField(
-        choices=GenderChoices.choices,
-        required=False,
-        allow_blank=True,
-        default=GenderChoices.UNDISCLOSED,
-    )
     date_of_birth = serializers.DateField(required=False, allow_null=True)
-    preferred_size = serializers.CharField(required=False, allow_blank=True, default="")
     style_preferences = serializers.JSONField(required=False, default=dict)
     language = serializers.CharField(required=False, allow_blank=True, default="es")
     country = serializers.CharField(required=False, allow_blank=True, default="Ecuador")
@@ -135,9 +128,7 @@ class UserCreateSerializerInput(serializers.Serializer):
 
     def create(self, validated_data):
         profile_data = {
-            "gender": validated_data.pop("gender", GenderChoices.UNDISCLOSED),
             "date_of_birth": validated_data.pop("date_of_birth", None),
-            "preferred_size": validated_data.pop("preferred_size", ""),
             "style_preferences": validated_data.pop("style_preferences", {}),
             "language": validated_data.pop("language", "es"),
             "country": validated_data.pop("country", "Ecuador"),

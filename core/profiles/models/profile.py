@@ -90,6 +90,14 @@ class MobileProfile(models.Model):
         blank=True,
         verbose_name="Foto para prueba virtual",
     )
+    onboarding_completed = models.BooleanField(
+        default=False,
+        verbose_name="Onboarding completado",
+    )
+    onboarding_force_show = models.BooleanField(
+        default=False,
+        verbose_name="Forzar mostrar onboarding",
+    )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de creacion")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Fecha de actualizacion")
 
@@ -105,3 +113,22 @@ class MobileProfile(models.Model):
 
     def __str__(self):
         return f"Perfil mobile de {self.user.get_full_name() or self.user.username}"
+
+    ONBOARDING_STEPS = ("gender", "preferred_size")
+
+    def onboarding_pending_steps(self):
+        pending = []
+        if self.gender in ("", GenderChoices.UNDISCLOSED):
+            pending.append("gender")
+        if not self.preferred_size:
+            pending.append("preferred_size")
+        return pending
+
+    def onboarding_status(self):
+        pending = self.onboarding_pending_steps()
+        completed = (self.onboarding_completed or not pending) and not self.onboarding_force_show
+        return {
+            "completed": completed,
+            "pending_steps": pending,
+            "force_show": self.onboarding_force_show,
+        }
