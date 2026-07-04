@@ -49,6 +49,10 @@ class MobileProfileListView(PermissionMixin, TemplateView):
                     "recordsTotal": paginator.count,
                     "recordsFiltered": paginator.count,
                 }
+            elif action == "change_state":
+                profile = MobileProfile.objects.get(pk=request.POST.get("id"))
+                profile.onboarding_force_show = not profile.onboarding_force_show
+                profile.save(update_fields=["onboarding_force_show"])
             else:
                 data["error"] = "No ha seleccionado ninguna opcion"
         except Exception as e:
@@ -71,6 +75,8 @@ class MobileProfileListView(PermissionMixin, TemplateView):
             "image": image_url,
             "gender": obj.get_gender_display(),
             "preferred_size": obj.preferred_size,
+            "onboarding_completed": obj.onboarding_completed,
+            "onboarding_force_show": obj.onboarding_force_show,
             "language": obj.language,
             "country": obj.country,
             "push_token": obj.push_token,

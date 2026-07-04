@@ -41,3 +41,25 @@ class MobileProfileViewTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "mobile@zafira.local")
+
+    def test_list_exposes_onboarding_fields(self):
+        response = self.client.post(
+            reverse("mobile_profile_list"),
+            {"action": "search", "page": 1, "page_size": 10},
+        )
+
+        row = response.json()["data"][0]
+        self.assertIn("onboarding_completed", row)
+        self.assertIn("onboarding_force_show", row)
+
+    def test_change_state_toggles_force_show(self):
+        self.assertFalse(self.profile.onboarding_force_show)
+
+        response = self.client.post(
+            reverse("mobile_profile_list"),
+            {"action": "change_state", "id": self.profile.pk},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.profile.refresh_from_db()
+        self.assertTrue(self.profile.onboarding_force_show)

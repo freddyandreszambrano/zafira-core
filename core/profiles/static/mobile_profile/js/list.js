@@ -50,12 +50,29 @@ const mobileProfile = {
                 render: data => Zafira.escape(data || '-'),
             },
             {
+                data: 'onboarding_completed',
+                className: 'text-center',
+                orderable: false,
+                render: data => data
+                    ? '<span class="z-badge z-badge--on"><span class="z-badge__dot"></span>Completado</span>'
+                    : '<span class="z-badge z-badge--off"><span class="z-badge__dot"></span>Pendiente</span>',
+            },
+            {
+                data: 'onboarding_force_show',
+                className: 'text-center',
+                orderable: false,
+                render: data => Zafira.statusBadge(data, ['Forzado', 'Normal']),
+            },
+            {
                 data: 'id',
                 className: 'text-center',
                 orderable: false,
                 render: id => mobileProfile.detailAction(id),
             },
-        ], { toggleField: null });
+        ], {
+            toggleField: 'onboarding_force_show',
+            toggleConfirm: '¿Cambiar "Forzar onboarding" para este usuario?',
+        });
     },
 };
 
