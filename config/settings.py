@@ -68,6 +68,7 @@ INSTALLED_APPS = [
     "core.profiles.apps.ProfilesConfig",
     "core.scraper.apps.ScraperConfig",
     "core.user.apps.UserConfig",
+    "core.recommend.apps.RecommendConfig",
 ]
 
 MIDDLEWARE = [

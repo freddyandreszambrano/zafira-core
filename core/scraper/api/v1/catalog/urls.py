@@ -1,7 +1,11 @@
 from django.urls import path
 
 from core.scraper.api.v1.catalog.views.favorite import FavoriteDetailApiView, FavoriteListApiView
-from core.scraper.api.v1.catalog.views.product import ProductDetailApiView, ProductListApiView
+from core.scraper.api.v1.catalog.views.product import (
+    ProductDetailApiView,
+    ProductListApiView,
+    ProductLiveApiView,
+)
 
 urlpatterns = [
     path(
@@ -13,6 +17,11 @@ urlpatterns = [
         "products/<int:pk>/",
         ProductDetailApiView.as_view(),
         name="api_v1_catalog_product_detail",
+    ),
+    path(
+        "products/<int:pk>/live/",
+        ProductLiveApiView.as_view(),
+        name="api_v1_catalog_product_live",
     ),
     path(
         "favorites/",
