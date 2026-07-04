@@ -29,5 +29,10 @@ class AuthApiZafira:
 
     def build_response(self, response):
         if self.user is not None:
-            response.data = self.user.to_json_api()
+            user_data = self.user.to_json_api()
+            token = user_data.pop("token", response.data.get("token", ""))
+            response.data = {
+                "token": token,
+                "user": user_data,
+            }
         return response
