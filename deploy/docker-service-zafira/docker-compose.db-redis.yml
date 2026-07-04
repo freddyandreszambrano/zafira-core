@@ -1,0 +1,44 @@
+# Postgres + Redis para desarrollo local (sin el app dockerizado).
+# Django y Celery se ejecutan en local (pyenv/venv) apuntando a localhost.
+#
+# Uso:
+#   make db-redis-up     -> levanta ambos en segundo plano
+#   make db-redis-down   -> los detiene (conserva los datos)
+#
+# Requiere en tu .env: PSQL=1, DB_HOST=localhost, DB_USER=zafira, DB_PASSWORD=zafira
+name: zafira-db-redis
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: zafira_db
+    environment:
+      POSTGRES_DB: ${DB_NAME:-zafira}
+      POSTGRES_USER: ${DB_USER:-zafira}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-zafira}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-zafira}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: zafira_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
+  redisdata:

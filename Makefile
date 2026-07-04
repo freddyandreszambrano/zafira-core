@@ -8,7 +8,8 @@ MANAGE ?= $(PYTHON) manage.py
 PIP ?= pip
 HOST ?= 0.0.0.0
 PORT ?= 8000
-COMPOSE ?= docker compose -f deploy/docker/docker-compose.yml
+COMPOSE ?= docker compose -f deploy/docker-service-zafira/docker-compose.yml
+DB_REDIS_COMPOSE ?= docker compose -f deploy/docker-service-zafira/docker-compose.db-redis.yml
 SQLITE_DB ?= db.sqlite3
 PRE_COMMIT_CONFIG ?= dev/pre-commit-config.yaml
 env ?= develop
@@ -302,6 +303,26 @@ flower: ## Inicia el panel Flower de Celery en http://localhost:5555
 .PHONY: redis-local
 redis-local: ## Levanta un Redis local en Docker como broker de Celery
 	docker run --rm -p 6379:6379 --name zafira-redis redis:7-alpine
+
+
+# 🧱 Postgres + Redis local (sin el app dockerizado)
+.PHONY: db-redis-up
+db-redis-up: ## Levanta Postgres + Redis en background (BD + broker de Celery)
+	$(DB_REDIS_COMPOSE) up -d
+	@echo "  ✅ Postgres en localhost:5432 · Redis en localhost:6379"
+	@echo "  ▶  Django y Celery se corren en local: make run / make celery"
+
+.PHONY: db-redis-down
+db-redis-down: ## Detiene Postgres + Redis (conserva los datos)
+	$(DB_REDIS_COMPOSE) down
+
+.PHONY: db-redis-logs
+db-redis-logs: ## Sigue los logs de Postgres + Redis
+	$(DB_REDIS_COMPOSE) logs -f
+
+.PHONY: db-redis-reset
+db-redis-reset: ## ⚠️ Detiene Postgres + Redis y borra sus datos (volúmenes)
+	$(DB_REDIS_COMPOSE) down -v
 
 
 .PHONY: last_tag
