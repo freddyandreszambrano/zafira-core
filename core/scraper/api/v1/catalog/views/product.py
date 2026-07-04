@@ -60,7 +60,9 @@ class ProductLiveApiView(APIView):
         fresh = refresh_product_from_live(product)
 
         serializer = ProductSerializer(product, context={"request": request})
-        return Response({
-            "live": fresh,  # False = la tienda no respondió; datos de la BD
-            "product": serializer.data,
-        })
+        return Response(
+            {
+                "live": fresh,  # False = la tienda no respondió; datos de la BD
+                "product": serializer.data,
+            }
+        )

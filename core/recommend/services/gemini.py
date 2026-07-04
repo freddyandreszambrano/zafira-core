@@ -4,7 +4,7 @@ import random
 import re
 import time
 import urllib.request
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor
 
 from google import genai
 from google.genai import types as genai_types
@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 class InsufficientFavoritesError(Exception):
     """Los favoritos no tienen al menos 1 prenda de torso y 1 de piernas."""
+
 
 # ── Singletons ────────────────────────────────────────────────────────────────
 
@@ -49,65 +50,176 @@ def _get_gemini() -> genai.Client:
 # ── Constantes ────────────────────────────────────────────────────────────────
 
 EXCLUDED_CATEGORIES = [
-    "perfume", "fragancia", "maquillaje", "cosmetico", "belleza",
-    "zapato", "zapatilla", "bota", "sandalia", "accesorio", "bolso",
-    "cartera", "gorra", "sombrero", "joya", "reloj",
+    "perfume",
+    "fragancia",
+    "maquillaje",
+    "cosmetico",
+    "belleza",
+    "zapato",
+    "zapatilla",
+    "bota",
+    "sandalia",
+    "accesorio",
+    "bolso",
+    "cartera",
+    "gorra",
+    "sombrero",
+    "joya",
+    "reloj",
 ]
 
 COMPLETE_KEYWORDS = [
-    "vestido", "enterizo", "mono", "jumpsuit", "maxi", "minivestido",
+    "vestido",
+    "enterizo",
+    "mono",
+    "jumpsuit",
+    "maxi",
+    "minivestido",
 ]
 
 TORSO_KEYWORDS = [
-    "camisa", "camiseta", "blusa", "polo", "suéter", "sueter", "sweater",
-    "chaqueta", "jacket", "abrigo", "buzo", "hoodie", "top", "chaleco",
-    "chompa", "pullover", "cardigan", "tshirt", "t-shirt", "buso",
+    "camisa",
+    "camiseta",
+    "blusa",
+    "polo",
+    "suéter",
+    "sueter",
+    "sweater",
+    "chaqueta",
+    "jacket",
+    "abrigo",
+    "buzo",
+    "hoodie",
+    "top",
+    "chaleco",
+    "chompa",
+    "pullover",
+    "cardigan",
+    "tshirt",
+    "t-shirt",
+    "buso",
 ]
 
 PIERNA_KEYWORDS = [
-    "pantalón", "pantalon", "jean", "jeans", "short", "shorts", "falda",
-    "leggin", "legging", "bermuda", "jogger", "cargo",
+    "pantalón",
+    "pantalon",
+    "jean",
+    "jeans",
+    "short",
+    "shorts",
+    "falda",
+    "leggin",
+    "legging",
+    "bermuda",
+    "jogger",
+    "cargo",
 ]
 
 OCCASION_TYPES = {
     "romantic": [
-        "cita", "romántica", "romantica", "aniversario", "enamorado",
-        "cena romántica", "san valentín", "pareja", "novia", "novio",
+        "cita",
+        "romántica",
+        "romantica",
+        "aniversario",
+        "enamorado",
+        "cena romántica",
+        "san valentín",
+        "pareja",
+        "novia",
+        "novio",
     ],
     "formal": [
-        "trabajo", "oficina", "reunión", "reunion", "negocios",
-        "entrevista", "conferencia", "presentación", "presentacion",
-        "corporativo", "ejecutivo",
+        "trabajo",
+        "oficina",
+        "reunión",
+        "reunion",
+        "negocios",
+        "entrevista",
+        "conferencia",
+        "presentación",
+        "presentacion",
+        "corporativo",
+        "ejecutivo",
     ],
     "gala": [
-        "boda", "graduación", "graduacion", "gala", "ceremonia",
-        "evento formal", "coctel", "cóctel",
+        "boda",
+        "graduación",
+        "graduacion",
+        "gala",
+        "ceremonia",
+        "evento formal",
+        "coctel",
+        "cóctel",
     ],
     "party": [
-        "fiesta", "discoteca", "club", "celebración", "celebracion",
-        "cumpleaños", "after", "noche de fiesta",
+        "fiesta",
+        "discoteca",
+        "club",
+        "celebración",
+        "celebracion",
+        "cumpleaños",
+        "after",
+        "noche de fiesta",
     ],
     "sport": [
-        "gym", "gimnasio", "deporte", "ejercicio", "entrenamiento",
-        "correr", "fútbol", "futbol", "running",
+        "gym",
+        "gimnasio",
+        "deporte",
+        "ejercicio",
+        "entrenamiento",
+        "correr",
+        "fútbol",
+        "futbol",
+        "running",
     ],
     "beach": [
-        "playa", "piscina", "verano", "vacaciones", "resort",
+        "playa",
+        "piscina",
+        "verano",
+        "vacaciones",
+        "resort",
     ],
 }
 
 OCCASION_EXCLUSIONS = {
     "romantic": [
-        "hoodie", "buzo", "buso", "chompa", "deportivo", "sport",
-        "athletic", "sudadera", "cargo", "bermuda",
+        "hoodie",
+        "buzo",
+        "buso",
+        "chompa",
+        "deportivo",
+        "sport",
+        "athletic",
+        "sudadera",
+        "cargo",
+        "bermuda",
     ],
     "formal": [
-        "hoodie", "buzo", "buso", "chompa", "deportivo", "sport",
-        "athletic", "sudadera", "estampado", "cargo", "bermuda", "short",
+        "hoodie",
+        "buzo",
+        "buso",
+        "chompa",
+        "deportivo",
+        "sport",
+        "athletic",
+        "sudadera",
+        "estampado",
+        "cargo",
+        "bermuda",
+        "short",
     ],
     "gala": [
-        "hoodie", "buzo", "buso", "chompa", "deportivo", "sport",
-        "athletic", "sudadera", "cargo", "bermuda", "short",
+        "hoodie",
+        "buzo",
+        "buso",
+        "chompa",
+        "deportivo",
+        "sport",
+        "athletic",
+        "sudadera",
+        "cargo",
+        "bermuda",
+        "short",
     ],
     "party": ["deportivo", "sport", "athletic", "cargo", "bermuda"],
     "sport": [],
@@ -124,6 +236,7 @@ MAX_OUTFITS = 3
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 _OCCASION_TYPE_CACHE: dict[str, str] = {}
+
 
 def _detect_occasion_type(occasion: str) -> str:
     """Detecta tipo de ocasión con keyword matching (rápido, sin API call)."""
@@ -174,7 +287,9 @@ def _is_appropriate(product, occasion_type: str) -> bool:
     return not any(ex in text for ex in exclusions)
 
 
-def _build_pool(products: list, gender: str, occasion_type: str, exclude_ids: set) -> tuple[list, list, list]:
+def _build_pool(
+    products: list, gender: str, occasion_type: str, exclude_ids: set
+) -> tuple[list, list, list]:
     gendered = [p for p in products if _matches_gender(p, gender)]
     clothing = [p for p in gendered if _is_clothing(p)]
     appropriate = [p for p in clothing if _is_appropriate(p, occasion_type)]
@@ -246,6 +361,7 @@ def _groq_call_with_retry(client: Groq, **kwargs) -> any:
 
 # ── Paso 1: Groq elige candidatos por texto ───────────────────────────────────
 
+
 def _groq_select_candidates(
     torso_pool: list,
     pierna_pool: list,
@@ -262,7 +378,9 @@ def _groq_select_candidates(
     n = MAX_VISION_CANDIDATES
     torso_sample = random.sample(torso_pool, min(n * 2, len(torso_pool)))
     pierna_sample = random.sample(pierna_pool, min(n * 2, len(pierna_pool)))
-    complete_sample = random.sample(complete_pool, min(count, len(complete_pool))) if complete_pool else []
+    complete_sample = (
+        random.sample(complete_pool, min(count, len(complete_pool))) if complete_pool else []
+    )
 
     gender_label = "mujer" if gender == "mujer" else "hombre"
 
@@ -295,8 +413,8 @@ def _groq_select_candidates(
     json_example = '{"occasion_type": "<tipo>", "tops": [índices T], "bottoms": [índices P]'
     if complete_sample:
         json_example += ', "completes": [índices C]'
-    json_example += '}'
-    lines += ["", f'Responde SOLO con JSON: {json_example}']
+    json_example += "}"
+    lines += ["", f"Responde SOLO con JSON: {json_example}"]
 
     try:
         client = _get_groq()
@@ -329,13 +447,17 @@ def _groq_select_candidates(
 
         tops = _parse_indices(r'"tops"\s*:\s*\[([^\]]+)\]', torso_sample)
         bottoms = _parse_indices(r'"bottoms"\s*:\s*\[([^\]]+)\]', pierna_sample)
-        completes = _parse_indices(r'"completes"\s*:\s*\[([^\]]+)\]', complete_sample) if complete_sample else []
+        completes = (
+            _parse_indices(r'"completes"\s*:\s*\[([^\]]+)\]', complete_sample)
+            if complete_sample
+            else []
+        )
 
         # Para gala/romántica garantizamos al menos `count` vestidos como candidatos
         if complete_sample and occasion_type in ("gala", "romantic"):
             if len(completes) < count:
                 extra = [p for p in complete_sample if p not in completes]
-                completes = completes + extra[:count - len(completes)]
+                completes = completes + extra[: count - len(completes)]
 
         return tops, bottoms, completes
 
@@ -345,6 +467,7 @@ def _groq_select_candidates(
 
 
 # ── Paso 2: Gemini evalúa visualmente y arma los outfits ─────────────────────
+
 
 def _gemini_visual_outfits(
     torso_cands: list,
@@ -360,7 +483,8 @@ def _gemini_visual_outfits(
     Gemini Flash lee las imágenes reales de cada prenda y elige las
     combinaciones que mejor combinan visualmente para la ocasión.
     """
-    model = _get_gemini()
+    # Fail-fast si falta GEMINI_API_KEY, antes de descargar imágenes
+    _get_gemini()
     gender_label = "mujer" if gender == "mujer" else "hombre"
 
     # Descargar imágenes
@@ -375,13 +499,14 @@ def _gemini_visual_outfits(
     n_torso = len(torso_cands)
     n_pierna = len(pierna_cands)
     torso_imgs = all_imgs[:n_torso]
-    pierna_imgs = all_imgs[n_torso:n_torso + n_pierna]
-    complete_imgs = all_imgs[n_torso + n_pierna:]
+    pierna_imgs = all_imgs[n_torso : n_torso + n_pierna]
+    complete_imgs = all_imgs[n_torso + n_pierna :]
 
     # Construir prompt con imágenes intercaladas
     parts = [
         f"Eres un experto en moda para {gender_label}.\n"
-        f'El usuario necesita {count} outfits DISTINTOS para: "{occasion}" (tipo: {occasion_type}).\n\n'
+        f'El usuario necesita {count} outfits DISTINTOS para: "{occasion}" '
+        f"(tipo: {occasion_type}).\n\n"
         "Evalúa colores, patrones y estilo visual para elegir las mejores combinaciones.\n\n"
         "PRENDAS DE TORSO:\n"
     ]
@@ -402,7 +527,10 @@ def _gemini_visual_outfits(
             parts.append("\n")
 
     if complete_cands:
-        parts.append("\nPRENDAS COMPLETAS (vestidos/enterizos — outfit completo solo, sin necesidad de combinar):\n")
+        parts.append(
+            "\nPRENDAS COMPLETAS (vestidos/enterizos — outfit completo solo, "
+            "sin necesidad de combinar):\n"
+        )
         for i, (p, img) in enumerate(zip(complete_cands, complete_imgs)):
             cat = p.category.split("/")[2] if p.category.count("/") >= 2 else p.category
             parts.append(f"[C{i}] {p.name} | {cat}\n")
@@ -424,7 +552,8 @@ def _gemini_visual_outfits(
         else "No repitas prendas entre outfits."
     )
     parts.append(
-        f"\nCrea {ai_count} outfits DISTINTOS (combinaciones top+piernas) apropiados para la ocasión.\n"
+        f"\nCrea {ai_count} outfits DISTINTOS (combinaciones top+piernas) "
+        f"apropiados para la ocasión.\n"
         f"{repeat_rule}\n"
         f'Responde SOLO con JSON: {{"outfits": [{{"top": <n>, "bottom": <n>}}, ...]}}\n'
         f"Exactamente {ai_count} elementos."
@@ -441,7 +570,7 @@ def _gemini_visual_outfits(
 
         outfits_block = re.search(r'"outfits"\s*:\s*(\[.*?\])', raw, re.DOTALL)
         block = outfits_block.group(1) if outfits_block else raw
-        outfit_objects = re.findall(r'\{[^{}]+\}', block)
+        outfit_objects = re.findall(r"\{[^{}]+\}", block)
 
         outfits = []
         used_ids: set = set()
@@ -510,6 +639,7 @@ def _gemini_visual_outfits(
 
 # ── API pública ───────────────────────────────────────────────────────────────
 
+
 def get_multiple_recommendations(
     products: list,
     occasion: str,
@@ -525,7 +655,9 @@ def get_multiple_recommendations(
     occasion_type = _detect_occasion_type(occasion)
     exclude_set = set(exclude_ids or [])
 
-    torso_pool, pierna_pool, complete_pool = _build_pool(products, gender, occasion_type, exclude_set)
+    torso_pool, pierna_pool, complete_pool = _build_pool(
+        products, gender, occasion_type, exclude_set
+    )
     if not torso_pool or not pierna_pool:
         return []
 

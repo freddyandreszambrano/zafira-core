@@ -8,9 +8,10 @@ momento. Pensada para ejecutarse al abrir el detalle de una prenda.
 
 import logging
 
+from django.core.cache import cache
+
 import requests
 from bs4 import BeautifulSoup
-from django.core.cache import cache
 
 from core.scraper.adapters.etafashion import EtafashionAdapter
 from core.scraper.adapters.modarm import ModarmAdapter

@@ -9,6 +9,8 @@ annotated-types==0.7.0
 anyio==4.13.0
     # via
     #   -r requirements/base.txt
+    #   google-genai
+    #   groq
     #   httpx
 asgiref==3.11.1
     # via
@@ -36,6 +38,10 @@ certifi==2026.5.20
     #   httpcore
     #   httpx
     #   requests
+cffi==2.0.0
+    # via
+    #   -r requirements/base.txt
+    #   cryptography
 charset-normalizer==3.4.7
     # via
     #   -r requirements/base.txt
@@ -63,11 +69,20 @@ cron-descriptor==1.4.5
     # via
     #   -r requirements/base.txt
     #   django-celery-beat
+cryptography==49.0.0
+    # via
+    #   -r requirements/base.txt
+    #   google-auth
 deprecated==1.3.1
     # via
     #   -r requirements/base.txt
     #   standardwebhooks
     #   svix
+distro==1.9.0
+    # via
+    #   -r requirements/base.txt
+    #   google-genai
+    #   groq
 django==5.2.14
     # via
     #   -r requirements/base.txt
@@ -103,6 +118,18 @@ djangorestframework-simplejwt==5.3.0
     # via -r requirements/base.txt
 flower==2.0.1
     # via -r requirements/base.txt
+google-auth==2.55.1
+    # via
+    #   -r requirements/base.txt
+    #   google-genai
+google-genai==2.10.0
+    # via -r requirements/base.txt
+greenlet==3.5.3
+    # via
+    #   -r requirements/base.txt
+    #   playwright
+groq==1.5.0
+    # via -r requirements/base.txt
 gunicorn==21.2.0
     # via -r requirements/prod.in
 h11==0.16.0
@@ -116,6 +143,8 @@ httpcore==1.0.9
 httpx==0.28.1
     # via
     #   -r requirements/base.txt
+    #   google-genai
+    #   groq
     #   standardwebhooks
     #   svix
 humanize==4.15.0
@@ -140,6 +169,8 @@ packaging==26.2
     #   kombu
 pillow==10.1.0
     # via -r requirements/base.txt
+playwright==1.60.0
+    # via -r requirements/base.txt
 prometheus-client==0.25.0
     # via
     #   -r requirements/base.txt
@@ -150,14 +181,32 @@ prompt-toolkit==3.0.52
     #   click-repl
 psycopg2-binary==2.9.9
     # via -r requirements/prod.in
+pyasn1==0.6.3
+    # via
+    #   -r requirements/base.txt
+    #   pyasn1-modules
+pyasn1-modules==0.4.2
+    # via
+    #   -r requirements/base.txt
+    #   google-auth
+pycparser==3.0
+    # via
+    #   -r requirements/base.txt
+    #   cffi
 pydantic==2.13.4
     # via
     #   -r requirements/base.txt
+    #   google-genai
+    #   groq
     #   svix
 pydantic-core==2.46.4
     # via
     #   -r requirements/base.txt
     #   pydantic
+pyee==13.0.1
+    # via
+    #   -r requirements/base.txt
+    #   playwright
 pyjwt==2.13.0
     # via
     #   -r requirements/base.txt
@@ -185,10 +234,17 @@ requests==2.34.2
     # via
     #   -r requirements/base.txt
     #   django-anymail
+    #   google-auth
+    #   google-genai
 six==1.17.0
     # via
     #   -r requirements/base.txt
     #   python-dateutil
+sniffio==1.3.1
+    # via
+    #   -r requirements/base.txt
+    #   google-genai
+    #   groq
 soupsieve==2.8.4
     # via
     #   -r requirements/base.txt
@@ -203,6 +259,10 @@ standardwebhooks==1.0.1
     #   svix
 svix==1.95.2
     # via -r requirements/base.txt
+tenacity==9.1.4
+    # via
+    #   -r requirements/base.txt
+    #   google-genai
 tornado==6.5.7
     # via
     #   -r requirements/base.txt
@@ -220,8 +280,11 @@ typing-extensions==4.15.0
     #   -r requirements/base.txt
     #   anyio
     #   beautifulsoup4
+    #   google-genai
+    #   groq
     #   pydantic
     #   pydantic-core
+    #   pyee
     #   typing-inspection
 typing-inspection==0.4.2
     # via
@@ -254,6 +317,10 @@ wcwidth==0.8.1
     # via
     #   -r requirements/base.txt
     #   prompt-toolkit
+websockets==16.0
+    # via
+    #   -r requirements/base.txt
+    #   google-genai
 whitenoise==6.6.0
     # via -r requirements/prod.in
 wrapt==2.2.1

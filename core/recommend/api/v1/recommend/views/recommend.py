@@ -1,6 +1,7 @@
 import logging
 
 from django.core.cache import cache
+
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -50,9 +51,7 @@ class RecommendApiView(APIView):
             if product_ids:
                 # Modo favoritos: combina solo las prendas indicadas
                 favorites = list(Product.objects.filter(id__in=product_ids))
-                outfit_list = get_favorites_recommendations(
-                    favorites, occasion, gender=gender
-                )
+                outfit_list = get_favorites_recommendations(favorites, occasion, gender=gender)
             else:
                 products = _get_products(store_filter)
                 outfit_list = get_multiple_recommendations(
@@ -75,7 +74,9 @@ class RecommendApiView(APIView):
         if not outfit_list:
             logger.warning(
                 "Recommend: sin outfits (occasion=%s, gender=%s, excludes=%s)",
-                occasion, gender, len(exclude_ids),
+                occasion,
+                gender,
+                len(exclude_ids),
             )
             return Response(
                 {"error": "No se encontraron prendas para esta ocasión"},
@@ -86,14 +87,17 @@ class RecommendApiView(APIView):
             {
                 "top": ProductSerializer(o["top"], context={"request": request}).data,
                 "bottom": ProductSerializer(o["bottom"], context={"request": request}).data
-                          if o["bottom"] else None,
+                if o["bottom"]
+                else None,
             }
             for o in outfit_list
         ]
 
-        return Response({
-            "occasion": occasion,
-            "gender": gender,
-            "store": store_filter,
-            "outfits": outfits,
-        })
+        return Response(
+            {
+                "occasion": occasion,
+                "gender": gender,
+                "store": store_filter,
+                "outfits": outfits,
+            }
+        )

@@ -26,9 +26,10 @@ class AuthTokenApiTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.user.refresh_from_db()
-        expected = self.user.to_json_api()
-        self.assertEqual(response.json(), expected)
-        self.assertEqual(expected["token"], Token.objects.get(user=self.user).key)
+        expected_user = self.user.to_json_api()
+        expected_token = expected_user.pop("token")
+        self.assertEqual(response.json(), {"token": expected_token, "user": expected_user})
+        self.assertEqual(expected_token, Token.objects.get(user=self.user).key)
 
     def test_invalid_app_source_return_bad_request(self):
         response = self.client.post(
