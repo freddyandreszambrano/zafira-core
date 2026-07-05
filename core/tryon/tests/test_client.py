@@ -1,12 +1,8 @@
-import hashlib
-import hmac
-import json
 from unittest import mock
 
 import requests
 from django.test import TestCase
 
-from core.security.models import ExternalProvider
 from core.tryon.services.zafira_ia_client import (
     ZafiraIaClient,
     ZafiraIaRejected,
@@ -15,32 +11,6 @@ from core.tryon.services.zafira_ia_client import (
 
 
 class ZafiraIaClientTests(TestCase):
-    def setUp(self):
-        self.provider = ExternalProvider.objects.create(
-            name="zafira-ia",
-            client_id="core-client",
-            client_secret="core-secret",
-        )
-
-    def test_signed_headers_match_zafira_ia_verifier(self):
-        client = ZafiraIaClient(base_url="http://ia.test")
-        body = json.dumps({"external_ref": "abc"}).encode("utf-8")
-
-        headers = client.signed_headers(body)
-
-        message = body.decode("utf-8") + headers["X-TIMESTAMP"]
-        expected = hmac.new(
-            b"core-secret", message.encode("utf-8"), hashlib.sha256
-        ).hexdigest()
-        self.assertEqual(headers["X-CLIENT-ID"], "core-client")
-        self.assertEqual(headers["X-SIGNATURE"], expected)
-        self.assertEqual(headers["Content-Type"], "application/json")
-
-    def test_missing_provider_raises_rejected(self):
-        self.provider.delete()
-        with self.assertRaises(ZafiraIaRejected):
-            ZafiraIaClient(base_url="http://ia.test")
-
     @mock.patch("core.tryon.services.zafira_ia_client.requests.post")
     def test_try_on_success(self, mock_post):
         mock_post.return_value = mock.Mock(
@@ -59,9 +29,12 @@ class ZafiraIaClientTests(TestCase):
         self.assertEqual(data["result_image_b64"], "aW1n")
         args, kwargs = mock_post.call_args
         self.assertEqual(args[0], "http://ia.test/api/v1/tryon")
-        sent = json.loads(kwargs["data"])
-        self.assertEqual(sent["garment_type"], "upper_body")
-        self.assertIn("X-SIGNATURE", kwargs["headers"])
+        self.assertEqual(kwargs["json"]["garment_type"], "upper_body")
+        self.assertEqual(kwargs["json"]["external_ref"], "abc")
+
+    def test_default_base_url_points_to_local_zafira_ia(self):
+        client = ZafiraIaClient()
+        self.assertEqual(client.base_url, "http://localhost:8001")
 
     @mock.patch("core.tryon.services.zafira_ia_client.requests.post")
     def test_try_on_5xx_raises_unavailable(self, mock_post):
