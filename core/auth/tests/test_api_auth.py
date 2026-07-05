@@ -1,10 +1,17 @@
-from django.test import TestCase
+import shutil
+import tempfile
+
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import TestCase, override_settings
 
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
 from core.auth.models import User
 from core.profiles.models import MobileProfile
+
+
+TEST_MEDIA_ROOT = tempfile.mkdtemp()
 
 
 class AuthTokenApiTests(TestCase):
@@ -60,7 +67,13 @@ class AuthTokenApiTests(TestCase):
         self.assertNotIn("token", response.json())
 
 
+@override_settings(MEDIA_ROOT=TEST_MEDIA_ROOT)
 class MobileProfileUpdateApiTests(TestCase):
+    @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        shutil.rmtree(TEST_MEDIA_ROOT, ignore_errors=True)
+
     def setUp(self):
         self.client = APIClient()
         self.user = User.objects.create_user(
@@ -111,3 +124,22 @@ class MobileProfileUpdateApiTests(TestCase):
         profile = MobileProfile.objects.get(user=self.user)
         self.assertFalse(profile.onboarding_force_show)
         self.assertTrue(profile.onboarding_completed)
+
+    def test_try_on_photo_update_returns_photo_url(self):
+        response = self.client.patch(
+            "/api/v1/auth/profile/try-on-photo/",
+            {
+                "image": SimpleUploadedFile(
+                    "try-on.jpg",
+                    b"try-on-content",
+                    content_type="image/jpeg",
+                )
+            },
+            format="multipart",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("/media/try_on/", response.json()["user"]["try_on_photo"])
+
+        profile = MobileProfile.objects.get(user=self.user)
+        self.assertTrue(profile.try_on_photo.name.startswith("try_on/"))

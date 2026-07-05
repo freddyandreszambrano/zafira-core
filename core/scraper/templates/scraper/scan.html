@@ -16,7 +16,7 @@
                     <span>Scraper</span>
                 </div>
                 <h1 class="z-page-title">{{ title }}</h1>
-                <p class="z-page-subtitle">Extracción temporal de prendas desde tienda web.</p>
+                <p class="z-page-subtitle">Extracción adaptable de prendas desde cualquier tienda web.</p>
             </div>
             <div class="flex items-center gap-2 flex-wrap">
                 <button type="button" class="z-btn-ghost" data-copy-json disabled>
@@ -72,10 +72,14 @@
                     <h2 class="z-panel__title">Productos encontrados</h2>
                     <p class="z-panel__subtitle" data-scan-summary>Sin resultados aún.</p>
                 </div>
-                <div class="ml-auto flex items-center gap-2">
+                <div class="ml-auto flex items-center gap-2 flex-wrap">
                     <span class="z-badge z-badge--off" data-scan-status>
                         <span class="z-badge__dot"></span>Listo
                     </span>
+                    <button type="button" class="z-btn-primary hidden" data-save-products>
+                        <i class="fas fa-floppy-disk"></i>
+                        <span>Guardar productos</span>
+                    </button>
                 </div>
             </div>
             <div class="overflow-x-auto">
@@ -99,6 +103,14 @@
                     </tbody>
                 </table>
             </div>
+        </section>
+
+        <section class="z-card hidden" data-scan-errors-card style="padding:1rem 1.5rem; margin-bottom:1rem">
+            <div class="z-scan-errors-head">
+                <i class="fas fa-triangle-exclamation"></i>
+                <span>Avisos del escaneo</span>
+            </div>
+            <ul class="z-scan-errors" data-scan-errors></ul>
         </section>
 
         <section class="z-card" style="overflow:hidden">
@@ -164,6 +176,29 @@
     }
     .z-json-output::-webkit-scrollbar { width: 6px; height: 6px; }
     .z-json-output::-webkit-scrollbar-thumb { background: #30363d; border-radius: 4px; }
+    .z-scan-errors-head {
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        font-size: .8rem;
+        font-weight: 700;
+        color: #d97706;
+        margin-bottom: .5rem;
+    }
+    .z-scan-errors { display: flex; flex-direction: column; gap: .35rem; margin: 0; padding: 0; list-style: none; }
+    .z-scan-errors li {
+        display: flex;
+        align-items: flex-start;
+        gap: .5rem;
+        font-size: .8rem;
+        color: var(--z-text-soft);
+    }
+    .z-scan-errors li i { color: #d97706; margin-top: .2rem; }
+    [data-save-products].z-save-done {
+        background: linear-gradient(135deg, #16a34a, #22c55e);
+        box-shadow: 0 10px 30px -10px rgba(34, 197, 94, .45);
+        pointer-events: none;
+    }
 </style>
 {% endblock %}
 

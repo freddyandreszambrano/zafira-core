@@ -189,6 +189,21 @@
 
     </div>
 
+    <div id="z-image-preview-modal" class="z-image-modal" aria-hidden="true">
+        <div class="z-image-modal__backdrop" data-image-preview-close></div>
+        <div class="z-image-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="z-image-preview-title">
+            <div class="z-image-modal__header">
+                <h2 id="z-image-preview-title" class="z-image-modal__title">Imagen</h2>
+                <button type="button" class="z-image-modal__close" data-image-preview-close aria-label="Cerrar imagen">
+                    <i class="fas fa-xmark"></i>
+                </button>
+            </div>
+            <div class="z-image-modal__body">
+                <img class="z-image-modal__img" alt="">
+            </div>
+        </div>
+    </div>
+
     <script src="{% static 'lib/jquery-3.7.1/jquery.min.js' %}"></script>
     <script src="{% static 'lib/datatables-1.13.7/js/jquery.dataTables.min.js' %}"></script>
     <script src="{% static 'lib/sweetalert2-11.26.24/js/sweetalert2.all.min.js' %}"></script>

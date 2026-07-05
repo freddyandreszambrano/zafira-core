@@ -40,7 +40,7 @@ const productList = {
                 className: 'text-center',
                 orderable: false,
                 render: (id, type, row) => `<div class="z-row-actions">
-                    <a href="${Zafira.escape(row.url || '#')}" class="z-icon-btn" target="_blank" rel="noopener noreferrer" title="Abrir URL">
+                    <a href="${Zafira.escape(Zafira.safeUrl(row.url))}" class="z-icon-btn" target="_blank" rel="noopener noreferrer" title="Abrir URL">
                         <i class="fas fa-arrow-up-right-from-square"></i>
                     </a>
                     <a href="${pathname}delete/${id}/" class="z-icon-btn z-icon-btn--danger" title="Eliminar">

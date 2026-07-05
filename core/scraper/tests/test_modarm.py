@@ -30,8 +30,9 @@ class TestModarmAdapterCategories(SimpleTestCase):
         categories = self.adapter.get_categories()
         category_names = [cat["name"] for cat in categories]
 
-        expected_names = ["Mujeres", "Hombres", "Infantil", "Calzado", "Accesorios"]
-        self.assertEqual(category_names, expected_names)
+        self.assertEqual(category_names, [cat["name"] for cat in ModarmAdapter.CATEGORIES])
+        self.assertIn("Mujer - Vestidos", category_names)
+        self.assertIn("Hombre - Camisas", category_names)
 
 
 class TestModarmAdapterScrapingCategory(SimpleTestCase):
@@ -40,18 +41,15 @@ class TestModarmAdapterScrapingCategory(SimpleTestCase):
     def setUp(self):
         self.adapter = ModarmAdapter()
 
-    @patch("core.scraper.adapters.modarm.requests.get")
-    def test_scrape_category_returns_list(self, mock_get):
+    @patch.object(ModarmAdapter, "_fetch_category_html")
+    def test_scrape_category_returns_list(self, mock_fetch):
         """Test that scrape_category returns a list of products."""
-        mock_response = Mock()
-        mock_response.content = """
+        mock_fetch.return_value = """
             <html>
                 <a href="/es_RW/p/123456/">Product 1</a>
                 <a href="/es_RW/p/789012/">Product 2</a>
             </html>
         """
-        mock_response.raise_for_status.return_value = None
-        mock_get.return_value = mock_response
 
         category = {
             "name": "Test Category",
@@ -61,26 +59,35 @@ class TestModarmAdapterScrapingCategory(SimpleTestCase):
 
         result = self.adapter.scrape_category(category)
         self.assertIsInstance(result, list)
+        self.assertEqual([product["id"] for product in result], ["123456", "789012"])
 
-    @patch("core.scraper.adapters.modarm.requests.get")
-    def test_scrape_category_has_required_fields(self, mock_get):
+    @patch.object(ModarmAdapter, "_fetch_category_html")
+    def test_scrape_category_has_required_fields(self, mock_fetch):
         """Test that each product has required fields."""
-        mock_response = Mock()
-        mock_response.content = """
+        mock_fetch.return_value = """
             <html>
                 <a href="/es_RW/p/123456/" data-product-name="Camisa Azul">Product</a>
             </html>
         """
-        mock_response.raise_for_status.return_value = None
-        mock_get.return_value = mock_response
 
         category = {"name": "Test", "path": "/test/", "url": "https://www.modarm.com/test/"}
 
         products = self.adapter.scrape_category(category)
         required_fields = {"id", "name", "url"}
 
+        self.assertTrue(products)
         for product in products:
             self.assertTrue(required_fields.issubset(product.keys()))
+
+    @patch.object(ModarmAdapter, "_fetch_category_html")
+    def test_scrape_category_propagates_fetch_errors(self, mock_fetch):
+        """El error debe subir a services para mostrarse en la UI, no tragarse."""
+        mock_fetch.side_effect = RuntimeError("Executable doesn't exist")
+
+        category = {"name": "Test", "path": "/test/", "url": "https://www.modarm.com/test/"}
+
+        with self.assertRaises(RuntimeError):
+            self.adapter.scrape_category(category)
 
 
 class TestModarmAdapterParseProduct(SimpleTestCase):

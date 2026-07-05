@@ -1,13 +1,24 @@
+import re
+from decimal import Decimal, InvalidOperation
 from urllib.parse import urlparse
 
+from django.db import transaction
 from django.utils.dateparse import parse_datetime
 from django.utils.timezone import now
 
 from core.scraper import parsers
-from core.scraper.adapters import ADAPTER_MAP
+from core.scraper.adapters import ADAPTER_MAP, GENERIC_STORE
 from core.scraper.models import Product, ScraperSource
 
 MAX_PRODUCTS_LIMIT = 50
+PRICE_MAX = Decimal("99999999.99")  # coincide con DecimalField(max_digits=10, decimal_places=2)
+
+# 'woman' primero + límite de palabra: evita que 'men' matchee 'women' y
+# 'male' matchee 'female'.
+GENDER_KEYWORDS = {
+    "woman": ("mujer", "dama", "women", "female", "femenino"),
+    "man": ("hombre", "caballero", "men", "male", "masculino"),
+}
 
 
 def normalize_max_products(value, default=10):
@@ -23,7 +34,7 @@ def normalize_max_products(value, default=10):
     return max_products
 
 
-def scan_url(store, source_url, max_products=10):
+def scan_url(store, source_url, max_products=10, persist=True):
     source_url = (source_url or "").strip()
     try:
         adapter = _get_adapter(store)
@@ -45,24 +56,27 @@ def scan_url(store, source_url, max_products=10):
     except ValueError as e:
         return _error_response(store, source_url, str(e))
 
+    store_name = _store_label(store, source_url)
+
     try:
-        if "/p/" in source_url:
-            product = adapter.parse_product(source_url)
-            products = [product] if product else []
-            _persist_products(store, products)
-            return _success_response(store, source_url, "product", products, [])
+        if adapter.is_product_url(source_url):
+            return _scan_product(adapter, store_name, source_url, persist)
+
+        categories = adapter.get_categories()
+        if categories and not urlparse(source_url).path.strip("/"):
+            return _scan_root(adapter, store_name, source_url, categories, max_products, persist)
 
         category = {
             "name": "URL personalizada",
             "path": urlparse(source_url).path,
             "url": source_url,
         }
-        return _scan_category(adapter, store, source_url, category, max_products)
+        return _scan_category(adapter, store_name, source_url, category, max_products, persist)
     finally:
         _close_adapter(adapter)
 
 
-def scan_auto_url(source_url, max_products=10):
+def scan_auto_url(source_url, max_products=10, persist=True):
     source_url = (source_url or "").strip()
     if not source_url:
         return _error_response("", source_url, "Ingrese una URL para escanear.")
@@ -71,7 +85,7 @@ def scan_auto_url(source_url, max_products=10):
         store = infer_store_from_url(source_url)
     except ValueError as e:
         return _error_response("", source_url, str(e))
-    return scan_url(store, source_url, max_products=max_products)
+    return scan_url(store, source_url, max_products=max_products, persist=persist)
 
 
 def scan_store(store, max_products=None):
@@ -79,6 +93,12 @@ def scan_store(store, max_products=None):
     products = {}
     errors = []
     categories = adapter.get_categories()
+
+    if not categories:
+        _close_adapter(adapter)
+        raise ValueError(
+            f"El adaptador '{store}' no define categorias; escanee una URL especifica."
+        )
 
     per_category_limit = None
     if max_products:
@@ -114,14 +134,14 @@ def scan_store(store, max_products=None):
     }
 
 
-def scan_saved_sources(max_products=10):
+def scan_saved_sources(max_products=10, persist=True):
     sources = ScraperSource.objects.all().order_by("name")
     products = {}
     errors = []
     results = []
 
     for source in sources:
-        result = scan_auto_url(source.url, max_products=max_products)
+        result = scan_auto_url(source.url, max_products=max_products, persist=persist)
         results.append(
             {
                 "source": source.to_json(),
@@ -154,6 +174,146 @@ def scan_saved_sources(max_products=10):
     }
 
 
+def save_products(store, products):
+    store = (store or "").strip()
+    if not store:
+        raise ValueError("Falta la tienda de origen de los productos.")
+    if not isinstance(products, list) or not products:
+        raise ValueError("No hay productos para guardar.")
+    if len(products) > MAX_PRODUCTS_LIMIT * 2:
+        raise ValueError("Demasiados productos en una sola operacion.")
+    if not all(isinstance(product, dict) for product in products):
+        raise ValueError("Formato de productos invalido.")
+    return _persist_products(store, products)
+
+
+def infer_store_from_url(source_url):
+    source_url = (source_url or "").strip()
+    for store, adapter_cls in ADAPTER_MAP.items():
+        if store == GENERIC_STORE:
+            continue
+        if adapter_cls.supports_url(source_url):
+            return store
+
+    if ADAPTER_MAP[GENERIC_STORE].supports_url(source_url):
+        return GENERIC_STORE
+    raise ValueError("Ingrese una URL valida (http/https).")
+
+
+def _store_label(store, source_url):
+    if store != GENERIC_STORE:
+        return store
+    hostname = urlparse(source_url).hostname or GENERIC_STORE
+    return hostname.lower().removeprefix("www.")
+
+
+def _scan_product(adapter, store_name, source_url, persist):
+    try:
+        product = adapter.parse_product(source_url)
+    except Exception as e:
+        return _error_response(store_name, source_url, _friendly_error(e))
+    if not product or not product.get("id") or not product.get("name"):
+        return _error_response(
+            store_name, source_url, "No se pudo extraer un producto valido de esta URL."
+        )
+    if persist:
+        _persist_products(store_name, [product])
+    return _success_response(adapter, store_name, source_url, "product", [product], [], persist)
+
+
+def _scan_root(adapter, store_name, source_url, categories, max_products, persist):
+    links = []
+    seen = set()
+    errors = []
+
+    # Recorre categorías solo hasta juntar suficientes candidatos: escanear
+    # las 9 categorías con navegador tomaría minutos en la vista.
+    for category in categories:
+        try:
+            found = adapter.scrape_category(category)
+        except Exception as e:
+            errors.append(f"{category.get('name', category['url'])}: {_friendly_error(e)}")
+            continue
+        for link in found:
+            key = link.get("id") or link.get("url")
+            if key and key not in seen:
+                seen.add(key)
+                links.append(link)
+        if len(links) >= max_products * 3:
+            break
+
+    products, parse_errors = _parse_links(adapter, links, max_products)
+    errors.extend(parse_errors)
+
+    if persist:
+        _persist_products(store_name, products)
+    return _success_response(adapter, store_name, source_url, "store", products, errors, persist)
+
+
+def _scan_category(
+    adapter, store_name, source_url, category, max_products, persist=True, as_partial=False
+):
+    errors = []
+
+    try:
+        category_products = adapter.scrape_category(category)
+    except Exception as e:
+        errors.append(f"{category.get('name', source_url)}: {_friendly_error(e)}")
+        category_products = []
+
+    products, parse_errors = _parse_links(adapter, category_products, max_products)
+    errors.extend(parse_errors)
+
+    if persist:
+        _persist_products(store_name, products)
+
+    if as_partial:
+        return {"products": products, "errors": errors}
+    return _success_response(adapter, store_name, source_url, "category", products, errors, persist)
+
+
+def _parse_links(adapter, links, max_products):
+    products = {}
+    errors = []
+
+    for product_link in _spread_sample(links, max_products):
+        try:
+            product = adapter.parse_product(product_link["url"])
+        except Exception as e:
+            errors.append(
+                f"{product_link.get('name') or product_link['url']}: {_friendly_error(e)}"
+            )
+            continue
+
+        if not product or not product.get("id") or not product.get("name"):
+            errors.append(f"{product_link['url']}: sin datos de producto")
+            continue
+        products[product["id"]] = product
+
+    return list(products.values()), errors
+
+
+def _spread_sample(items, max_count):
+    """Selecciona `max_count` elementos repartidos a lo largo de la lista
+    en vez de tomar siempre los primeros, para obtener variedad real."""
+    if not max_count or len(items) <= max_count:
+        return items
+
+    step = len(items) / max_count
+    indices = [int(i * step) for i in range(max_count)]
+    return [items[i] for i in indices]
+
+
+def _friendly_error(error):
+    text = str(error)
+    if "Executable doesn't exist" in text or "playwright install" in text:
+        return (
+            "Falta el navegador de Playwright en el servidor. "
+            "Ejecuta: python -m playwright install chromium"
+        )
+    return text
+
+
 def _close_adapter(adapter):
     close = getattr(adapter, "close", None)
     if callable(close):
@@ -177,65 +337,29 @@ def _supported_domains_label(adapter):
     return ", ".join(domains) or "un dominio soportado"
 
 
-def infer_store_from_url(source_url):
-    source_url = (source_url or "").strip()
-    for store, adapter_cls in ADAPTER_MAP.items():
-        if adapter_cls.supports_url(source_url):
-            return store
-    supported = []
-    for adapter_cls in ADAPTER_MAP.values():
-        supported.extend(getattr(adapter_cls, "SUPPORTED_DOMAINS", ()))
-    domains = ", ".join(sorted(set(supported)))
-    raise ValueError(f"No hay adaptador para esta URL. Dominios soportados: {domains}")
-
-
-def _spread_sample(items, max_count):
-    """Selecciona `max_count` elementos repartidos a lo largo de la lista
-    en vez de tomar siempre los primeros, para obtener variedad real."""
-    if not max_count or len(items) <= max_count:
-        return items
-
-    step = len(items) / max_count
-    indices = [int(i * step) for i in range(max_count)]
-    return [items[i] for i in indices]
-
-
-def _scan_category(adapter, store, source_url, category, max_products, as_partial=False):
-    products = {}
-    errors = []
-
-    try:
-        category_products = adapter.scrape_category(category)
-    except Exception as e:
-        errors.append(f"{category.get('name', source_url)}: {e}")
-        category_products = []
-
-    sampled_links = _spread_sample(category_products, max_products)
-
-    for product_link in sampled_links:
-        try:
-            product = adapter.parse_product(product_link["url"])
-            product_key = product.get("id") or product_link.get("id") or product_link.get("url")
-            if product_key:
-                products[product_key] = product
-        except Exception as e:
-            errors.append(f"{product_link.get('id', 'unknown')}: {e}")
-
-    product_list = list(products.values())
-    _persist_products(store, product_list)
-
-    if as_partial:
-        return {"products": product_list, "errors": errors}
-    return _success_response(store, source_url, "category", product_list, errors)
-
-
-def _derive_gender(category):
-    category_lower = (category or "").lower()
-    if "hombre" in category_lower:
-        return "man"
-    if "mujer" in category_lower:
-        return "woman"
+def _derive_gender(category, url=""):
+    haystack = f"{category or ''} {url or ''}".lower()
+    for gender, keywords in GENDER_KEYWORDS.items():
+        if any(re.search(rf"\b{re.escape(keyword)}", haystack) for keyword in keywords):
+            return gender
     return ""
+
+
+def _coerce_price(value, default=None):
+    if value in (None, ""):
+        return default
+    try:
+        price = Decimal(str(value)).quantize(Decimal("0.01"))
+    except (InvalidOperation, ValueError, TypeError):
+        return default
+    if price < 0 or price > PRICE_MAX:
+        return default
+    return price
+
+
+def _safe_http_url(value):
+    value = str(value or "").strip()
+    return value if urlparse(value).scheme in ("http", "https") else ""
 
 
 def _derive_base_name(name, colors):
@@ -249,48 +373,60 @@ def _derive_base_name(name, colors):
     return name
 
 
+@transaction.atomic
 def _persist_products(store, products):
+    created = 0
+    updated = 0
+    skipped = 0
+
     for product in products:
-        product_id = product.get("id")
-        if not product_id:
+        product_id = str(product.get("id") or "").strip()
+        name = str(product.get("name") or "").strip()
+        if not product_id or not name:
+            skipped += 1
             continue
 
-        extracted_at = parse_datetime(product.get("extracted_at") or "") or now()
-        name = product.get("name") or ""
-        colors = product.get("colors") or []
+        extracted_at = parse_datetime(str(product.get("extracted_at") or "")) or now()
+        colors = [str(color) for color in product.get("colors") or []]
 
-        Product.objects.update_or_create(
+        _, was_created = Product.objects.update_or_create(
+            store=store,
             id_external=product_id,
             defaults={
-                "store": store,
                 "name": name,
                 "base_name": _derive_base_name(name, colors),
-                "category": product.get("category") or "",
-                "gender": _derive_gender(product.get("category")),
-                "url": product.get("url") or "",
-                "price": product.get("price") or 0,
-                "price_old": product.get("price_old"),
-                "currency": product.get("currency") or "USD",
-                "sizes": product.get("sizes") or [],
+                "category": str(product.get("category") or ""),
+                "gender": _derive_gender(product.get("category"), product.get("url")),
+                "url": _safe_http_url(product.get("url")),
+                "price": _coerce_price(product.get("price"), default=Decimal("0")),
+                "price_old": _coerce_price(product.get("price_old")),
+                "currency": str(product.get("currency") or "USD"),
+                "sizes": [str(size) for size in product.get("sizes") or []],
                 "colors": colors,
-                "description": product.get("description") or "",
-                "image_urls": product.get("image_urls") or [],
-                "availability": product.get("availability") or "unknown",
+                "description": str(product.get("description") or ""),
+                "image_urls": [str(image) for image in product.get("image_urls") or []],
+                "availability": str(product.get("availability") or "unknown"),
                 "extracted_at": extracted_at,
             },
         )
+        created += int(was_created)
+        updated += int(not was_created)
+
+    return {"created": created, "updated": updated, "skipped": skipped}
 
 
-def _success_response(store, source_url, mode, products, errors):
+def _success_response(adapter, store_name, source_url, mode, products, errors, persist):
     return {
         "success": True,
         "metadata": {
-            "store": store,
+            "store": store_name,
             "source_url": source_url,
             "mode": mode,
             "scraped_at": parsers.now_iso(),
             "total_products": len(products),
             "total_errors": len(errors),
+            "strategies": list(getattr(adapter, "last_strategies", []) or []),
+            "persisted": persist,
         },
         "products": products,
         "errors": errors,

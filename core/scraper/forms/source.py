@@ -9,5 +9,5 @@ class ScraperSourceForm(forms.ModelForm):
         fields = ["name", "url"]
         widgets = {
             "name": forms.TextInput(),
-            "url": forms.URLInput(),
+            "url": forms.Textarea(attrs={"rows": 3}),
         }

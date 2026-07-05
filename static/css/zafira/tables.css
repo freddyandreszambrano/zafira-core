@@ -164,6 +164,93 @@ table.dataTable tbody tr:hover { background: var(--z-surface-hover) !important; 
 .z-icon-btn--danger:hover { background: #fee2e2; color: #dc2626; }
 html.dark .z-icon-btn--danger:hover { background: rgba(220, 38, 38, .18); color: #fca5a5; }
 
+.z-image-preview-trigger {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    cursor: pointer;
+}
+.z-image-preview-trigger:focus-visible {
+    outline: 2px solid var(--z-primary);
+    outline-offset: 3px;
+    border-radius: .6rem;
+}
+body.z-image-modal-open { overflow: hidden; }
+.z-image-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem;
+}
+.z-image-modal.is-open { display: flex; }
+.z-image-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(2, 6, 23, .78);
+    backdrop-filter: blur(8px);
+}
+.z-image-modal__dialog {
+    position: relative;
+    width: min(92vw, 820px);
+    max-height: 90vh;
+    overflow: hidden;
+    border: 1px solid var(--z-border);
+    border-radius: .8rem;
+    background: var(--z-surface);
+    box-shadow: var(--z-dropdown-shadow);
+}
+.z-image-modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: .8rem 1rem;
+    border-bottom: 1px solid var(--z-border);
+}
+.z-image-modal__title {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--z-text);
+    font-size: .95rem;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.z-image-modal__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid var(--z-border);
+    border-radius: .5rem;
+    color: var(--z-text-soft);
+    background: var(--z-surface-2);
+    cursor: pointer;
+}
+.z-image-modal__close:hover {
+    color: var(--z-primary);
+    background: var(--z-primary-soft);
+}
+.z-image-modal__body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 18rem;
+    padding: 1rem;
+    background: var(--z-surface-2);
+}
+.z-image-modal__img {
+    display: block;
+    max-width: 100%;
+    max-height: calc(90vh - 7rem);
+    border-radius: .5rem;
+    object-fit: contain;
+}
+
 .dataTables_empty { padding: 3rem 1.25rem !important; text-align: center !important; color: var(--z-text-mute) !important; font-size: .9rem !important; }
 .dataTables_processing {
     position: absolute !important;

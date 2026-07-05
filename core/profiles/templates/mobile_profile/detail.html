@@ -87,6 +87,19 @@
                             <dt class="text-xs uppercase text-zafira-slate">Talla preferida</dt>
                             <dd class="text-sm text-zafira-obsidian">{{ profile.preferred_size|default:"-" }}</dd>
                         </div>
+                        <div>
+                            <dt class="text-xs uppercase text-zafira-slate">Foto try-on</dt>
+                            <dd class="text-sm text-zafira-obsidian">
+                                {% if profile.try_on_photo %}
+                                    <button type="button" data-image-preview="{{ profile.try_on_photo.url }}" data-image-title="Foto de {{ profile.user.username }}" class="z-image-preview-trigger inline-flex items-center gap-3 text-zafira-obsidian hover:text-zafira-violet">
+                                        <img src="{{ profile.try_on_photo.url }}" class="w-16 h-16 rounded object-cover shadow-zafira" alt="Foto try-on de {{ profile.user.username }}">
+                                        <span>Ver foto</span>
+                                    </button>
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </dd>
+                        </div>
                     </dl>
                 </section>
             </div>

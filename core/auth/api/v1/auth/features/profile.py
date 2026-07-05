@@ -45,6 +45,7 @@ class MobileProfileApi:
         mobile_profile, _ = MobileProfile.objects.get_or_create(user=self.user)
         mobile_profile.try_on_photo = image
         mobile_profile.save(update_fields=["try_on_photo"])
+        self.user.mobile_profile = mobile_profile
         return self.user
 
     def delete_try_on_photo(self):
@@ -53,4 +54,5 @@ class MobileProfileApi:
             mobile_profile.try_on_photo.delete(save=False)
             mobile_profile.try_on_photo = None
             mobile_profile.save(update_fields=["try_on_photo"])
+            self.user.mobile_profile = mobile_profile
         return self.user

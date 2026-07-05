@@ -17,6 +17,10 @@ class BaseAdapter(ABC):
             for domain in cls.SUPPORTED_DOMAINS
         )
 
+    @classmethod
+    def is_product_url(cls, url):
+        return "/p/" in url
+
     @abstractmethod
     def get_categories(self) -> List[Dict]:
         """

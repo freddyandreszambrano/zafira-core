@@ -7,7 +7,9 @@ const mobileProfile = {
         const safeText = Zafira.escape(text);
         const safeUser = Zafira.escape(username);
         const avatar = imageUrl
-            ? `<img src="${Zafira.escape(imageUrl)}" class="w-9 h-9 rounded-full object-cover shadow-zafira" alt="${safeText}">`
+            ? `<button type="button" data-image-preview="${Zafira.escape(imageUrl)}" data-image-title="Foto de ${safeUser}" class="z-image-preview-trigger shrink-0" title="Ver foto de ${safeUser}">
+                <img src="${Zafira.escape(imageUrl)}" class="w-9 h-9 rounded-full object-cover shadow-zafira" alt="${safeText}">
+            </button>`
             : `<span class="inline-flex items-center justify-center w-9 h-9 rounded-full gradient-primary text-white text-xs font-bold shadow-zafira">${initials}</span>`;
         return `<div class="flex items-center gap-3">
             ${avatar}

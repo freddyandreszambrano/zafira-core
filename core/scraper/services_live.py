@@ -30,9 +30,16 @@ _adapters: dict = {}
 
 
 def _get_adapter(store: str):
-    """Adapter singleton por tienda (solo se usan sus métodos de parseo)."""
+    """Adapter singleton por tienda (solo se usan sus métodos de parseo).
+
+    Retorna None para tiendas sin adapter propio (ej. las scrapeadas con el
+    motor generico): parsear su HTML con los selectores de otra tienda daria
+    precios/disponibilidad falsos.
+    """
+    adapter_cls = _ADAPTER_CLASSES.get(store)
+    if adapter_cls is None:
+        return None
     if store not in _adapters:
-        adapter_cls = _ADAPTER_CLASSES.get(store, ModarmAdapter)
         _adapters[store] = adapter_cls()
     return _adapters[store]
 
@@ -49,6 +56,8 @@ def fetch_live_product_data(product) -> dict | None:
         return cached
 
     adapter = _get_adapter(product.store)
+    if adapter is None:
+        return None
 
     try:
         response = requests.get(

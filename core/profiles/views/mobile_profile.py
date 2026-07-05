@@ -60,8 +60,12 @@ class MobileProfileListView(PermissionMixin, TemplateView):
         return HttpResponse(json.dumps(data), content_type="application/json")
 
     def _to_json(self, obj):
-        image_url = ""
-        if obj.user.image:
+        try_on_photo_url = ""
+        if obj.try_on_photo:
+            try_on_photo_url = self.request.build_absolute_uri(obj.try_on_photo.url)
+
+        image_url = try_on_photo_url
+        if not image_url and obj.user.image:
             image_url = self.request.build_absolute_uri(obj.user.image.url)
 
         return {
@@ -73,6 +77,7 @@ class MobileProfileListView(PermissionMixin, TemplateView):
             "full_name": obj.user.get_full_name(),
             "user_type": obj.user.user_type,
             "image": image_url,
+            "try_on_photo": try_on_photo_url,
             "gender": obj.get_gender_display(),
             "preferred_size": obj.preferred_size,
             "onboarding_completed": obj.onboarding_completed,

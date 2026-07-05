@@ -2,7 +2,7 @@ from django.db import models
 
 
 class Product(models.Model):
-    id_external = models.TextField(unique=True, db_index=True, verbose_name="ID externo")
+    id_external = models.TextField(db_index=True, verbose_name="ID externo")
     name = models.TextField(verbose_name="Nombre")
     category = models.TextField(db_index=True, verbose_name="Categoria original")
     gender = models.TextField(db_index=True, blank=True, verbose_name="Genero")
@@ -32,6 +32,12 @@ class Product(models.Model):
             models.Index(fields=["gender"]),
             models.Index(fields=["store"]),
             models.Index(fields=["base_name"]),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["store", "id_external"],
+                name="scraper_product_store_idext_uniq",
+            )
         ]
 
     def __str__(self):

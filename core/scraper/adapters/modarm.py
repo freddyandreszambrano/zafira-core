@@ -33,8 +33,17 @@ class ModarmAdapter(BaseAdapter):
         if self._browser is None:
             from playwright.sync_api import sync_playwright
 
-            self._playwright = sync_playwright().start()
-            self._browser = self._playwright.chromium.launch(headless=True)
+            if self._playwright is None:
+                self._playwright = sync_playwright().start()
+            try:
+                self._browser = self._playwright.chromium.launch(headless=True)
+            except Exception:
+                # Si el launch falla hay que detener Playwright: dejarlo a medio
+                # iniciar rompe todos los intentos siguientes en este hilo con
+                # el error engañoso "Sync API inside the asyncio loop".
+                self._playwright.stop()
+                self._playwright = None
+                raise
         return self._browser
 
     def _close_browser(self):
@@ -128,11 +137,9 @@ class ModarmAdapter(BaseAdapter):
         products = []
         url = category["url"]
 
-        try:
-            html = self._executor.submit(self._fetch_category_html, url).result()
-        except Exception as e:
-            print(f"Error scraping category {category['name']}: {e}", file=sys.stderr)
-            return products
+        # Los errores deben subir hasta services para llegar al array `errors`
+        # de la respuesta; tragarlos aquí producía "éxito" con 0 productos.
+        html = self._executor.submit(self._fetch_category_html, url).result()
 
         soup = BeautifulSoup(html, "html.parser")
 
@@ -226,27 +233,23 @@ class ModarmAdapter(BaseAdapter):
             "extracted_at": parsers.now_iso(),
         }
 
-        try:
-            headers = {"User-Agent": self.USER_AGENT}
-            response = requests.get(url, headers=headers, timeout=self.TIMEOUT)
-            response.raise_for_status()
+        headers = {"User-Agent": self.USER_AGENT}
+        response = requests.get(url, headers=headers, timeout=self.TIMEOUT)
+        response.raise_for_status()
 
-            soup = BeautifulSoup(response.content, "html.parser")
+        soup = BeautifulSoup(response.content, "html.parser")
 
-            result["id"] = self._extract_product_id(url)
-            result["name"] = self._extract_name(soup)
-            result["category"] = self._extract_category(soup)
-            result["price"] = self._extract_price(soup)
-            result["price_old"] = self._extract_price_old(soup)
-            size_options = self._extract_size_options(soup)
-            result["sizes"] = self._check_sizes_availability(size_options)
-            result["colors"] = self._extract_colors(soup)
-            result["description"] = self._extract_description(soup)
-            result["image_urls"] = self._extract_images(soup)
-            result["availability"] = self._extract_availability(soup)
-
-        except requests.RequestException as e:
-            print(f"Error parsing product {url}: {e}", file=sys.stderr)
+        result["id"] = self._extract_product_id(url)
+        result["name"] = self._extract_name(soup)
+        result["category"] = self._extract_category(soup)
+        result["price"] = self._extract_price(soup)
+        result["price_old"] = self._extract_price_old(soup)
+        size_options = self._extract_size_options(soup)
+        result["sizes"] = self._check_sizes_availability(size_options)
+        result["colors"] = self._extract_colors(soup)
+        result["description"] = self._extract_description(soup)
+        result["image_urls"] = self._extract_images(soup)
+        result["availability"] = self._extract_availability(soup)
 
         return result
 

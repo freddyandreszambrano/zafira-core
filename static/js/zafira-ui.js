@@ -99,6 +99,11 @@
                 return String(value ?? '').replace(/[&<>"']/g, m => map[m]);
             },
 
+            safeUrl(value) {
+                const url = String(value ?? '').trim();
+                return /^https?:\/\//i.test(url) ? url : '#';
+            },
+
             statusBadge(active, labels = ['Activo', 'Inactivo']) {
                 const cls = active ? 'z-badge--on' : 'z-badge--off';
                 const label = active ? labels[0] : labels[1];
@@ -116,6 +121,56 @@
                     <a href="${basePath}update/${id}/" class="z-icon-btn" title="Editar"><i class="fas fa-pen"></i></a>
                     <a href="${basePath}delete/${id}/" class="z-icon-btn z-icon-btn--danger" title="Eliminar"><i class="fas fa-trash"></i></a>
                 </div>`;
+            },
+
+            ensureImagePreviewModal() {
+                let modal = document.getElementById('z-image-preview-modal');
+                if (modal) return modal;
+
+                modal = document.createElement('div');
+                modal.id = 'z-image-preview-modal';
+                modal.className = 'z-image-modal';
+                modal.setAttribute('aria-hidden', 'true');
+                modal.innerHTML = `
+                    <div class="z-image-modal__backdrop" data-image-preview-close></div>
+                    <div class="z-image-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="z-image-preview-title">
+                        <div class="z-image-modal__header">
+                            <h2 id="z-image-preview-title" class="z-image-modal__title">Imagen</h2>
+                            <button type="button" class="z-image-modal__close" data-image-preview-close aria-label="Cerrar imagen">
+                                <i class="fas fa-xmark"></i>
+                            </button>
+                        </div>
+                        <div class="z-image-modal__body">
+                            <img class="z-image-modal__img" alt="">
+                        </div>
+                    </div>`;
+                document.body.appendChild(modal);
+                return modal;
+            },
+
+            imagePreview(src, title = 'Imagen') {
+                if (!src) return;
+                const modal = this.ensureImagePreviewModal();
+                const img = modal.querySelector('.z-image-modal__img');
+                const heading = modal.querySelector('.z-image-modal__title');
+
+                heading.textContent = title || 'Imagen';
+                img.src = src;
+                img.alt = title || 'Imagen';
+                modal.classList.add('is-open');
+                modal.setAttribute('aria-hidden', 'false');
+                document.body.classList.add('z-image-modal-open');
+                modal.querySelector('.z-image-modal__close').focus();
+            },
+
+            closeImagePreview() {
+                const modal = document.getElementById('z-image-preview-modal');
+                if (!modal) return;
+                const img = modal.querySelector('.z-image-modal__img');
+                modal.classList.remove('is-open');
+                modal.setAttribute('aria-hidden', 'true');
+                document.body.classList.remove('z-image-modal-open');
+                if (img) img.removeAttribute('src');
             },
 
             dataTable(selector, columns, options = {}) {
@@ -241,6 +296,24 @@
 
         document.addEventListener('click', e => {
             if (e.target.closest('[data-toggle-theme]')) Zafira.toggleTheme();
+        });
+
+        document.addEventListener('click', e => {
+            const trigger = e.target.closest('[data-image-preview]');
+            if (!trigger) return;
+            e.preventDefault();
+            Zafira.imagePreview(
+                trigger.dataset.imagePreview,
+                trigger.dataset.imageTitle || trigger.getAttribute('title') || 'Imagen'
+            );
+        });
+
+        document.addEventListener('click', e => {
+            if (e.target.closest('[data-image-preview-close]')) Zafira.closeImagePreview();
+        });
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') Zafira.closeImagePreview();
         });
 
         document.addEventListener('DOMContentLoaded', () => Zafira.initDropdowns());

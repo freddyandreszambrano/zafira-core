@@ -1,6 +1,10 @@
 import json
+import re
+from urllib.parse import unquote, urlparse
 
 from django.core.paginator import Paginator
+from django.core.validators import URLValidator
+from django.db import transaction
 from django.db.models import Q
 from django.http import HttpResponse
 from django.urls import reverse_lazy
@@ -9,6 +13,9 @@ from django.views.generic import CreateView, DeleteView, TemplateView, UpdateVie
 from core.scraper.forms import ScraperSourceForm
 from core.scraper.models import ScraperSource
 from core.security.mixins import PermissionMixin
+
+
+SOURCE_URL_PATTERN = re.compile(r"https?://[^\s,;]+", re.IGNORECASE)
 
 
 class ScraperSourceListView(PermissionMixin, TemplateView):
@@ -60,12 +67,7 @@ class ScraperSourceCreateView(PermissionMixin, CreateView):
         action = request.POST.get("action", None)
         try:
             if action == "add":
-                form = self.get_form()
-                if form.is_valid():
-                    form.save()
-                    data["success"] = True
-                else:
-                    data["error"] = form.errors.as_json()
+                data = self._save_sources(request)
             elif action == "validate_data":
                 data["valid"] = self._validate_unique(request)
             else:
@@ -80,8 +82,104 @@ class ScraperSourceCreateView(PermissionMixin, CreateView):
         if pattern == "name":
             return not ScraperSource.objects.filter(name__iexact=value).exists()
         if pattern == "url":
-            return not ScraperSource.objects.filter(url__iexact=value).exists()
+            urls = self._extract_urls(value)
+            if not urls:
+                return True
+            return not any(ScraperSource.objects.filter(url__iexact=url).exists() for url in urls)
         return True
+
+    def _save_sources(self, request):
+        urls = self._extract_urls(request.POST.get("url", ""))
+        if len(urls) <= 1:
+            post = request.POST.copy()
+            if urls:
+                post["url"] = urls[0]
+            form = self.form_class(post)
+            if form.is_valid():
+                form.save()
+                return {"success": True}
+            return {"error": form.errors.as_json()}
+
+        name = request.POST.get("name", "").strip()
+        if not name:
+            return {"error": "Ingrese un nombre"}
+
+        duplicated_urls = [
+            url for url in urls if ScraperSource.objects.filter(url__iexact=url).exists()
+        ]
+        if duplicated_urls:
+            return {"error": f"La URL ya se encuentra registrada: {duplicated_urls[0]}"}
+
+        forms = []
+        used_names = set()
+        for index, url in enumerate(urls, start=1):
+            source_name = self._unique_source_name(
+                self._source_name(name, url, index, len(urls)),
+                used_names,
+            )
+            form = self.form_class({"name": source_name, "url": url})
+            if not form.is_valid():
+                return {"error": form.errors.as_json()}
+            forms.append(form)
+            used_names.add(source_name.lower())
+
+        with transaction.atomic():
+            for form in forms:
+                form.save()
+        return {"success": True, "created": len(forms)}
+
+    def _extract_urls(self, raw_value):
+        raw_value = (raw_value or "").strip()
+        if not raw_value:
+            return []
+
+        urls = [
+            url.rstrip("/") + "/" if url.endswith("//") else url
+            for url in SOURCE_URL_PATTERN.findall(raw_value)
+        ]
+        remainder = (
+            SOURCE_URL_PATTERN.sub("", raw_value).replace(",", " ").replace(";", " ").strip()
+        )
+        if remainder:
+            return [raw_value]
+
+        validator = URLValidator()
+        valid_urls = []
+        for url in urls:
+            validator(url)
+            if url not in valid_urls:
+                valid_urls.append(url)
+        return valid_urls
+
+    def _source_name(self, base_name, url, index, total):
+        if total == 1:
+            return base_name
+        label = self._category_label(url)
+        if label and label.lower() not in base_name.lower():
+            return f"{base_name} - {label}"
+        return f"{base_name} {index}"
+
+    def _category_label(self, url):
+        parsed = urlparse(url)
+        parts = []
+        for part in parsed.path.split("/"):
+            cleaned = unquote(part).strip()
+            if not cleaned or cleaned.lower() == "c" or cleaned.isdigit():
+                continue
+            parts.append(cleaned.replace("-", " ").title())
+        return " ".join(parts)
+
+    def _unique_source_name(self, source_name, used_names):
+        candidate = source_name.strip()
+        unique_name = candidate
+        counter = 2
+        while (
+            unique_name.lower() in used_names
+            or ScraperSource.objects.filter(name__iexact=unique_name).exists()
+        ):
+            unique_name = f"{candidate} {counter}"
+            counter += 1
+        return unique_name
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
