@@ -77,6 +77,38 @@ class GenerateTryOnTaskTests(TestCase):
         self.assertEqual(mock_client_cls.return_value.try_on.call_count, 3)
 
     @mock.patch("core.tryon.task.tryon.ZafiraIaClient")
+    def test_rate_limited_uses_quota_message(self, mock_client_cls):
+        from core.tryon.task.tryon import QUOTA_ERROR
+
+        job = make_job()
+        mock_client_cls.return_value.try_on.side_effect = ZafiraIaUnavailable(
+            "quota", code="RATE_LIMITED"
+        )
+
+        generate_try_on_task.apply(args=[str(job.id)])
+
+        job.refresh_from_db()
+        self.assertEqual(job.status, TryOnJob.Status.FAILED)
+        self.assertEqual(job.error_message, QUOTA_ERROR)
+        self.assertEqual(mock_client_cls.return_value.try_on.call_count, 3)
+
+    @mock.patch("core.tryon.task.tryon.ZafiraIaClient")
+    def test_content_rejected_uses_content_message(self, mock_client_cls):
+        from core.tryon.task.tryon import CONTENT_ERROR
+
+        job = make_job()
+        mock_client_cls.return_value.try_on.side_effect = ZafiraIaRejected(
+            "blocked", code="GENERATION_REJECTED"
+        )
+
+        generate_try_on_task.apply(args=[str(job.id)])
+
+        job.refresh_from_db()
+        self.assertEqual(job.status, TryOnJob.Status.FAILED)
+        self.assertEqual(job.error_message, CONTENT_ERROR)
+        self.assertEqual(mock_client_cls.return_value.try_on.call_count, 1)
+
+    @mock.patch("core.tryon.task.tryon.ZafiraIaClient")
     def test_missing_job_is_noop(self, mock_client_cls):
         generate_try_on_task.apply(args=["00000000-0000-0000-0000-000000000000"])
         mock_client_cls.assert_not_called()

@@ -39,15 +39,24 @@ class ZafiraIaClient:
         except requests.RequestException as exc:
             raise ZafiraIaUnavailable(f"ZAFIRA-IA no disponible: {exc}") from exc
 
+        code, detail = self._error_fields(response)
+
         if response.status_code >= 500:
-            raise ZafiraIaUnavailable(f"ZAFIRA-IA respondió {response.status_code}")
+            raise ZafiraIaUnavailable(
+                f"ZAFIRA-IA respondió {response.status_code}: {detail}",
+                code=code or "IA_UNAVAILABLE",
+            )
         if response.status_code != 200:
-            try:
-                detail = response.json().get("detail", "")
-            except ValueError:
-                detail = ""
             raise ZafiraIaRejected(
                 f"ZAFIRA-IA rechazó la solicitud ({response.status_code}): {detail}",
-                code="IA_REJECTED",
+                code=code or "IA_REJECTED",
             )
         return response.json()
+
+    @staticmethod
+    def _error_fields(response):
+        try:
+            body = response.json()
+        except ValueError:
+            return "", ""
+        return body.get("code", ""), body.get("detail", "")

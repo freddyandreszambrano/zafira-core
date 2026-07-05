@@ -8,10 +8,13 @@ from core.tryon.models import TryOnJob
 from core.tryon.services.zafira_ia_client import (
     ZafiraIaClient,
     ZafiraIaError,
+    ZafiraIaRejected,
     ZafiraIaUnavailable,
 )
 
-USER_FRIENDLY_ERROR = "No pudimos generar tu prueba virtual. Intenta nuevamente."
+GENERIC_ERROR = "No pudimos generar tu prueba virtual. Intenta nuevamente."
+QUOTA_ERROR = "El servicio de IA no tiene cuota disponible ahora mismo. Intenta más tarde."
+CONTENT_ERROR = "No pudimos generar la prueba con esta foto o prenda. Prueba con otra imagen."
 
 
 @shared_task(bind=True, max_retries=2)
@@ -44,9 +47,11 @@ def generate_try_on_task(self, job_id):
     except ZafiraIaUnavailable as exc:
         if self.request.retries < self.max_retries:
             raise self.retry(exc=exc, countdown=5 * (self.request.retries + 1))
-        _mark_failed(job, USER_FRIENDLY_ERROR)
+        _mark_failed(job, QUOTA_ERROR if exc.code == "RATE_LIMITED" else GENERIC_ERROR)
+    except ZafiraIaRejected as exc:
+        _mark_failed(job, CONTENT_ERROR if exc.code == "GENERATION_REJECTED" else GENERIC_ERROR)
     except (ZafiraIaError, KeyError, ValueError):
-        _mark_failed(job, USER_FRIENDLY_ERROR)
+        _mark_failed(job, GENERIC_ERROR)
 
 
 def _mark_failed(job, message):

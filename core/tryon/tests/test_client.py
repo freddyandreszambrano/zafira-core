@@ -73,3 +73,34 @@ class ZafiraIaClientTests(TestCase):
                 garment_image_url="http://store.test/g.jpg",
                 garment_type="upper_body",
             )
+
+    @mock.patch("core.tryon.services.zafira_ia_client.requests.post")
+    def test_try_on_503_rate_limited_propagates_code(self, mock_post):
+        mock_post.return_value = mock.Mock(
+            status_code=503, json=lambda: {"detail": "quota", "code": "RATE_LIMITED"}
+        )
+        client = ZafiraIaClient(base_url="http://ia.test")
+        with self.assertRaises(ZafiraIaUnavailable) as ctx:
+            client.try_on(
+                external_ref="abc",
+                person_image_url="http://core.test/media/p.jpg",
+                garment_image_url="http://store.test/g.jpg",
+                garment_type="upper_body",
+            )
+        self.assertEqual(ctx.exception.code, "RATE_LIMITED")
+
+    @mock.patch("core.tryon.services.zafira_ia_client.requests.post")
+    def test_try_on_rejected_propagates_code(self, mock_post):
+        mock_post.return_value = mock.Mock(
+            status_code=422,
+            json=lambda: {"detail": "blocked", "code": "GENERATION_REJECTED"},
+        )
+        client = ZafiraIaClient(base_url="http://ia.test")
+        with self.assertRaises(ZafiraIaRejected) as ctx:
+            client.try_on(
+                external_ref="abc",
+                person_image_url="http://core.test/media/p.jpg",
+                garment_image_url="http://store.test/g.jpg",
+                garment_type="upper_body",
+            )
+        self.assertEqual(ctx.exception.code, "GENERATION_REJECTED")
