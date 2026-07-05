@@ -8,6 +8,7 @@ urlpatterns = [
     path("api/v1/", include("core.auth.api.v1.urls")),
     path("api/v1/", include("core.user.api.v1.urls")),
     path("api/v1/", include("core.scraper.api.v1.urls")),
+    path("api/v1/", include("core.tryon.api.v1.urls")),
     path("api/", include("core.recommend.api.urls")),
     path("", include("core.profiles.urls")),
     path("", include("core.user.urls")),
