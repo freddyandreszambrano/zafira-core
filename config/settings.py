@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     "core.auth.apps.AuthConfig",
     "core.profiles.apps.ProfilesConfig",
     "core.scraper.apps.ScraperConfig",
+    "core.tryon.apps.TryonConfig",
     "core.user.apps.UserConfig",
     "core.recommend.apps.RecommendConfig",
 ]
@@ -286,5 +287,11 @@ CSRF_COOKIE_SECURE = os.getenv("CSRF_COOKIE_SECURE", "False").lower() == "true"
 
 # Frontend Configuration
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
+
+# Integración ZAFIRA-IA
+SITE_URL = os.getenv("SITE_URL", "http://localhost:8000")
+ZAFIRA_IA_BASE_URL = os.getenv("ZAFIRA_IA_BASE_URL", "http://localhost:8001")
+ZAFIRA_IA_PROVIDER_NAME = os.getenv("ZAFIRA_IA_PROVIDER_NAME", "zafira-ia")
+ZAFIRA_IA_TIMEOUT_SECONDS = int(os.getenv("ZAFIRA_IA_TIMEOUT_SECONDS", 180))
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
