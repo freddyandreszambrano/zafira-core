@@ -32,15 +32,34 @@ def generate_try_on_task(self, job_id):
     job.save(update_fields=["status", "updated_at"])
 
     try:
+        client = ZafiraIaClient()
         mobile_profile = job.user.mobile_profile
-        data = ZafiraIaClient().try_on(
+
+        # Paso 1: vestir la primera prenda (torso) sobre la foto del usuario
+        data = client.try_on(
             external_ref=str(job.id),
             person_image_url=settings.SITE_URL + mobile_profile.try_on_photo.url,
             garment_image_url=job.garment_image_url,
             garment_type=job.garment_type,
+            # El nombre real de la prenda enfoca al modelo de try-on en la
+            # prenda y reduce que copie rasgos del modelo de la tienda
+            params={"garment_des": job.product.name},
         )
         image_bytes = base64.b64decode(data["result_image_b64"])
-        job.result_image.save(f"{job.id}.png", ContentFile(image_bytes), save=False)
+        job.result_image.save(f"{job.id}.png", ContentFile(image_bytes), save=True)
+
+        # Paso 2 (solo outfit): vestir la segunda prenda (piernas) sobre el
+        # resultado del paso 1, que ya tiene URL publica en /media/.
+        if job.extra_garment_image_url:
+            data = client.try_on(
+                external_ref=f"{job.id}-outfit",
+                person_image_url=settings.SITE_URL + job.result_image.url,
+                garment_image_url=job.extra_garment_image_url,
+                garment_type=job.extra_garment_type or "lower_body",
+            )
+            image_bytes = base64.b64decode(data["result_image_b64"])
+            job.result_image.save(f"{job.id}.png", ContentFile(image_bytes), save=True)
+
         job.status = TryOnJob.Status.COMPLETED
         job.error_message = ""
         job.save()

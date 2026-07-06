@@ -26,6 +26,14 @@ class TryOnJob(models.Model):
     )
     garment_image_url = models.TextField(verbose_name="Imagen de la prenda")
     garment_type = models.TextField(default="upper_body", verbose_name="Tipo de prenda")
+    # Outfit completo: segunda prenda aplicada sobre el resultado de la primera.
+    # Vacio para prueba de una sola prenda.
+    extra_garment_image_url = models.TextField(
+        blank=True, default="", verbose_name="Imagen de la segunda prenda"
+    )
+    extra_garment_type = models.TextField(
+        blank=True, default="", verbose_name="Tipo de la segunda prenda"
+    )
     status = models.TextField(
         choices=Status.choices,
         default=Status.PENDING,
