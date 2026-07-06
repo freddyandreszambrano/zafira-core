@@ -1,7 +1,7 @@
 from core.scraper.models import Product
 from core.tryon.models import TryOnJob
 from core.tryon.services.garment_mapping import garment_type_for_category
-from core.tryon.task import generate_try_on_task
+from core.tryon.task import dispatch_generate_try_on
 
 
 class TryOnValidationError(Exception):
@@ -26,7 +26,8 @@ class TryOnApi:
             garment_image_url=product.image_urls[0],
             garment_type=garment_type_for_category(product.category),
         )
-        generate_try_on_task.delay(str(job.id))
+        dispatch_generate_try_on(str(job.id))
+        job.refresh_from_db()
         return job
 
     def get_job(self, job_id):

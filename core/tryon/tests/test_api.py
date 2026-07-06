@@ -3,6 +3,7 @@ from unittest import mock
 
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import override_settings
 from rest_framework.test import APITestCase
 
 from core.profiles.models import MobileProfile
@@ -26,8 +27,8 @@ class TryOnApiTests(APITestCase):
         self.product = create_product()
         self.client.force_authenticate(self.user)
 
-    @mock.patch("core.tryon.api.v1.tryon.features.tryon.generate_try_on_task")
-    def test_create_job(self, mock_task):
+    @mock.patch("core.tryon.api.v1.tryon.features.tryon.dispatch_generate_try_on")
+    def test_create_job(self, mock_dispatch):
         response = self.client.post(
             "/api/v1/tryon/", {"product_ids": [self.product.id]}, format="json"
         )
@@ -40,7 +41,25 @@ class TryOnApiTests(APITestCase):
         job = TryOnJob.objects.get(id=job_data["id"])
         self.assertEqual(job.garment_type, "upper_body")
         self.assertEqual(job.garment_image_url, self.product.image_urls[0])
-        mock_task.delay.assert_called_once_with(str(job.id))
+        mock_dispatch.assert_called_once_with(str(job.id))
+
+    @override_settings(TRYON_USE_CELERY=False)
+    @mock.patch("core.tryon.task.tryon.ZafiraIaClient")
+    def test_create_job_direct_mode_completes_inline(self, mock_client_cls):
+        mock_client_cls.return_value.try_on.return_value = {
+            "external_ref": "x",
+            "result_image_b64": base64.b64encode(b"generated-image").decode(),
+        }
+
+        response = self.client.post(
+            "/api/v1/tryon/", {"product_ids": [self.product.id]}, format="json"
+        )
+
+        self.assertEqual(response.status_code, 201)
+        job_data = response.json()["job"]
+        self.assertEqual(job_data["status"], "completed")
+        self.assertIsNotNone(job_data["result_url"])
+        mock_client_cls.return_value.try_on.assert_called_once()
 
     def test_create_without_photo_returns_code(self):
         self.profile.try_on_photo.delete(save=True)
@@ -64,8 +83,8 @@ class TryOnApiTests(APITestCase):
             self.assertEqual(response.status_code, 400)
             self.assertEqual(response.json()["code"], "INVALID_PRODUCTS")
 
-    @mock.patch("core.tryon.api.v1.tryon.features.tryon.generate_try_on_task")
-    def test_get_job_only_for_owner(self, mock_task):
+    @mock.patch("core.tryon.api.v1.tryon.features.tryon.dispatch_generate_try_on")
+    def test_get_job_only_for_owner(self, mock_dispatch):
         response = self.client.post(
             "/api/v1/tryon/", {"product_ids": [self.product.id]}, format="json"
         )

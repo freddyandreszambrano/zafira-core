@@ -293,5 +293,8 @@ FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 SITE_URL = os.getenv("SITE_URL", "http://localhost:8000")
 ZAFIRA_IA_BASE_URL = os.getenv("ZAFIRA_IA_BASE_URL", "http://localhost:8001")
 ZAFIRA_IA_TIMEOUT_SECONDS = int(os.getenv("ZAFIRA_IA_TIMEOUT_SECONDS", 180))
+# True: la generación se encola en Celery (necesita worker + Redis).
+# False: se ejecuta directo en el request (sin Celery), bloqueando hasta terminar.
+TRYON_USE_CELERY = os.getenv("TRYON_USE_CELERY", "True").lower() == "true"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
