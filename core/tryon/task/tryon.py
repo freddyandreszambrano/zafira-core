@@ -50,15 +50,22 @@ def generate_try_on_task(self, job_id):
 
         # Paso 2 (solo outfit): vestir la segunda prenda (piernas) sobre el
         # resultado del paso 1, que ya tiene URL publica en /media/.
+        # Si este paso falla, se CONSERVA el resultado del paso 1 (torso ya
+        # puesto) en vez de romper todo el outfit: el usuario ve la prenda de
+        # arriba bien y puede reintentar.
         if job.extra_garment_image_url:
-            data = client.try_on(
-                external_ref=f"{job.id}-outfit",
-                person_image_url=settings.SITE_URL + job.result_image.url,
-                garment_image_url=job.extra_garment_image_url,
-                garment_type=job.extra_garment_type or "lower_body",
-            )
-            image_bytes = base64.b64decode(data["result_image_b64"])
-            job.result_image.save(f"{job.id}.png", ContentFile(image_bytes), save=True)
+            try:
+                data = client.try_on(
+                    external_ref=f"{job.id}-outfit",
+                    person_image_url=settings.SITE_URL + job.result_image.url,
+                    garment_image_url=job.extra_garment_image_url,
+                    garment_type=job.extra_garment_type or "lower_body",
+                )
+                image_bytes = base64.b64decode(data["result_image_b64"])
+                job.result_image.save(f"{job.id}.png", ContentFile(image_bytes), save=True)
+            except (ZafiraIaError, KeyError, ValueError):
+                # Paso 2 fallo: nos quedamos con el paso 1 (torso vestido)
+                pass
 
         job.status = TryOnJob.Status.COMPLETED
         job.error_message = ""
