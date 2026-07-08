@@ -4,6 +4,7 @@ from unittest import mock
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import override_settings
+
 from rest_framework.test import APITestCase
 
 from core.profiles.models import MobileProfile
@@ -13,19 +14,36 @@ from core.tryon.tests.test_models import create_product
 TINY_GIF = base64.b64decode(b"R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==")
 
 
+class InlineThread:
+    """Sustituye a threading.Thread en tests: ejecuta el target al instante
+    para que el resultado del hilo sea observable dentro del mismo request."""
+
+    def __init__(self, target=None, daemon=None):
+        self._target = target
+
+    def start(self):
+        self._target()
+
+
 class TryOnApiTests(APITestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(
             username="freddy", email="freddy@test.com", password="secret123"
         )
         self.profile, _ = MobileProfile.objects.get_or_create(user=self.user)
-        self.profile.try_on_photo = SimpleUploadedFile(
-            "me.gif", TINY_GIF, content_type="image/gif"
-        )
+        self.profile.try_on_photo = SimpleUploadedFile("me.gif", TINY_GIF, content_type="image/gif")
         self.profile.save(update_fields=["try_on_photo"])
         self.user = get_user_model().objects.get(pk=self.user.pk)
         self.product = create_product()
         self.client.force_authenticate(self.user)
+        # Los tests no deben depender de la red: la verificación real de URLs
+        # alcanzables se simula devolviendo la primera imagen del producto.
+        patcher = mock.patch(
+            "core.tryon.api.v1.tryon.features.tryon._first_reachable_image",
+            side_effect=lambda product: (product.image_urls[0] if product.image_urls else None),
+        )
+        patcher.start()
+        self.addCleanup(patcher.stop)
 
     @mock.patch("core.tryon.api.v1.tryon.features.tryon.dispatch_generate_try_on")
     def test_create_job(self, mock_dispatch):
@@ -44,6 +62,7 @@ class TryOnApiTests(APITestCase):
         mock_dispatch.assert_called_once_with(str(job.id))
 
     @override_settings(TRYON_USE_CELERY=False)
+    @mock.patch("core.tryon.task.dispatch.threading.Thread", new=InlineThread)
     @mock.patch("core.tryon.task.tryon.ZafiraIaClient")
     def test_create_job_direct_mode_completes_inline(self, mock_client_cls):
         mock_client_cls.return_value.try_on.return_value = {
@@ -71,9 +90,7 @@ class TryOnApiTests(APITestCase):
 
     def test_create_without_product_image_returns_code(self):
         bare = create_product(id_external="ext-2", image_urls=[])
-        response = self.client.post(
-            "/api/v1/tryon/", {"product_ids": [bare.id]}, format="json"
-        )
+        response = self.client.post("/api/v1/tryon/", {"product_ids": [bare.id]}, format="json")
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()["code"], "PRODUCT_IMAGE_REQUIRED")
 
