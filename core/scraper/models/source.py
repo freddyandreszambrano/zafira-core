@@ -4,7 +4,9 @@ from django.db import models
 
 class ScraperSource(models.Model):
     name = models.TextField(unique=True, db_index=True, verbose_name="Nombre")
-    url = models.TextField(unique=True, db_index=True, validators=[URLValidator()], verbose_name="URL")
+    url = models.TextField(
+        unique=True, db_index=True, validators=[URLValidator()], verbose_name="URL"
+    )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de creacion")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Fecha de actualizacion")
 

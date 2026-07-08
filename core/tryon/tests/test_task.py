@@ -19,9 +19,7 @@ def make_job():
         username="freddy", email="freddy@test.com", password="secret123"
     )
     mobile_profile, _ = MobileProfile.objects.get_or_create(user=user)
-    mobile_profile.try_on_photo = SimpleUploadedFile(
-        "me.gif", TINY_GIF, content_type="image/gif"
-    )
+    mobile_profile.try_on_photo = SimpleUploadedFile("me.gif", TINY_GIF, content_type="image/gif")
     mobile_profile.save(update_fields=["try_on_photo"])
     product = create_product()
     return TryOnJob.objects.create(

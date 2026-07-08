@@ -18,7 +18,9 @@ class PasswordResetRequestApiView(APIView):
     def post(self, request, *args, **kwargs):
         app_source = request.headers.get("app-source")
         if app_source not in APP_SOURCES_ZAFIRA:
-            return Response(MessageOutput("Invalid app source").data, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                MessageOutput("Invalid app source").data, status=status.HTTP_400_BAD_REQUEST
+            )
 
         serializer = PasswordResetRequestSerializerInput(data=request.data)
         if not serializer.is_valid():
@@ -57,7 +59,9 @@ class PasswordResetConfirmApiView(APIView):
     def post(self, request, *args, **kwargs):
         app_source = request.headers.get("app-source")
         if app_source not in APP_SOURCES_ZAFIRA:
-            return Response(MessageOutput("Invalid app source").data, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                MessageOutput("Invalid app source").data, status=status.HTTP_400_BAD_REQUEST
+            )
 
         serializer = PasswordResetConfirmSerializerInput(data=request.data)
         if not serializer.is_valid():

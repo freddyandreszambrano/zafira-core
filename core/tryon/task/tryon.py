@@ -1,8 +1,9 @@
 import base64
 
-from celery import shared_task
 from django.conf import settings
 from django.core.files.base import ContentFile
+
+from celery import shared_task
 
 from core.tryon.models import TryOnJob
 from core.tryon.services.zafira_ia_client import (

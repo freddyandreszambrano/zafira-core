@@ -11,8 +11,7 @@ def _first_reachable_image(product):
     y algunas quedan en 404, lo que hacia fallar el try-on de esa prenda)."""
     for url in product.image_urls[:3]:
         try:
-            resp = requests.get(url, stream=True, timeout=5,
-                                headers={"User-Agent": "Mozilla/5.0"})
+            resp = requests.get(url, stream=True, timeout=5, headers={"User-Agent": "Mozilla/5.0"})
             ok = resp.status_code == 200
             resp.close()
             if ok:
@@ -75,9 +74,7 @@ class TryOnApi:
         product_ids = data.get("product_ids")
         # 1 producto = prenda individual · 2 productos = outfit (torso + piernas)
         if not isinstance(product_ids, list) or len(product_ids) not in (1, 2):
-            raise TryOnValidationError(
-                "INVALID_PRODUCTS", "Debes enviar uno o dos productos."
-            )
+            raise TryOnValidationError("INVALID_PRODUCTS", "Debes enviar uno o dos productos.")
 
         products = []
         for pid in product_ids:
