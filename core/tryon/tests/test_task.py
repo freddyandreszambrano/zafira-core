@@ -14,7 +14,7 @@ from core.tryon.tests.test_models import create_product
 TINY_GIF = base64.b64decode(b"R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==")
 
 
-def make_job():
+def make_job(**extra):
     user = get_user_model().objects.create_user(
         username="freddy", email="freddy@test.com", password="secret123"
     )
@@ -27,7 +27,19 @@ def make_job():
         product=product,
         garment_image_url=product.image_urls[0],
         garment_type="upper_body",
+        **extra,
     )
+
+
+def make_outfit_job():
+    return make_job(
+        extra_garment_image_url="https://store.example.com/img/pants.jpg",
+        extra_garment_type="lower_body",
+    )
+
+
+def _b64_result(payload):
+    return {"result_image_b64": base64.b64encode(payload).decode()}
 
 
 @override_settings(SITE_URL="http://core.test")
@@ -110,3 +122,56 @@ class GenerateTryOnTaskTests(TestCase):
     def test_missing_job_is_noop(self, mock_client_cls):
         generate_try_on_task.apply(args=["00000000-0000-0000-0000-000000000000"])
         mock_client_cls.assert_not_called()
+
+    @mock.patch("core.tryon.task.tryon._mean_diff", return_value=50.0)
+    @mock.patch("core.tryon.task.tryon.ZafiraIaClient")
+    def test_outfit_applies_legs_on_first_attempt(self, mock_client_cls, _diff):
+        job = make_outfit_job()
+        mock_client_cls.return_value.try_on.side_effect = [
+            _b64_result(b"torso"),
+            _b64_result(b"torso+legs"),
+        ]
+
+        generate_try_on_task.apply(args=[str(job.id)])
+
+        job.refresh_from_db()
+        self.assertEqual(job.status, TryOnJob.Status.COMPLETED)
+        self.assertEqual(job.result_image.read(), b"torso+legs")
+        # 1 paso torso + 1 paso piernas (se aplicó al primer intento, sin reintento)
+        self.assertEqual(mock_client_cls.return_value.try_on.call_count, 2)
+
+    @mock.patch("core.tryon.task.tryon._mean_diff", side_effect=[1.0, 50.0])
+    @mock.patch("core.tryon.task.tryon.ZafiraIaClient")
+    def test_outfit_retries_legs_when_first_is_noop(self, mock_client_cls, _diff):
+        job = make_outfit_job()
+        mock_client_cls.return_value.try_on.side_effect = [
+            _b64_result(b"torso"),
+            _b64_result(b"noop"),  # paso 2 intento 1: no aplicó (diff bajo)
+            _b64_result(b"torso+legs"),  # paso 2 intento 2: aplicó (diff alto)
+        ]
+
+        generate_try_on_task.apply(args=[str(job.id)])
+
+        job.refresh_from_db()
+        self.assertEqual(job.status, TryOnJob.Status.COMPLETED)
+        self.assertEqual(job.result_image.read(), b"torso+legs")
+        self.assertEqual(mock_client_cls.return_value.try_on.call_count, 3)
+
+    @mock.patch("core.tryon.task.tryon._mean_diff", return_value=1.0)
+    @mock.patch("core.tryon.task.tryon.ZafiraIaClient")
+    def test_outfit_keeps_torso_when_legs_never_apply(self, mock_client_cls, _diff):
+        job = make_outfit_job()
+        mock_client_cls.return_value.try_on.side_effect = [
+            _b64_result(b"torso"),
+            _b64_result(b"noop-1"),
+            _b64_result(b"noop-2"),
+        ]
+
+        generate_try_on_task.apply(args=[str(job.id)])
+
+        job.refresh_from_db()
+        self.assertEqual(job.status, TryOnJob.Status.COMPLETED)
+        # Ningún intento aplicó las piernas -> conserva el paso 1 (torso)
+        self.assertEqual(job.result_image.read(), b"torso")
+        # 1 torso + 2 intentos de piernas (máximo)
+        self.assertEqual(mock_client_cls.return_value.try_on.call_count, 3)
