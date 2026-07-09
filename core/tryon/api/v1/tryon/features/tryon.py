@@ -2,7 +2,7 @@ import requests
 
 from core.scraper.models import Product
 from core.tryon.models import TryOnJob
-from core.tryon.services.garment_mapping import garment_type_for_category
+from core.tryon.services.garment_mapping import garment_type_for_product
 from core.tryon.task import dispatch_generate_try_on
 
 
@@ -48,7 +48,7 @@ class TryOnApi:
             "user": self.user,
             "product": primary,
             "garment_image_url": primary_image,
-            "garment_type": garment_type_for_category(primary.category),
+            "garment_type": garment_type_for_product(primary.name, primary.category),
         }
         # Outfit completo: la segunda prenda se aplica sobre el resultado
         if len(products) == 2:
@@ -60,7 +60,7 @@ class TryOnApi:
                     "La imagen de una de las prendas no está disponible en la tienda.",
                 )
             job_kwargs["extra_garment_image_url"] = extra_image
-            job_kwargs["extra_garment_type"] = garment_type_for_category(extra.category)
+            job_kwargs["extra_garment_type"] = garment_type_for_product(extra.name, extra.category)
 
         job = TryOnJob.objects.create(**job_kwargs)
         dispatch_generate_try_on(str(job.id))
