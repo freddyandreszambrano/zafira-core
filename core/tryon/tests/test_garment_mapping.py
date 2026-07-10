@@ -1,9 +1,6 @@
 from django.test import SimpleTestCase
 
-from core.tryon.services.garment_mapping import (
-    garment_type_for_category,
-    garment_type_for_product,
-)
+from core.tryon.services.garment_mapping import garment_type_for_category, garment_type_for_product
 
 
 class GarmentMappingTests(SimpleTestCase):

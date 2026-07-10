@@ -1,5 +1,5 @@
-from .favorite import Favorite
+from .favorite import Favorite, FavoriteOutfit
 from .product import Product
 from .source import ScraperSource
 
-__all__ = ["Favorite", "Product", "ScraperSource"]
+__all__ = ["Favorite", "FavoriteOutfit", "Product", "ScraperSource"]
