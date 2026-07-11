@@ -1,7 +1,8 @@
 from unittest import mock
 
-import requests
 from django.test import TestCase
+
+import requests
 
 from core.tryon.services.zafira_ia_client import (
     ZafiraIaClient,
@@ -62,9 +63,7 @@ class ZafiraIaClientTests(TestCase):
 
     @mock.patch("core.tryon.services.zafira_ia_client.requests.post")
     def test_try_on_4xx_raises_rejected(self, mock_post):
-        mock_post.return_value = mock.Mock(
-            status_code=422, json=lambda: {"detail": "bad payload"}
-        )
+        mock_post.return_value = mock.Mock(status_code=422, json=lambda: {"detail": "bad payload"})
         client = ZafiraIaClient(base_url="http://ia.test")
         with self.assertRaises(ZafiraIaRejected):
             client.try_on(

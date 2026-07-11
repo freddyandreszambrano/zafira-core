@@ -14,7 +14,6 @@ from core.scraper.forms import ScraperSourceForm
 from core.scraper.models import ScraperSource
 from core.security.mixins import PermissionMixin
 
-
 SOURCE_URL_PATTERN = re.compile(r"https?://[^\s,;]+", re.IGNORECASE)
 
 
@@ -32,7 +31,9 @@ class ScraperSourceListView(PermissionMixin, TemplateView):
                 search_value = request.POST.get("search[value]", "")
                 query = Q()
                 if search_value:
-                    query.add(Q(name__icontains=search_value) | Q(url__icontains=search_value), Q.OR)
+                    query.add(
+                        Q(name__icontains=search_value) | Q(url__icontains=search_value), Q.OR
+                    )
                 queryset = ScraperSource.objects.filter(query).order_by("name")
                 paginator = Paginator(queryset, page_size)
                 paginated_data = paginator.get_page(page)

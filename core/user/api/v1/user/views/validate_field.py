@@ -14,7 +14,9 @@ class UserFieldValidationApiView(APIView):
     def post(self, request):
         app_source = request.headers.get("app-source")
         if app_source not in APP_SOURCES_ZAFIRA:
-            return Response(MessageOutput("Invalid app source").data, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                MessageOutput("Invalid app source").data, status=status.HTTP_400_BAD_REQUEST
+            )
 
         field = request.data.get("field")
         value = request.data.get("value", "").strip()
@@ -24,6 +26,8 @@ class UserFieldValidationApiView(APIView):
 
         data = UserApi().validate_field(field, value)
         if data is None:
-            return Response(MessageOutput("Campo invalido").data, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                MessageOutput("Campo invalido").data, status=status.HTTP_400_BAD_REQUEST
+            )
 
         return Response(FieldValidationOutput(**data).data)

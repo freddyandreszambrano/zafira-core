@@ -1,5 +1,6 @@
-import requests
 from django.conf import settings
+
+import requests
 
 
 class ZafiraIaError(Exception):
@@ -21,13 +22,21 @@ class ZafiraIaClient:
         self.base_url = (base_url or settings.ZAFIRA_IA_BASE_URL).rstrip("/")
         self.timeout = timeout or settings.ZAFIRA_IA_TIMEOUT_SECONDS
 
-    def try_on(self, *, external_ref, person_image_url, garment_image_url, garment_type):
+    def try_on(
+        self,
+        *,
+        external_ref,
+        person_image_url,
+        garment_image_url,
+        garment_type,
+        params=None,
+    ):
         payload = {
             "external_ref": external_ref,
             "person_image_url": person_image_url,
             "garment_image_url": garment_image_url,
             "garment_type": garment_type,
-            "params": {},
+            "params": params or {},
         }
 
         try:

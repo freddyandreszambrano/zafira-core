@@ -16,6 +16,10 @@ urlpatterns = [
     path("product/delete/<int:pk>/", ProductDeleteView.as_view(), name="scraper_product_delete"),
     path("source/", ScraperSourceListView.as_view(), name="scraper_source_list"),
     path("source/create/", ScraperSourceCreateView.as_view(), name="scraper_source_create"),
-    path("source/update/<int:pk>/", ScraperSourceUpdateView.as_view(), name="scraper_source_update"),
-    path("source/delete/<int:pk>/", ScraperSourceDeleteView.as_view(), name="scraper_source_delete"),
+    path(
+        "source/update/<int:pk>/", ScraperSourceUpdateView.as_view(), name="scraper_source_update"
+    ),
+    path(
+        "source/delete/<int:pk>/", ScraperSourceDeleteView.as_view(), name="scraper_source_delete"
+    ),
 ]
