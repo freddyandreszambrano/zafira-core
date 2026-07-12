@@ -8,7 +8,6 @@ from django.urls import reverse
 from core.auth.models import User
 from core.profiles.models import MobileProfile
 
-
 TEST_MEDIA_ROOT = tempfile.mkdtemp()
 
 

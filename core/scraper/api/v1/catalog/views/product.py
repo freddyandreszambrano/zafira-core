@@ -4,11 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from core.scraper.api.v1.catalog.features import ProductCatalogApi
-from core.scraper.api.v1.catalog.outputs import (
-    ProductListOutput,
-    ProductLiveOutput,
-    ProductOutput,
-)
+from core.scraper.api.v1.catalog.outputs import ProductListOutput, ProductLiveOutput, ProductOutput
 
 
 class ProductListApiView(APIView):

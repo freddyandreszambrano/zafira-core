@@ -205,6 +205,9 @@ class TestScraperSourceView(TestCase):
         )
         self.assertTrue(
             ScraperSource.objects.filter(
-                url="https://www.etafashion.com/HOMBRES/MODA-ADULTO/CAMISETAS-Y-POLOS/c/10202816499",
+                url=(
+                    "https://www.etafashion.com/HOMBRES/MODA-ADULTO/"
+                    "CAMISETAS-Y-POLOS/c/10202816499"
+                ),
             ).exists()
         )
