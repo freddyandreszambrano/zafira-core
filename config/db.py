@@ -34,8 +34,9 @@ POSTGRESQL_FROM_PARTS = {
 }
 
 DATABASE_URL = env("DATABASE_URL", default="").strip()
-POSTGRESQL = (
-    {"default": env.db_url_config(DATABASE_URL, conn_max_age=600)}
-    if DATABASE_URL
-    else POSTGRESQL_FROM_PARTS
-)
+if DATABASE_URL:
+    database_config = env.db_url_config(DATABASE_URL)
+    database_config["CONN_MAX_AGE"] = 600
+    POSTGRESQL = {"default": database_config}
+else:
+    POSTGRESQL = POSTGRESQL_FROM_PARTS
