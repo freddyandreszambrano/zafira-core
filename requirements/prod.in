@@ -9,3 +9,6 @@ psycopg2-binary==2.9.9
 # ── Archivos estáticos ───────────────────────────────────────────────────────
 # Nota: whitenoise requiere WhiteNoiseMiddleware en settings.MIDDLEWARE para activarse.
 whitenoise==6.6.0
+
+# Cloudflare R2 / S3-compatible media storage
+django-storages[s3]>=1.14,<2

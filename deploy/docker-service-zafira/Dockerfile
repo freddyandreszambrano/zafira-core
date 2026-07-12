@@ -23,10 +23,6 @@ RUN python manage.py collectstatic --noinput
 EXPOSE 8000
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-    CMD curl -fsS http://localhost:8000/ || exit 1
+    CMD curl -fsS "http://localhost:${PORT:-8000}/health" || exit 1
 
-CMD ["gunicorn", "config.wsgi:application", \
-     "--bind", "0.0.0.0:8000", \
-     "--workers", "3", \
-     "--access-logfile", "-", \
-     "--error-logfile", "-"]
+CMD ["sh", "-c", "python manage.py migrate --noinput && exec gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers ${WEB_CONCURRENCY:-2} --access-logfile - --error-logfile -"]

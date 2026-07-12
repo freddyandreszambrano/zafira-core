@@ -1,4 +1,5 @@
 import base64
+from urllib.parse import urljoin
 
 from celery import shared_task
 from django.conf import settings
@@ -35,7 +36,9 @@ def generate_try_on_task(self, job_id):
         mobile_profile = job.user.mobile_profile
         data = ZafiraIaClient().try_on(
             external_ref=str(job.id),
-            person_image_url=settings.SITE_URL + mobile_profile.try_on_photo.url,
+            person_image_url=urljoin(
+                settings.SITE_URL.rstrip("/") + "/", mobile_profile.try_on_photo.url
+            ),
             garment_image_url=job.garment_image_url,
             garment_type=job.garment_type,
         )

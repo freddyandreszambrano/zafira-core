@@ -18,7 +18,7 @@ SQLITE = {
     },
 }
 
-POSTGRESQL = {
+POSTGRESQL_FROM_PARTS = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": env("DB_NAME", default=""),
@@ -32,3 +32,10 @@ POSTGRESQL = {
         },
     },
 }
+
+DATABASE_URL = env("DATABASE_URL", default="").strip()
+POSTGRESQL = (
+    {"default": env.db_url_config(DATABASE_URL, conn_max_age=600)}
+    if DATABASE_URL
+    else POSTGRESQL_FROM_PARTS
+)

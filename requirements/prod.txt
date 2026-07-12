@@ -132,6 +132,7 @@ groq==1.5.0
     # via -r requirements/base.txt
 gunicorn==21.2.0
     # via -r requirements/prod.in
+django-storages[s3]>=1.14,<2
 h11==0.16.0
     # via
     #   -r requirements/base.txt

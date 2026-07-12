@@ -74,6 +74,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -174,9 +175,26 @@ STORAGES = {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
+
+STORAGE_ENDPOINT_URL = os.getenv("STORAGE_ENDPOINT_URL", "").strip()
+if STORAGE_ENDPOINT_URL:
+    STORAGES["default"] = {
+        "BACKEND": "storages.backends.s3.S3Storage",
+        "OPTIONS": {
+            "access_key": os.environ["STORAGE_ACCESS_KEY"],
+            "secret_key": os.environ["STORAGE_SECRET_KEY"],
+            "bucket_name": os.environ["STORAGE_BUCKET"],
+            "endpoint_url": STORAGE_ENDPOINT_URL,
+            "region_name": os.getenv("STORAGE_REGION", "auto"),
+            "default_acl": None,
+            "file_overwrite": False,
+            "querystring_auth": True,
+            "signature_version": "s3v4",
+        },
+    }
 
 # Celery
 # https://docs.celeryq.dev/en/stable/django/first-steps-with-django.html
@@ -285,6 +303,12 @@ MEDIA_ROOT = BASE_DIR / "media"
 SECURE_SSL_REDIRECT = os.getenv("SECURE_SSL_REDIRECT", "False").lower() == "true"
 SESSION_COOKIE_SECURE = os.getenv("SESSION_COOKIE_SECURE", "False").lower() == "true"
 CSRF_COOKIE_SECURE = os.getenv("CSRF_COOKIE_SECURE", "False").lower() == "true"
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
+    if origin.strip()
+]
 
 # Frontend Configuration
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
