@@ -184,6 +184,13 @@ STORAGES = {
     },
 }
 
+# Los tests no ejecutan collectstatic; el almacenamiento sin manifiesto evita
+# que el renderizado de templates falle al resolver archivos estáticos.
+if _use_sqlite_for_tests():
+    STORAGES["staticfiles"] = {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    }
+
 STORAGE_ENDPOINT_URL = os.getenv("STORAGE_ENDPOINT_URL", "").strip()
 if STORAGE_ENDPOINT_URL:
     STORAGES["default"] = {
@@ -310,9 +317,7 @@ SESSION_COOKIE_SECURE = os.getenv("SESSION_COOKIE_SECURE", "False").lower() == "
 CSRF_COOKIE_SECURE = os.getenv("CSRF_COOKIE_SECURE", "False").lower() == "true"
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 CSRF_TRUSTED_ORIGINS = [
-    origin.strip()
-    for origin in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
-    if origin.strip()
+    origin.strip() for origin in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",") if origin.strip()
 ]
 
 # Frontend Configuration

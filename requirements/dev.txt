@@ -354,6 +354,8 @@ websockets==16.0
     # via
     #   -r requirements/base.txt
     #   google-genai
+whitenoise==6.6.0
+    # via -r requirements/base.txt
 wrapt==2.2.1
     # via
     #   -r requirements/base.txt

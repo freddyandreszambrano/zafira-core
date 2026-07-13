@@ -5,6 +5,8 @@ django-cors-headers==4.0.0
 djangorestframework-simplejwt==5.3.0
 django-crum==0.7.9
 django-widget-tweaks==1.5.1
+# Required by WhiteNoiseMiddleware in every Django environment, including CI.
+whitenoise==6.6.0
 
 # ── Config / entorno ────────────────────────────────────────────────────────
 python-dotenv==1.0.0

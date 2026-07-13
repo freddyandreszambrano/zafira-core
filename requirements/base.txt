@@ -220,5 +220,7 @@ wcwidth==0.8.1
     # via prompt-toolkit
 websockets==16.0
     # via google-genai
+whitenoise==6.6.0
+    # via -r requirements/base.in
 wrapt==2.2.1
     # via deprecated

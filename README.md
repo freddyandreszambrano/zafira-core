@@ -445,6 +445,27 @@ El comando rechaza cambios locales, una rama distinta a la indicada o un commit
 que no coincida con `origin/main`. La etiqueta registra la versión; no inicia un
 segundo deploy.
 
+### Superusuario inicial en Render
+
+No se necesita acceso al Shell de Render. Antes del primer deploy, configura estos
+cuatro secretos en el servicio `zafira-core` desde **Environment**:
+
+```text
+DJANGO_SUPERUSER_USERNAME
+DJANGO_SUPERUSER_EMAIL
+DJANGO_SUPERUSER_DNI
+DJANGO_SUPERUSER_PASSWORD
+```
+
+Al arrancar, el contenedor ejecuta las migraciones y crea el superusuario si no
+existe. En deploys posteriores verifica que el mismo usuario ya sea superusuario,
+sin registrar ni cambiar su contraseña. Después puedes iniciar sesión en
+`/admin/` con esos datos.
+
+Si quieres retirar la contraseña bootstrap del proveedor, elimina las cuatro
+variables después de comprobar el primer inicio de sesión. No elimines solo una:
+la configuración debe estar completa o totalmente ausente.
+
 ---
 
 ## 🐛 Troubleshooting
