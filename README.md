@@ -457,10 +457,12 @@ DJANGO_SUPERUSER_DNI
 DJANGO_SUPERUSER_PASSWORD
 ```
 
-Al arrancar, el contenedor ejecuta las migraciones y crea el superusuario si no
-existe. En deploys posteriores verifica que el mismo usuario ya sea superusuario,
-sin registrar ni cambiar su contraseña. Después puedes iniciar sesión en
-`/admin/` con esos datos.
+Al arrancar, el contenedor ejecuta las migraciones, carga de forma idempotente
+los tipos, módulos y grupo `Administrador`, y crea el superusuario si no existe.
+El comando de producción no crea el usuario local `admin/admin` ni tokens. En
+deploys posteriores verifica que el mismo usuario ya sea superusuario, sin
+registrar ni cambiar su contraseña. Después puedes iniciar sesión en `/admin/`
+con esos datos.
 
 Si quieres retirar la contraseña bootstrap del proveedor, elimina las cuatro
 variables después de comprobar el primer inicio de sesión. No elimines solo una:

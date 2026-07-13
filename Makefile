@@ -88,6 +88,10 @@ update_database: ## Genera y aplica migraciones
 insert-data: ## Carga módulos, grupo Administrador y admin/admin
 	$(MANAGE) insert_data
 
+.PHONY: seed-production-data
+seed-production-data: ## Carga menú y grupo Administrador sin crear usuarios
+	$(MANAGE) seed_production_data
+
 .PHONY: reset-db
 reset-db: ## ⚠️ Borra SQLite local, migra y carga datos iniciales
 	@echo "  ⚠️  Esto borrará TODOS los datos locales."
