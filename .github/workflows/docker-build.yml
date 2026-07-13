@@ -2,9 +2,9 @@ name: Docker Build
 
 on:
   push:
-    tags:
-      - "develop-v*"
-      - "main-v*"
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
   workflow_dispatch:
 
 concurrency:
@@ -14,14 +14,9 @@ concurrency:
 permissions:
   contents: read
 
-env:
-  DOCKERHUB_REPOSITORY: ${{ vars.DOCKERHUB_REPOSITORY || 'zafira-core' }}
-  DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-  DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-
 jobs:
   build:
-    name: Build image
+    name: Build Docker image
     runs-on: ubuntu-latest
 
     steps:
@@ -30,42 +25,12 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to Docker Hub
-        if: env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_TOKEN != ''
-        uses: docker/login-action@v3
-        with:
-          username: ${{ env.DOCKERHUB_USERNAME }}
-          password: ${{ env.DOCKERHUB_TOKEN }}
-
-      - name: Docker metadata
-        if: env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_TOKEN != ''
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.DOCKERHUB_USERNAME }}/${{ env.DOCKERHUB_REPOSITORY }}
-          tags: |
-            type=ref,event=tag
-
-      - name: Build image
-        if: env.DOCKERHUB_USERNAME == '' || env.DOCKERHUB_TOKEN == ''
+      - name: Build Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: deploy/docker/Dockerfile
-          load: true
+          file: deploy/docker-service-zafira/Dockerfile
           push: false
           tags: zafira-core:${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Build and push image
-        if: env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_TOKEN != ''
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: deploy/docker/Dockerfile
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

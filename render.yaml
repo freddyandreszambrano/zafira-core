@@ -9,7 +9,10 @@ services:
     name: zafira-core
     runtime: docker
     plan: free
-    branch: develop
+    # Producción siempre se construye desde la rama protegida.
+    branch: main
+    # Render espera los checks de CI del commit antes de desplegarlo.
+    autoDeployTrigger: checksPass
     dockerfilePath: ./deploy/docker-service-zafira/Dockerfile
     healthCheckPath: /health
     envVars:

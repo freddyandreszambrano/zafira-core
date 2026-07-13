@@ -422,6 +422,29 @@ python manage.py migrate --noinput
 gunicorn config.wsgi:application --bind 0.0.0.0:8000
 ```
 
+### Flujo CI/CD con Render
+
+Producción se despliega exclusivamente desde `main`. En cada pull request y cada
+commit a `main`, GitHub Actions valida formato, lint, tests Django y la imagen
+Docker. Render está configurado para desplegar el commit solo cuando todos esos
+checks terminan correctamente.
+
+```text
+PR hacia main → checks exitosos → merge a main → deploy automático en Render
+```
+
+Para marcar la versión ya publicada en producción:
+
+```bash
+git switch main
+git pull --ff-only origin main
+make tag env=main
+```
+
+El comando rechaza cambios locales, una rama distinta a la indicada o un commit
+que no coincida con `origin/main`. La etiqueta registra la versión; no inicia un
+segundo deploy.
+
 ---
 
 ## 🐛 Troubleshooting
