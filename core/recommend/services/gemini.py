@@ -229,9 +229,11 @@ OCCASION_EXCLUSIONS = {
     "casual": [],
 }
 
-# Cuántos candidatos por grupo se envían a Gemini para evaluación visual
-# (8 torso + 8 pierna alcanza de sobra para 3 outfits y reduce mucho el tiempo)
-MAX_VISION_CANDIDATES = 8
+# Cuántos candidatos por grupo se envían a Gemini para evaluación visual.
+# 6+6 alcanza de sobra para armar 3 outfits y reduce ~25% el tiempo de la
+# evaluación visual (menos imágenes que descargar y analizar); además las
+# fotos curadas (prenda sola, fondo blanco) pesan menos que antes.
+MAX_VISION_CANDIDATES = 6
 MAX_OUTFITS = 3
 
 

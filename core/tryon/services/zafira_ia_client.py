@@ -29,6 +29,8 @@ class ZafiraIaClient:
         person_image_url,
         garment_image_url,
         garment_type,
+        extra_garment_image_url=None,
+        extra_garment_type=None,
         params=None,
     ):
         payload = {
@@ -38,6 +40,10 @@ class ZafiraIaClient:
             "garment_type": garment_type,
             "params": params or {},
         }
+        # Outfit completo en una sola generación (segunda prenda opcional)
+        if extra_garment_image_url:
+            payload["extra_garment_image_url"] = extra_garment_image_url
+            payload["extra_garment_type"] = extra_garment_type or "lower_body"
 
         try:
             response = requests.post(

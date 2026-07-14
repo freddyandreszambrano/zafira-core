@@ -1,5 +1,6 @@
 import shutil
 import tempfile
+from unittest import mock
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
@@ -124,7 +125,11 @@ class MobileProfileUpdateApiTests(TestCase):
         self.assertFalse(profile.onboarding_force_show)
         self.assertTrue(profile.onboarding_completed)
 
-    def test_try_on_photo_update_returns_photo_url(self):
+    @mock.patch(
+        "core.auth.api.v1.auth.features.profile.detect_photo_gender",
+        return_value="woman",
+    )
+    def test_try_on_photo_update_returns_photo_url(self, mock_detect):
         response = self.client.patch(
             "/api/v1/auth/profile/try-on-photo/",
             {
@@ -139,6 +144,10 @@ class MobileProfileUpdateApiTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("/media/try_on/", response.json()["user"]["try_on_photo"])
+        # El género detectado en la foto viaja al app (manda sobre el perfil)
+        self.assertEqual(response.json()["user"]["photo_gender"], "woman")
 
         profile = MobileProfile.objects.get(user=self.user)
         self.assertTrue(profile.try_on_photo.name.startswith("try_on/"))
+        self.assertEqual(profile.try_on_photo_gender, "woman")
+        mock_detect.assert_called_once()

@@ -123,6 +123,43 @@ class GenerateTryOnTaskTests(TestCase):
         generate_try_on_task.apply(args=["00000000-0000-0000-0000-000000000000"])
         mock_client_cls.assert_not_called()
 
+    @mock.patch("core.tryon.task.tryon.ZafiraIaClient")
+    def test_outfit_single_call_generates_in_one_request(self, mock_client_cls):
+        job = make_outfit_job()
+        mock_client_cls.return_value.try_on.return_value = _b64_result(b"outfit-completo")
+
+        generate_try_on_task.apply(args=[str(job.id)])
+
+        job.refresh_from_db()
+        self.assertEqual(job.status, TryOnJob.Status.COMPLETED)
+        self.assertEqual(job.result_image.read(), b"outfit-completo")
+        # UNA sola generación para las 2 prendas (mitad de tiempo y costo)
+        self.assertEqual(mock_client_cls.return_value.try_on.call_count, 1)
+        kwargs = mock_client_cls.return_value.try_on.call_args.kwargs
+        self.assertEqual(
+            kwargs["extra_garment_image_url"], "https://store.example.com/img/pants.jpg"
+        )
+        self.assertEqual(kwargs["extra_garment_type"], "lower_body")
+
+    @mock.patch("core.tryon.task.tryon._mean_diff", return_value=50.0)
+    @mock.patch("core.tryon.task.tryon.ZafiraIaClient")
+    def test_outfit_single_call_falls_back_to_chain(self, mock_client_cls, _diff):
+        job = make_outfit_job()
+        mock_client_cls.return_value.try_on.side_effect = [
+            ZafiraIaRejected("Gemini rechazó el outfit combinado"),
+            _b64_result(b"torso"),
+            _b64_result(b"torso+legs"),
+        ]
+
+        generate_try_on_task.apply(args=[str(job.id)])
+
+        job.refresh_from_db()
+        # El respaldo encadenado completó el outfit sin intervención
+        self.assertEqual(job.status, TryOnJob.Status.COMPLETED)
+        self.assertEqual(job.result_image.read(), b"torso+legs")
+        self.assertEqual(mock_client_cls.return_value.try_on.call_count, 3)
+
+    @override_settings(TRYON_OUTFIT_SINGLE_CALL=False)
     @mock.patch("core.tryon.task.tryon._mean_diff", return_value=50.0)
     @mock.patch("core.tryon.task.tryon.ZafiraIaClient")
     def test_outfit_applies_legs_on_first_attempt(self, mock_client_cls, _diff):
@@ -140,6 +177,7 @@ class GenerateTryOnTaskTests(TestCase):
         # 1 paso torso + 1 paso piernas (se aplicó al primer intento, sin reintento)
         self.assertEqual(mock_client_cls.return_value.try_on.call_count, 2)
 
+    @override_settings(TRYON_OUTFIT_SINGLE_CALL=False)
     @mock.patch("core.tryon.task.tryon._mean_diff", side_effect=[1.0, 50.0])
     @mock.patch("core.tryon.task.tryon.ZafiraIaClient")
     def test_outfit_retries_legs_when_first_is_noop(self, mock_client_cls, _diff):
@@ -157,6 +195,7 @@ class GenerateTryOnTaskTests(TestCase):
         self.assertEqual(job.result_image.read(), b"torso+legs")
         self.assertEqual(mock_client_cls.return_value.try_on.call_count, 3)
 
+    @override_settings(TRYON_OUTFIT_SINGLE_CALL=False)
     @mock.patch("core.tryon.task.tryon._mean_diff", return_value=1.0)
     @mock.patch("core.tryon.task.tryon.ZafiraIaClient")
     def test_outfit_keeps_torso_when_legs_never_apply(self, mock_client_cls, _diff):

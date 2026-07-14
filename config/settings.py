@@ -330,5 +330,9 @@ ZAFIRA_IA_TIMEOUT_SECONDS = int(os.getenv("ZAFIRA_IA_TIMEOUT_SECONDS", 180))
 # True: la generación se encola en Celery (necesita worker + Redis).
 # False: se ejecuta directo en el request (sin Celery), bloqueando hasta terminar.
 TRYON_USE_CELERY = os.getenv("TRYON_USE_CELERY", "True").lower() == "true"
+# True: el outfit de 2 prendas se genera en UNA llamada a Gemini (~12-18s,
+# mitad de costo). Si esa llamada falla se usa el encadenado de 2 pasos como
+# respaldo automático. False: siempre el encadenado clásico (~25-50s).
+TRYON_OUTFIT_SINGLE_CALL = os.getenv("TRYON_OUTFIT_SINGLE_CALL", "True").lower() == "true"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

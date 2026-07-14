@@ -90,6 +90,14 @@ class MobileProfile(models.Model):
         blank=True,
         verbose_name="Foto para prueba virtual",
     )
+    # Género de la PERSONA EN LA FOTO, detectado con Gemini al subirla.
+    # Manda sobre el género del perfil: define qué categorías se ofrecen y
+    # valida que la prenda a probar coincida con quien aparece en la imagen.
+    try_on_photo_gender = models.TextField(
+        blank=True,
+        default="",
+        verbose_name="Género detectado en la foto",
+    )
     onboarding_completed = models.BooleanField(
         default=False,
         verbose_name="Onboarding completado",
