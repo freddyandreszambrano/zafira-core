@@ -19,6 +19,10 @@ Pillow==10.1.0
 requests>=2.31.0
 beautifulsoup4>=4.12.0
 playwright>=1.40.0
+# Curaduría de imágenes (manage.py curate_images): detección de personas
+# para elegir la foto de la prenda sola como imagen principal.
+# <5 porque OpenCV 5 eliminó cv2.CascadeClassifier (API Haar clásica)
+opencv-python-headless>=4.9.0,<5
 
 # ── Logging / Analytics ──────────────────────────────────────────────────────
 ua-parser>=1.0.0

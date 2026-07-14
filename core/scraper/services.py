@@ -345,6 +345,29 @@ def _derive_gender(category, url=""):
     return ""
 
 
+# Las tiendas juntan faldas y vestidos en UNA categoría ("FALDAS Y VESTIDOS").
+# El nombre del producto decide la categoría real para que la app las muestre
+# separadas y el probador les dé el tratamiento correcto (vestido vs falda).
+_DRESS_NAME_KEYWORDS = ("vestido", "enterizo", "jumpsuit", "overol", "conjunto", "set ")
+_SKIRT_NAME_KEYWORDS = ("falda", "short", "bermuda", "pantal", "legging", "skirt")
+_MIXED_CATEGORY_RE = re.compile(r"FALDAS\s+Y\s+VESTIDOS", re.IGNORECASE)
+
+
+def _normalize_category(name, category):
+    category = str(category or "")
+    upper = category.upper()
+    if "FALDA" not in upper or "VESTIDO" not in upper:
+        return category
+
+    name_l = (name or "").lower()
+    is_dress = any(keyword in name_l for keyword in _DRESS_NAME_KEYWORDS)
+    is_skirt = any(keyword in name_l for keyword in _SKIRT_NAME_KEYWORDS)
+    # "Enterizo Short" es vestido aunque diga short; sin pistas gana vestido
+    # (la categoría mixta la dominan los vestidos)
+    segment = "FALDAS" if is_skirt and not is_dress else "VESTIDOS"
+    return _MIXED_CATEGORY_RE.sub(segment, category)
+
+
 def _coerce_price(value, default=None):
     if value in (None, ""):
         return default
@@ -395,7 +418,7 @@ def _persist_products(store, products):
             defaults={
                 "name": name,
                 "base_name": _derive_base_name(name, colors),
-                "category": str(product.get("category") or ""),
+                "category": _normalize_category(name, product.get("category")),
                 "gender": _derive_gender(product.get("category"), product.get("url")),
                 "url": _safe_http_url(product.get("url")),
                 "price": _coerce_price(product.get("price"), default=Decimal("0")),
