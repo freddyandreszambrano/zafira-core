@@ -152,6 +152,8 @@ class User(AbstractBaseUser, PermissionsMixin):
             "style_preferences": getattr(mobile_profile, "style_preferences", {}),
             "language": getattr(mobile_profile, "language", "es"),
             "try_on_photo": try_on_photo_url,
+            # Género detectado en la foto del probador (manda sobre "gender")
+            "photo_gender": getattr(mobile_profile, "try_on_photo_gender", ""),
             "onboarding": onboarding,
             "token": self.get_or_create_token().replace("Token ", ""),
         }
