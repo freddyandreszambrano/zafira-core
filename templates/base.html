@@ -7,6 +7,10 @@
     <meta name="color-scheme" content="light dark">
     <title>{% block title %}ZAFIRA - Sistema Administrativo{% endblock %}</title>
 
+    <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon-gem.svg' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/favicon-32.png' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'img/favicon-180.png' %}">
+
     <script>
         (function () {
             const saved = localStorage.getItem('zafira-theme');
@@ -82,8 +86,8 @@
                 <a href="{% url 'dashboard' %}">
                     <span class="z-sidebar__logo-icon">
                         <span class="z-sidebar__logo-glow"></span>
-                        <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl gradient-primary shadow-zafira">
-                            <i class="fas fa-shield-halved text-white text-lg"></i>
+                        <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-zafira-obsidian shadow-zafira">
+                            <img src="{% static 'img/logo-gem.svg' %}" alt="Zafira" class="w-6 h-6">
                         </span>
                     </span>
                     <div class="flex flex-col leading-tight">
