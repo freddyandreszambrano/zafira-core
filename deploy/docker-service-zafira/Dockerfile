@@ -16,6 +16,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements/ requirements/
 RUN pip install --no-cache-dir -r requirements/prod.txt
 
+# Navegador para el scraper (páginas de categoría renderizadas con JS)
+RUN playwright install --with-deps chromium
+
 COPY . .
 
 RUN python manage.py collectstatic --noinput
