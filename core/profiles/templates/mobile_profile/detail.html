@@ -15,21 +15,6 @@
                 <p class="z-page-subtitle">Informacion del perfil mobile asociado a esta cuenta.</p>
             </div>
             <div class="flex items-center gap-3">
-                <form method="post">
-                    {% csrf_token %}
-                    <input type="hidden" name="action" value="toggle_active">
-                    {% if profile.user.is_active %}
-                        <button type="submit" class="z-btn-ghost text-red-600">
-                            <i class="fas fa-user-slash"></i>
-                            <span>Desactivar cuenta</span>
-                        </button>
-                    {% else %}
-                        <button type="submit" class="z-btn-ghost text-emerald-600">
-                            <i class="fas fa-user-check"></i>
-                            <span>Activar cuenta</span>
-                        </button>
-                    {% endif %}
-                </form>
                 <a href="{% url 'mobile_profile_delete' profile.pk %}" class="z-btn-ghost text-red-600">
                     <i class="fas fa-trash"></i>
                     <span>Eliminar</span>

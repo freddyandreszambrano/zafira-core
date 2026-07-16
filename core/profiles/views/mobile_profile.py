@@ -1,10 +1,8 @@
 import json
 
-from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import HttpResponse
-from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import DeleteView, DetailView, TemplateView
 
@@ -103,18 +101,6 @@ class MobileProfileDetailView(PermissionMixin, DetailView):
 
     def get_queryset(self):
         return MobileProfile.objects.select_related("user")
-
-    def post(self, request, *args, **kwargs):
-        profile = self.get_object()
-        user = profile.user
-
-        if request.POST.get("action") == "toggle_active":
-            user.is_active = not user.is_active
-            user.save(update_fields=["is_active"])
-            status = "activada" if user.is_active else "desactivada"
-            messages.success(request, f"Cuenta {status} correctamente.")
-
-        return redirect("mobile_profile_detail", pk=profile.pk)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
