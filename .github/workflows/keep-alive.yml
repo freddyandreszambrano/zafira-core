@@ -1,0 +1,27 @@
+name: Keep Alive
+
+# Render (plan free) duerme los servicios tras 15 min sin tráfico y el
+# arranque en frío tarda 30-60 s: la app muestra "modo offline" y el
+# try-on falla si agarra a la IA dormida. Este ping cada 10 minutos los
+# mantiene despiertos en horario de uso (07:00-23:59 Ecuador, UTC-5);
+# de madrugada se los deja dormir para no consumir horas gratuitas.
+
+on:
+  schedule:
+    - cron: "*/10 12-23 * * *" # 07:00-18:50 Ecuador
+    - cron: "*/10 0-4 * * *"   # 19:00-23:50 Ecuador
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Ping backend y microservicio de IA
+        run: |
+          for url in \
+            "https://zafira-core.onrender.com/health" \
+            "https://zafira-ia.onrender.com/health"; do
+            status=$(curl -s -o /dev/null -w "%{http_code}" -m 90 "$url" || echo "000")
+            echo "$url -> $status"
+          done
