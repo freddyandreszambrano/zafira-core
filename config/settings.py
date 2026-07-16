@@ -307,6 +307,9 @@ EMAIL_TIMEOUT = int(os.getenv("EMAIL_TIMEOUT", 20))
 
 ANYMAIL = {
     "RESEND_API_KEY": os.getenv("RESEND_API_KEY", ""),
+    # Brevo (HTTP, puerto 443): Render bloquea los puertos SMTP salientes
+    # (25/465/587), así que el correo debe salir por API HTTP.
+    "BREVO_API_KEY": os.getenv("BREVO_API_KEY", ""),
 }
 
 # Password Reset Token Expiry (in seconds)
