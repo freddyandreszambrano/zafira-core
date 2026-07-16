@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="gemGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff3bbe"/>
+      <stop offset="100%" stop-color="#8e54ff"/>
+    </linearGradient>
+  </defs>
+  <g stroke="#2a1440" stroke-opacity=".28" stroke-width="1" stroke-linejoin="round">
+    <polygon points="36,14 64,14 74,34 26,34" fill="#ffd9f0"/>
+    <polygon points="36,14 26,34 10,38" fill="#f24fc0"/>
+    <polygon points="64,14 90,38 74,34" fill="#f24fc0"/>
+    <polygon points="10,38 50,92 26,34" fill="#5b21b6"/>
+    <polygon points="90,38 74,34 50,92" fill="#5b21b6"/>
+    <polygon points="26,34 74,34 50,92" fill="url(#gemGradient)"/>
+  </g>
+  <polygon points="80,9 82.5,15.5 89,18 82.5,20.5 80,27 77.5,20.5 71,18 77.5,15.5" fill="#ffe3f6"/>
+  <polygon points="18,60 19.5,64 24,66 19.5,68 18,72 16.5,68 12,66 16.5,64" fill="#ffe3f6" opacity=".85"/>
+</svg>

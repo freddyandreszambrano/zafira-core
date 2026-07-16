@@ -63,13 +63,23 @@ def generate_try_on_task(self, job_id):
     try:
         client = ZafiraIaClient()
         mobile_profile = job.user.mobile_profile
+        person_image_url = urljoin(
+            settings.SITE_URL.rstrip("/") + "/", mobile_profile.try_on_photo.url
+        )
+
+        # Outfit en UNA generación (~12-18s, mitad de costo). Si Gemini la
+        # rechaza, sigue el encadenado clásico de 2 pasos como respaldo.
+        if job.extra_garment_image_url and settings.TRYON_OUTFIT_SINGLE_CALL:
+            if _single_call_outfit(client, job, person_image_url):
+                job.status = TryOnJob.Status.COMPLETED
+                job.error_message = ""
+                job.save()
+                return
 
         # Paso 1: vestir la primera prenda (torso) sobre la foto del usuario
         data = client.try_on(
             external_ref=str(job.id),
-            person_image_url=urljoin(
-                settings.SITE_URL.rstrip("/") + "/", mobile_profile.try_on_photo.url
-            ),
+            person_image_url=person_image_url,
             garment_image_url=job.garment_image_url,
             garment_type=job.garment_type,
             # El nombre real de la prenda enfoca al modelo de try-on en la
@@ -115,6 +125,30 @@ def generate_try_on_task(self, job_id):
         _mark_failed(job, CONTENT_ERROR if exc.code == "GENERATION_REJECTED" else GENERIC_ERROR)
     except (ZafiraIaError, KeyError, ValueError):
         _mark_failed(job, GENERIC_ERROR)
+
+
+def _single_call_outfit(client, job, person_image_url):
+    """Outfit completo en una sola generación. True si el resultado quedó
+    guardado; False para caer al encadenado de 2 pasos. Los errores de
+    cuota/caída se propagan: el respaldo también fallaría y solo duplicaría
+    llamadas (y costo)."""
+    try:
+        data = client.try_on(
+            external_ref=str(job.id),
+            person_image_url=person_image_url,
+            garment_image_url=job.garment_image_url,
+            garment_type=job.garment_type,
+            extra_garment_image_url=job.extra_garment_image_url,
+            extra_garment_type=job.extra_garment_type or "lower_body",
+            params={"garment_des": job.product.name},
+        )
+        image_bytes = base64.b64decode(data["result_image_b64"])
+    except ZafiraIaUnavailable:
+        raise
+    except (ZafiraIaError, KeyError, ValueError):
+        return False
+    job.result_image.save(f"{job.id}.png", ContentFile(image_bytes), save=True)
+    return True
 
 
 def _mark_failed(job, message):
