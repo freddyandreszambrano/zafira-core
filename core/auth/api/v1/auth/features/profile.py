@@ -1,5 +1,5 @@
 from core.profiles.models import MobileProfile
-from core.profiles.services import detect_photo_gender
+from core.profiles.services import detect_photo_gender, normalize_photo_orientation
 
 
 class MobileProfileApi:
@@ -44,6 +44,9 @@ class MobileProfileApi:
 
     def update_try_on_photo(self, image):
         mobile_profile, _ = MobileProfile.objects.get_or_create(user=self.user)
+        # Las fotos de cámara llegan "acostadas" con etiqueta EXIF de rotación;
+        # se endereza el píxel aquí para que la IA no genere el try-on rotado.
+        image = normalize_photo_orientation(image)
         mobile_profile.try_on_photo = image
         # Detectar el género de la persona EN LA FOTO (manda sobre el perfil
         # para categorías y validación de prendas). Si falla, queda vacío y
