@@ -58,6 +58,10 @@ MODULES = [
         "permits_app": "security",
         "permits_model": "externalprovider",
         "order": 4,
+        # Oculto del menú lateral: es una configuración técnica interna que no
+        # forma parte del flujo de administración de uso diario. El módulo y sus
+        # rutas siguen existiendo; solo no se muestra en la navegación.
+        "is_visible": False,
     },
     {
         "type": "Usuarios",
