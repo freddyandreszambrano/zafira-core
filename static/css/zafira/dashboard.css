@@ -269,3 +269,26 @@
     font-size: .78rem;
 }
 
+/* ──────────────────────────────────────────────────────────────
+ * Responsive — SOLO afecta pantallas angostas (tablet/teléfono).
+ * En escritorio (> 1023px) el dashboard queda idéntico. El corte de
+ * 1023px coincide con el del sidebar (cuando pasa a menú hamburguesa).
+ * ────────────────────────────────────────────────────────────── */
+@media (max-width: 1023px) {
+    .z-dashboard-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .z-dashboard-grid { grid-template-columns: minmax(0, 1fr); }
+    .z-module-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 640px) {
+    .z-dashboard-hero {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.1rem;
+    }
+    .z-dashboard-hero__actions { width: 100%; }
+    .z-dashboard-stats { grid-template-columns: minmax(0, 1fr); }
+    .z-action-grid { grid-template-columns: minmax(0, 1fr); }
+    .z-module-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
