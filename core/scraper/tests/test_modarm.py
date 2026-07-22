@@ -1,6 +1,6 @@
 from unittest.mock import Mock, patch
 
-from django.test import SimpleTestCase
+from django.test import SimpleTestCase, override_settings
 
 from core.scraper.adapters.modarm import ModarmAdapter
 
@@ -241,3 +241,40 @@ class TestModarmAdapterHelpers(SimpleTestCase):
         url = "https://www.modarm.com/es_RW/p/XYZ123?color=blue&size=M"
         result = self.adapter._extract_product_id(url)
         self.assertEqual(result, "XYZ123")
+
+
+@override_settings(SCRAPER_USE_BROWSER=False)
+class TestModarmAdapterLiteMode(SimpleTestCase):
+    """Modo ligero (producción sin navegador): el scraper trabaja solo por
+    HTTP para no lanzar Chromium, que en Render free tumba el servidor."""
+
+    def setUp(self):
+        self.adapter = ModarmAdapter()
+
+    def test_use_browser_reads_setting(self):
+        self.assertFalse(self.adapter.use_browser)
+
+    def test_check_sizes_availability_skips_browser(self):
+        """Devuelve las tallas del HTML sin abrir el navegador de stock."""
+        size_options = [{"label": "S", "url": None}, {"label": "M", "url": "/talla-m"}]
+
+        with patch.object(ModarmAdapter, "_check_sizes_availability_sync") as mock_sync:
+            sizes = self.adapter._check_sizes_availability(size_options)
+
+        mock_sync.assert_not_called()
+        self.assertEqual(sizes, ["S", "M"])
+
+    @patch("core.scraper.adapters.modarm.requests.get")
+    def test_fetch_category_html_uses_http_not_browser(self, mock_get):
+        """La lista de categoría sale del HTML estático, sin lanzar Chromium."""
+        mock_response = Mock()
+        mock_response.text = "<html><a href='/p/123456/'>Camisa</a></html>"
+        mock_response.raise_for_status.return_value = None
+        mock_get.return_value = mock_response
+
+        with patch.object(ModarmAdapter, "_get_browser") as mock_browser:
+            html = self.adapter._fetch_category_html("https://www.modarm.com/CAMISAS/c/1")
+
+        mock_browser.assert_not_called()
+        mock_get.assert_called_once()
+        self.assertIn("/p/123456/", html)
