@@ -2,6 +2,7 @@ import re
 from decimal import Decimal, InvalidOperation
 from urllib.parse import urlparse
 
+from django.conf import settings
 from django.db import transaction
 from django.utils.dateparse import parse_datetime
 from django.utils.timezone import now
@@ -19,6 +20,16 @@ GENDER_KEYWORDS = {
     "woman": ("mujer", "dama", "women", "female", "femenino"),
     "man": ("hombre", "caballero", "men", "male", "masculino"),
 }
+
+
+def _cap_for_lite_mode(max_products):
+    """En modo ligero (SCRAPER_USE_BROWSER=false) cada prenda es una petición
+    HTTP secuencial, así que un número alto se pasaría del límite de 30s del
+    servidor gratis. Se recorta el total para que el escaneo siempre termine."""
+    if getattr(settings, "SCRAPER_USE_BROWSER", True):
+        return max_products
+    lite_max = int(getattr(settings, "SCRAPER_LITE_MAX_PRODUCTS", 10))
+    return min(max_products, lite_max)
 
 
 def normalize_max_products(value, default=10):
@@ -56,6 +67,7 @@ def scan_url(store, source_url, max_products=10, persist=True):
     except ValueError as e:
         return _error_response(store, source_url, str(e))
 
+    max_products = _cap_for_lite_mode(max_products)
     store_name = _store_label(store, source_url)
 
     try:

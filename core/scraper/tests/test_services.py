@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from core.scraper.models import Product
 from core.scraper.services import _derive_gender, infer_store_from_url, save_products, scan_url
@@ -61,6 +61,25 @@ class TestScanUrlService(TestCase):
 
         self.assertTrue(result["success"])
         self.assertEqual(Product.objects.count(), 2)
+
+
+class TestLiteModeCap(TestCase):
+    """En modo ligero (sin navegador) el total de prendas por escaneo se
+    recorta para no pasar del límite de 30s del servidor gratis."""
+
+    @override_settings(SCRAPER_USE_BROWSER=False, SCRAPER_LITE_MAX_PRODUCTS=1)
+    def test_lite_mode_caps_products(self):
+        result = scan_url("test_mock", "https://example.com/test/", max_products=5)
+
+        self.assertTrue(result["success"])
+        self.assertEqual(result["metadata"]["total_products"], 1)
+
+    @override_settings(SCRAPER_USE_BROWSER=True)
+    def test_browser_mode_keeps_full_limit(self):
+        result = scan_url("test_mock", "https://example.com/test/", max_products=5)
+
+        self.assertTrue(result["success"])
+        self.assertEqual(result["metadata"]["total_products"], 3)
 
 
 class TestDeriveGender(TestCase):
