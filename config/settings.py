@@ -343,4 +343,15 @@ TRYON_USE_CELERY = os.getenv("TRYON_USE_CELERY", "True").lower() == "true"
 # respaldo automático. False: siempre el encadenado clásico (~25-50s).
 TRYON_OUTFIT_SINGLE_CALL = os.getenv("TRYON_OUTFIT_SINGLE_CALL", "True").lower() == "true"
 
+# Scraper: en producción (Render free, 512MB + 30s de gunicorn) el navegador
+# headless de Playwright no cabe en memoria y tumba el servicio. Con el modo
+# ligero (SCRAPER_USE_BROWSER=false) el scraper trabaja solo por HTTP:
+#   - la lista de categoría sale del HTML estático (primeras ~24 prendas)
+#   - las tallas se leen del HTML sin verificar stock con navegador
+# En local se deja en true para tener el catálogo completo y stock verificado.
+SCRAPER_USE_BROWSER = os.getenv("SCRAPER_USE_BROWSER", "True").lower() == "true"
+# Tope de prendas por escaneo en modo ligero: cada prenda es una petición HTTP
+# secuencial, así que un número alto se pasaría del límite de 30s del servidor.
+SCRAPER_LITE_MAX_PRODUCTS = int(os.getenv("SCRAPER_LITE_MAX_PRODUCTS", 10))
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

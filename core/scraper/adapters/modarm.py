@@ -3,6 +3,8 @@ import sys
 from typing import Dict, List, Optional
 from urllib.parse import urljoin
 
+from django.conf import settings
+
 import requests
 from bs4 import BeautifulSoup
 
@@ -26,6 +28,16 @@ class ModarmAdapter(BaseAdapter):
         # en un hilo dedicado para evitar el error "cannot be called from
         # an async context".
         self._executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+
+    @property
+    def use_browser(self) -> bool:
+        """Modo completo (con navegador) vs modo ligero (solo HTTP).
+
+        En producción (Render free) se apaga con SCRAPER_USE_BROWSER=false:
+        el Chromium headless no cabe en los 512MB de RAM y tumba el servicio.
+        En local se deja encendido para el catálogo completo y el stock real.
+        """
+        return getattr(settings, "SCRAPER_USE_BROWSER", True)
 
     def _get_browser(self):
         """Lanza Chromium headless una sola vez y lo reutiliza para todas
@@ -177,7 +189,14 @@ class ModarmAdapter(BaseAdapter):
         Carga la página de categoría con un navegador real y hace scroll
         hasta que deje de aparecer contenido nuevo (scroll infinito), ya
         que el listado completo no está disponible en el HTML estático.
+
+        En modo ligero (sin navegador) se cae al HTML estático, que igual
+        trae las prendas de la primera página (~24) — suficiente para
+        escaneos con límite.
         """
+        if not self.use_browser:
+            return self._fetch_category_html_static(url)
+
         browser = self._get_browser()
         page = browser.new_page(user_agent=self.USER_AGENT)
         page.route(
@@ -206,6 +225,16 @@ class ModarmAdapter(BaseAdapter):
             return page.content()
         finally:
             page.close()
+
+    def _fetch_category_html_static(self, url: str) -> str:
+        """Modo ligero: trae el HTML de la categoría con una petición normal,
+        sin navegador. Solo llegan las prendas de la primera página (~24, sin
+        el scroll infinito), pero es suficiente para escaneos con límite y no
+        consume la memoria que tumba el servidor gratis."""
+        headers = {"User-Agent": self.USER_AGENT}
+        response = requests.get(url, headers=headers, timeout=self.TIMEOUT)
+        response.raise_for_status()
+        return response.text
 
     def parse_product(self, url: str) -> Dict:
         """
@@ -447,9 +476,16 @@ class ModarmAdapter(BaseAdapter):
         y no aparece en el HTML estático.
 
         Se ejecuta en el hilo dedicado de Playwright (ver __init__).
+
+        En modo ligero (sin navegador) se devuelven todas las tallas que
+        ofrece la prenda sin verificar stock: es el precio de no abrir
+        Chromium en el servidor gratis.
         """
         if not size_options:
             return []
+
+        if not self.use_browser:
+            return [option["label"] for option in size_options]
 
         try:
             return self._executor.submit(self._check_sizes_availability_sync, size_options).result()
