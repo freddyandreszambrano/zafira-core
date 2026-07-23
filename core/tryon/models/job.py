@@ -34,6 +34,12 @@ class TryOnJob(models.Model):
     extra_garment_type = models.TextField(
         blank=True, default="", verbose_name="Tipo de la segunda prenda"
     )
+    # Nombre de la segunda prenda: se envia a la IA como extra_garment_des para
+    # que la aplique bien y el inspector pueda verificar que si se puso (sin el
+    # nombre, la 2a prenda del outfit se aplicaba peor y se colaba el no-op).
+    extra_garment_name = models.TextField(
+        blank=True, default="", verbose_name="Nombre de la segunda prenda"
+    )
     status = models.TextField(
         choices=Status.choices,
         default=Status.PENDING,
