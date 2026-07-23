@@ -105,6 +105,9 @@ def generate_try_on_task(self, job_id):
                         person_image_url=settings.SITE_URL + job.result_image.url,
                         garment_image_url=job.extra_garment_image_url,
                         garment_type=job.extra_garment_type or "lower_body",
+                        # El nombre enfoca a la IA en la prenda de piernas y
+                        # reduce el no-op del paso 2.
+                        params={"garment_des": job.extra_garment_name},
                     )
                     candidate = base64.b64decode(data["result_image_b64"])
                 except (ZafiraIaError, KeyError, ValueError):
@@ -140,7 +143,10 @@ def _single_call_outfit(client, job, person_image_url):
             garment_type=job.garment_type,
             extra_garment_image_url=job.extra_garment_image_url,
             extra_garment_type=job.extra_garment_type or "lower_body",
-            params={"garment_des": job.product.name},
+            params={
+                "garment_des": job.product.name,
+                "extra_garment_des": job.extra_garment_name,
+            },
         )
         image_bytes = base64.b64decode(data["result_image_b64"])
     except ZafiraIaUnavailable:
