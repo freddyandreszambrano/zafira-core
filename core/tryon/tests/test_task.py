@@ -141,6 +141,41 @@ class GenerateTryOnTaskTests(TestCase):
         )
         self.assertEqual(kwargs["extra_garment_type"], "lower_body")
 
+    @mock.patch("core.tryon.task.tryon.ZafiraIaClient")
+    def test_outfit_single_call_sends_both_garment_names(self, mock_client_cls):
+        job = make_job(
+            extra_garment_image_url="https://store.example.com/img/pants.jpg",
+            extra_garment_type="lower_body",
+            extra_garment_name="Pantalon Slim Celeste Claro",
+        )
+        mock_client_cls.return_value.try_on.return_value = _b64_result(b"outfit")
+
+        generate_try_on_task.apply(args=[str(job.id)])
+
+        params = mock_client_cls.return_value.try_on.call_args.kwargs["params"]
+        self.assertEqual(params["garment_des"], job.product.name)
+        self.assertEqual(params["extra_garment_des"], "Pantalon Slim Celeste Claro")
+
+    @override_settings(TRYON_OUTFIT_SINGLE_CALL=False)
+    @mock.patch("core.tryon.task.tryon._mean_diff", return_value=50.0)
+    @mock.patch("core.tryon.task.tryon.ZafiraIaClient")
+    def test_outfit_chain_step2_sends_legs_garment_name(self, mock_client_cls, _diff):
+        job = make_job(
+            extra_garment_image_url="https://store.example.com/img/pants.jpg",
+            extra_garment_type="lower_body",
+            extra_garment_name="Pantalon Slim Celeste Claro",
+        )
+        mock_client_cls.return_value.try_on.side_effect = [
+            _b64_result(b"torso"),
+            _b64_result(b"torso+legs"),
+        ]
+
+        generate_try_on_task.apply(args=[str(job.id)])
+
+        # El paso 2 (piernas) recibe el nombre de la prenda de piernas.
+        step2_params = mock_client_cls.return_value.try_on.call_args_list[1].kwargs["params"]
+        self.assertEqual(step2_params["garment_des"], "Pantalon Slim Celeste Claro")
+
     @mock.patch("core.tryon.task.tryon._mean_diff", return_value=50.0)
     @mock.patch("core.tryon.task.tryon.ZafiraIaClient")
     def test_outfit_single_call_falls_back_to_chain(self, mock_client_cls, _diff):

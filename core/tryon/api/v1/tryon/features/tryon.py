@@ -61,6 +61,9 @@ class TryOnApi:
                 )
             job_kwargs["extra_garment_image_url"] = extra_image
             job_kwargs["extra_garment_type"] = garment_type_for_product(extra.name, extra.category)
+            # El nombre de la 2a prenda va a la IA (extra_garment_des) para que
+            # la aplique bien y el inspector confirme que si se puso.
+            job_kwargs["extra_garment_name"] = extra.name
 
         job = TryOnJob.objects.create(**job_kwargs)
         dispatch_generate_try_on(str(job.id))
